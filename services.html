@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E2 Digital Portfolio - Services</title>
+  <link rel="icon" href="images/ic.webp" type="image/webp" />
+  <style>
+    /* Reset & Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Franklin Gothic Medium", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #ccc;
+      background: #000; /* Let the matrix background show */
+      padding: 20px;
+      position: relative;
+    }
+    /* Fullscreen Matrix Rain Background */
+    canvas#hwind-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    /* Small Hebrew text at top right */
+    .hebrew-modest {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+    /* Main container – no background, panels are separate */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: transparent;
+      padding: 0;
+    }
+    /* Header styles */
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Knockout headings  */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: Georgia, serif;
+      color: rgba(255, 255, 255, 0.2);
+      -webkit-text-stroke: 1px black;
+      text-stroke: 1px black;
+      text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
+      -webkit-font-smoothing: antialiased;
+      margin-bottom: 5px;
+    }
+    /* Increase heading sizes for a bolder look */
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    header p {
+      font-size: 1.2rem;
+      color: #000;
+      margin-bottom: 8px;
+    }
+    /* Navigation */
+    nav {
+      text-align: center;
+      margin: 20px 0;
+    }
+    nav a {
+      text-decoration: none;
+      color: #000;
+      margin: 0 15px;
+      font-size: 1rem;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    nav a:hover {
+      transform: scale(1.2) rotate(5deg);
+      color: #fff;
+    }
+    /* Secondary Page Navigation Bar */
+    nav.page-nav {
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 40px;
+    }
+    nav.page-nav a {
+      color: #000;
+      margin: 0 10px;
+    }
+    /* Mini-canvas panels – each section now has a semitransparent white background */
+    .mini-canvas {
+      margin: 40px 0;
+      padding: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .mini-canvas p,
+    .mini-canvas li {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #000; /* text color adjusted for readability on white background */
+    }
+    .mini-canvas ul {
+      list-style: disc;
+      padding-left: 20px;
+      margin-bottom: 10px;
+      color: #000;
+    }
+    .mini-canvas ul li {
+      margin-bottom: 8px;
+    }
+    /* Contact Form Styles */
+    form.contact-form {
+      margin-top: 20px;
+    }
+    form.contact-form textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      resize: vertical;
+      font-size: 1rem;
+    }
+    form.contact-form input[type="submit"] {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    form.contact-form input[type="submit"]:hover {
+      background: #333;
+    }
+    /* On mobile, revert lists to a single column */
+    @media (max-width: 600px) {
+      .mini-canvas ul {
+        column-count: 1;
+      }
+      nav a {
+        display: block;
+        margin: 10px 0;
+      }
+    }
+    .portfolio-image {
+      max-width: 50%;
+      height: auto;
+      display: block;
+      margin: 20px auto;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: transform 0.3s ease;
+    }
+    .portfolio-image:hover {
+      transform: scale(1.8);
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #ccc;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Small Hebrew Text at Top Right -->
+  <div class="hebrew-modest">בס"ד</div>
+  <!-- Matrix Rain Background Canvas -->
+  <canvas id="hwind-bg"></canvas>
+  <div class="container">
+    <!-- Header and Main Navigation -->
+    <header>
+      <h1>E2's Digital Portfolio</h1>
+      <p>Data Scientist & Versatile Tech Consultant</p>
+    </header>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="galleries.html">Galleries</a>
+      <a href="other.html">Other</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <!-- Page Navigation Bar for Services Sections -->
+    <nav class="page-nav">
+      <a href="#software-experience">Software Experience</a>
+      <a href="#file-extensions-experience">File Extensions Experience</a>
+      <a href="#skills">Skills</a>
+    </nav>
+    <!-- Services Sections -->
+    <div id="software-experience" class="mini-canvas">
+      <h2>Software Experience</h2>
+      <h3>Office Productivity</h3>
+      <ul>
+        <li><strong>Microsoft Suite</strong> - Includes Word, Excel, PowerPoint, and Outlook for office productivity.</li>
+        <li><strong>Google Docs</strong> - Web-based word processor for creating and editing documents online.</li>
+        <li><strong>Google Sheets</strong> - Online spreadsheet application for data analysis and sharing.</li>
+      </ul>
+      <h3>Customer Relationship and Project Management</h3>
+      <ul>
+        <li><strong>Salesforce</strong> - Customer relationship management software focusing on sales and customer service.</li>
+        <li><strong>Slack</strong> - Collaboration hub for real-time messaging, archiving, and search functionalities.</li>
+        <li><strong>GitHub</strong> - Development platform for hosting and reviewing code, managing projects, and building software.</li>
+      </ul>
+      <h3>Remote Desktop and Collaboration Tools</h3>
+      <ul>
+        <li><strong>TeamViewer</strong> - Remote control, desktop sharing, and file transfer between computers.</li>
+        <li><strong>AnyDesk</strong> - Remote desktop application allowing users to access computers remotely over the internet.</li>
+      </ul>
+      <h3>Graphic Design and Video Editing</h3>
+      <ul>
+        <li><strong>Macromedia Suite</strong> - Legacy multimedia software suite, known for tools like Flash and Dreamweaver.</li>
+        <li><strong>Blender 3D</strong> - Open-source software for 3D modeling, animation, and rendering.</li>
+        <li><strong>GIMP</strong> - Image editor for photo retouching, image composition, and authoring.</li>
+        <li><strong>Microsoft Clipchamp</strong> - Online video editing tool to create and edit videos directly in the browser.</li>
+      </ul>
+      <h3>Database and Data Management</h3>
+      <ul>
+        <li><strong>Oracle</strong> - Comprehensive database management software for enterprise applications.</li>
+        <li><strong>Docker</strong> - Platform for developing and running applications using containers.</li>
+        <li><strong>Anaconda</strong> - Platform for Python and R programming in scientific computing and data science.</li>
+      </ul>
+      <h3>Advanced AI and Machine Learning Tools</h3>
+      <ul>
+        <li><strong>OpenAI's DallE3</strong> - AI model for generating digital images from descriptions.</li>
+        <li><strong>OpenAI's SORA</strong> - Framework for robust AI applications, focusing on safety and reliability.</li>
+        <li><strong>OpenAI's various LLMs</strong> - Large language models like ChatGPT for text generation and processing tasks.</li>
+      </ul>
+    </div>
+
+    <div id="file-extensions-experience" class="mini-canvas">
+      <h2>File Extensions Experience</h2>
+      <h3>Image Files</h3>
+      <ul>
+        <li><strong>PNG</strong> - Portable Network Graphics, supports lossless data compression.</li>
+        <li><strong>JPG</strong> - Commonly used for digital images with lossy compression.</li>
+        <li><strong>GIF</strong> - Supports both static and animated images.</li>
+        <li><strong>WEBP</strong> - Provides superior compression for web images.</li>
+        <li><strong>XCF</strong> - Native format for GIMP software.</li>
+      </ul>
+      <h3>Video Files</h3>
+      <ul>
+        <li><strong>AVI</strong> - Microsoft’s container for storing audio and video data.</li>
+        <li><strong>MP4</strong> - Common format for digital video and audio streams.</li>
+      </ul>
+      <h3>Audio Files</h3>
+      <ul>
+        <li><strong>MP3</strong> - Widely used audio format for digital audio compression.</li>
+      </ul>
+      <h3>Document Files</h3>
+      <ul>
+        <li><strong>PDF</strong> - Standard for document exchange.</li>
+        <li><strong>DOCX</strong> - Microsoft Word document format.</li>
+        <li><strong>XLSX</strong> - Microsoft Excel spreadsheet format.</li>
+      </ul>
+      <h3>Data and Web Files</h3>
+      <ul>
+        <li><strong>CSV</strong> - Used for representing tabular data.</li>
+        <li><strong>SQL</strong> - Used for managing database information.</li>
+        <li><strong>HTML</strong> - Standard language for creating web pages.</li>
+        <li><strong>CSS</strong> - Style sheet language for describing presentation of web pages.</li>
+        <li><strong>JS</strong> - JavaScript used for interactive effects within web browsers.</li>
+      </ul>
+    </div>
+
+    <div id="skills" class="mini-canvas">
+      <h2>Skills</h2>
+      <h3>Data Science and Analysis</h3>
+      <ul>
+        <li><strong>Advanced Statistical Analysis</strong> - Analyzing complex data to uncover patterns and insights.</li>
+        <li><strong>Machine Learning Model Development</strong> - Creating automated data-driven models.</li>
+        <li><strong>Python and SQL Programming</strong> - Scripting and database management.</li>
+        <li><strong>Data Visualization and Reporting</strong> - Turning data into visual and reportable formats.</li>
+        <li><strong>Cloud Infrastructure Management (Azure, AWS, GCP)</strong> - Managing online data storage and processing.</li>
+      </ul>
+      <h3>Technical and Project Management</h3>
+      <ul>
+        <li><strong>Project Management and Team Leadership</strong> - Overseeing projects and leading teams.</li>
+        <li><strong>Technical Support and Customer Service</strong> - Providing user support and maintaining customer relationships.</li>
+        <li><strong>Software Troubleshooting and Optimization</strong> - Enhancing software performance and resolving issues.</li>
+      </ul>
+      <h3>Design and Multimedia</h3>
+      <ul>
+        <li><strong>Web-design (HTML, CSS, JS)</strong> - Designing and coding websites.</li>
+        <li><strong>Video Editing and Production</strong> - Creating and editing video content.</li>
+        <li><strong>Writing and Editing Technical Documents</strong> - Producing precise technical content.</li>
+      </ul>
+      <h3>Practical and Creative Skills</h3>
+      <ul>
+        <li><strong>Biotechnological Processes (e.g., Microalgae Cultivation)</strong> - Managing biological systems for production.</li>
+        <li><strong>Construction and Material Processing (Metal, PVC)</strong> - Fabricating and constructing with various materials.</li>
+        <li><strong>Creative Problem Solving</strong> - Innovating to resolve complex challenges.</li>
+        <li><strong>Multilingual Communication (English, French, Hebrew)</strong> - Communicating effectively in multiple languages.</li>
+        <li><strong>Organized Goal-setting</strong> - Systematically setting and achieving objectives.</li>
+        <li><strong>Tech Communication</strong> - Conveying complex technical information clearly.</li>
+        <li><strong>Basic IT Security</strong> - Implementing fundamental security measures.</li>
+      </ul>
+    </div>
+    
+    <!-- Contact Section with Form -->
+    <div id="contact" class="mini-canvas">
+      <h2>Contact</h2>
+      <p>
+        Feel free to reach out via email at 
+        <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
+      </p>
+      <form class="contact-form" action="mailto:e2port18@gmail.com" method="post" enctype="text/plain">
+        <label for="message"><strong>Your Message:</strong></label><br />
+        <textarea id="message" name="message" placeholder="Type your message here..."></textarea><br />
+        <input type="submit" value="Send Message">
+      </form>
+      <p>All the best!</p>
+    </div>
+    
+    <footer>
+      &copy; 2025 E2 Port. All rights reserved. | Contact: <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
+    </footer>
+  </div>
+  <!-- Grayscale Matrix Rain Background Animation Script -->
+  <script>
+    const canvas = document.getElementById('hwind-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const characters = "0123";
+    const fontSize = 12;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(0);
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.shadowColor = "#FFFFFF";
+      ctx.shadowBlur = 10;
+      ctx.font = "bold " + fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
