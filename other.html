@@ -230,37 +230,49 @@
     </footer>
   </div>
   <!-- Grayscale Matrix Rain Background Animation Script -->
-  <script>
+ <script>
     const canvas = document.getElementById('hwind-bg');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const characters = "0123";
-    const fontSize = 18;
-    const columns = Math.floor(canvas.width / fontSize);
+
+    // Set fixed logical resolution
+    let scale = window.devicePixelRatio;
+    const baseWidth = 800;
+    const baseHeight = 600;
+
+    function setCanvasSize() {
+        scale = window.devicePixelRatio; // Update scale on resize
+        canvas.width = baseWidth * scale;
+        canvas.height = baseHeight * scale;
+        ctx.scale(scale, scale);
+    }
+
+    setCanvasSize(); // Set initial size
+
+    const characters = "012345678";
+    const fontSize = 12; // Larger font size for fewer columns and less computation
+    const columns = Math.floor(baseWidth / fontSize); // Number of columns based on baseWidth
     const drops = Array(columns).fill(0);
+
     function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#FFFFFF";
-      ctx.shadowColor = "#FFFFFF";
-      ctx.shadowBlur = 10;
-      ctx.font = "bold " + fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = characters.charAt(Math.floor(Math.random() * characters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.shadowColor = "#FFFFFF";
+        ctx.shadowBlur = 10;
+        ctx.font = "bold " + fontSize + "px monospace";
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters.charAt(Math.floor(Math.random() * characters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height / scale && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
         }
-        drops[i]++;
-      }
-      requestAnimationFrame(draw);
+        requestAnimationFrame(draw);
     }
     draw();
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script>
+
+    window.addEventListener('resize', setCanvasSize);
+ </script>
 </body>
 </html>
