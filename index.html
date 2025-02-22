@@ -286,8 +286,16 @@
   <script>
     const canvas = document.getElementById('hwind-bg');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  // Set fixed logical resolution
+    const scale = window.devicePixelRatio; // Get the device's pixel ratio
+    const width = 800; // Width in pixels you want to draw at
+    const height = 600; // Height in pixels you want to draw at
+    canvas.width = width * scale; // Scale the canvas by the device pixel ratio
+    canvas.height = height * scale;
+    
+    // Scale the context to counter the manual scaling of the canvas
+    ctx.scale(scale, scale);
+
     const characters = "0123";
     const fontSize = 26;
     const columns = Math.floor(canvas.width / fontSize);
