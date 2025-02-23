@@ -50,40 +50,48 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    /* Knockout headings  */
-    h1, h2, h3, h4, h5, h6 {
-      font-family: Georgia, serif;
-      color: rgba(255, 255, 255, 0.2);
-      -webkit-text-stroke: 1px black;
-      text-stroke: 1px black;
-      text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
-      -webkit-font-smoothing: antialiased;
-      margin-bottom: 5px;
-    }
-    /* Increase heading sizes for a bolder look */
-    h1 { font-size: 2.5rem; }
-    h2 { font-size: 2rem; }
-    header p {
-      font-size: 1.2rem;
-      color: #000;
-      margin-bottom: 8px;
-    }
-    /* Navigation */
-    nav {
-      text-align: center;
-      margin: 20px 0;
-    }
-    nav a {
-      text-decoration: none;
-      color: #000;
-      margin: 0 15px;
-      font-size: 1rem;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
-    nav a:hover {
-      transform: scale(1.2) rotate(5deg);
-      color: #fff;
-    }
+  /* Knockout headings  */
+h1, h2, h3, h4, h5, h6 {
+  font-family: Georgia, serif;
+  color: rgba(255, 255, 255, 0.2);
+  -webkit-text-stroke: 1px black;
+  text-stroke: 1px black;
+  text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
+  -webkit-font-smoothing: antialiased;
+  margin-bottom: 5px;
+}
+/* Increase heading sizes for a bolder look */
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+
+header p {
+  font-size: 1.2rem;
+  color: #000;
+  margin-bottom: 8px;
+}
+
+/* Specific style for the tagline in the header */
+header p.light-gray {
+  color: #ccc;
+}
+
+/* Navigation */
+nav {
+  text-align: center;
+  margin: 20px 0;
+}
+nav a {
+  text-decoration: none;
+  color: #ccc;  /* default color: light gray */
+  margin: 0 15px;
+  font-size: 1rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+nav a:hover {
+  transform: scale(1.2) rotate(5deg);
+  color: #000;  /* on hover: black */
+}
+
     /* Secondary Page Navigation Bar */
     nav.page-nav {
       background: rgba(255, 255, 255, 0.7);
@@ -182,10 +190,11 @@
   <!-- Matrix Rain Background Canvas -->
   <canvas id="hwind-bg"></canvas>
   <div class="container">
+
     <!-- Header and Main Navigation -->
     <header>
       <h1>E2's Digital Portfolio</h1>
-      <p>Data Scientist & Versatile Tech Consultant</p>
+      <p class="light-gray">Data Scientist & Versatile Tech Consultant</p>
     </header>
     <nav>
       <a href="index.html">Home</a>
@@ -330,7 +339,7 @@
       &copy; 2025 E2 Port. All rights reserved. | Contact: <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
     </footer>
   </div>
-    <!-- Grayscale Matrix Rain Background Animation Script -->
+<!-- Grayscale Matrix Rain Background Animation Script -->
  <script>
     const canvas = document.getElementById('hwind-bg');
     const ctx = canvas.getContext('2d');
@@ -346,21 +355,24 @@
         canvas.height = baseHeight * scale;
         ctx.scale(scale, scale);
     }
-
     setCanvasSize(); // Set initial size
 
     const characters = "0123";
-    const fontSize = 18; // Larger font size for fewer columns and less computation
+    const fontSize = 14; // Larger font size for fewer columns and less computation
     const columns = Math.floor(baseWidth / fontSize); // Number of columns based on baseWidth
     const drops = Array(columns).fill(0);
 
     function draw() {
+        // Keep the original trailing/fading effect with a semi-transparent black background.
         ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.shadowColor = "#FFFFFF";
+
+        // Set the text style to a more muted gray with its shadow.
+        ctx.fillStyle = "rgba(120, 120, 120, 1)"; // muted gray text
+        ctx.shadowColor = "rgba(120, 120, 120, 1)"; // muted gray shadow
         ctx.shadowBlur = 10;
         ctx.font = "bold " + fontSize + "px monospace";
+
         for (let i = 0; i < drops.length; i++) {
             const text = characters.charAt(Math.floor(Math.random() * characters.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -375,5 +387,6 @@
 
     window.addEventListener('resize', setCanvasSize);
  </script>
+
 </body>
 </html>
