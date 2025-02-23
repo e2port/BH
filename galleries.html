@@ -514,10 +514,10 @@
     const drops = Array(columns).fill(0);
 
     function draw() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillStyle = "rgba(128, 0, 0, 0.8)";  // deep maroon
+        ctx.shadowColor = "rgba(128, 0, 0, 0.8)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#FFFFFF";
-        ctx.shadowColor = "#FFFFFF";
         ctx.shadowBlur = 10;
         ctx.font = "bold " + fontSize + "px monospace";
         for (let i = 0; i < drops.length; i++) {
