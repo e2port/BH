@@ -489,51 +489,7 @@
     </footer>
   </div>
 
-  <!-- Grayscale Matrix Rain Background Animation Script -->
- <script>
-    const canvas = document.getElementById('hwind-bg');
-    const ctx = canvas.getContext('2d');
-
-    // Set fixed logical resolution
-    let scale = window.devicePixelRatio;
-    const baseWidth = 800;
-    const baseHeight = 600;
-
-    function setCanvasSize() {
-        scale = window.devicePixelRatio; // Update scale on resize
-        canvas.width = baseWidth * scale;
-        canvas.height = baseHeight * scale;
-        ctx.scale(scale, scale);
-    }
-
-    setCanvasSize(); // Set initial size
-
-    const characters = "0123";
-    const fontSize = 18; // Larger font size for fewer columns and less computation
-    const columns = Math.floor(baseWidth / fontSize); // Number of columns based on baseWidth
-    const drops = Array(columns).fill(0);
-
-    function draw() {
-        ctx.fillStyle = "rgba(128, 0, 0, 0.8)";  // deep maroon
-        ctx.shadowColor = "rgba(128, 0, 0, 0.8)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.shadowBlur = 10;
-        ctx.font = "bold " + fontSize + "px monospace";
-        for (let i = 0; i < drops.length; i++) {
-            const text = characters.charAt(Math.floor(Math.random() * characters.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height / scale && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
-        }
-        requestAnimationFrame(draw);
-    }
-    draw();
-
-    window.addEventListener('resize', setCanvasSize);
- </script>
+ 
 
   <!-- Grayscale Matrix Rain Background Animation Script -->
  <script>
