@@ -302,7 +302,7 @@
     setCanvasSize(); // Set initial size
 
     const characters = "0123";
-    const fontSize = 18; // Larger font size for fewer columns and less computation
+    const fontSize = 14; // Larger font size for fewer columns and less computation
     const columns = Math.floor(baseWidth / fontSize); // Number of columns based on baseWidth
     const drops = Array(columns).fill(0);
 
@@ -312,8 +312,8 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Set the text style to a more muted gray with its shadow.
-        ctx.fillStyle = "rgba(170, 170, 170, 1)"; // muted gray text
-        ctx.shadowColor = "rgba(170, 170, 170, 1)"; // muted gray shadow
+        ctx.fillStyle = "rgba(120, 120, 120, 1)"; // muted gray text
+        ctx.shadowColor = "rgba(120, 120, 120, 1)"; // muted gray shadow
         ctx.shadowBlur = 10;
         ctx.font = "bold " + fontSize + "px monospace";
 
