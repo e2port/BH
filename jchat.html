@@ -77,39 +77,13 @@
       background: #0c0;
     }
     
-    /* Pseudo-elements for the Matrix snapshot background */
-    body::before {
-      content: "0101010101010101\n1010101010101010\n0101010101010101";
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 18px;
-      color: rgba(0, 255, 0, 0.2);
-      white-space: pre;
-      pointer-events: none;
-      z-index: -1;
-    }
-    
-    body::after {
-      content: "1010010110 01011010\n01011010 10100101";
-      position: fixed;
-      bottom: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 30px;
-      color: rgba(0, 255, 0, 0.15);
-      white-space: pre;
-      pointer-events: none;
-      z-index: -1;
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>E2 - Rudimentary Javascript Chatbot v1</h1>
     <div id="chatbox"></div>
-    <input type="text" id="userInput" placeholder="Say something please" />
+    <input type="text" id="userInput" placeholder="What would you like to say?" />
     <button id="sendBtn">Query it</button>
   </div>
   
