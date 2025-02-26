@@ -299,7 +299,7 @@ function runCommandsSequentially(commands, index = 0) {
       currentPosition = { x: commandObj.x, y: commandObj.y };
       commandCount++;
       redraw();
-      if (commandCount >= 3) {
+      if (commandCount >= 8) {
         setTimeout(() => {
           resetSimulation();
           runCommandsSequentially(commands, index + 1);
