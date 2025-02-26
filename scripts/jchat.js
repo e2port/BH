@@ -10,7 +10,7 @@ const responses = {
   "help": "I can only answer a few questions. Try saying hello, or ask how I am."
 };
 
-const defaultResponse = "I'm sorry, I don't understand that.";
+const defaultResponse = "What what what, say that again?";
 
 // Grab elements from the DOM
 const chatbox = document.getElementById("chatbox");
