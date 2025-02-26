@@ -402,7 +402,7 @@ const responses = {
 "397": "Not to shame someone in public",
 "398": "To correct others with love and respect",
 "399": "Not to embarrass someone needlessly",
-"400": "To help unload a burdened animal"
+"400": "To help unload a burdened animal",
 
 
   "help": "I can only answer a few questions. Try saying hello, or ask how I am."
