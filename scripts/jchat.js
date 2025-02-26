@@ -7,6 +7,24 @@ const responses = {
   "2": "So much better than one",
   "3": "Booyah Kasha",
   "4": "Oy",
+  "shabbat": "What's the best thing about Shabbat? No ringtone interruptions during your nap!",
+  "latkes": "Why are latkes so good at basketball? Because they always make great turnovers!",
+  "challah": "Why did the challah go to therapy? It needed help with its inner kneads!",
+  "matzah": "Why is matzah plain? It's afraid of committing a flavor sin!",
+  "sukkah": "How do you throw a space-themed Sukkot party? You planet!",
+  "hanukkah": "What’s the best exercise during Hanukkah? Walking off the latkes from house to house!",
+  "kippah": "Why did the kippah never get lost? Because it always kept its head!",
+  "kosher": "Why was the smartphone kosher? It had a kosher app!",
+  "hamentashen": "Why do hamentashen always lose at poker? They always fold!",
+  "mezuzah": "Why did the mezuzah go on Shark Tank? To stick with a great deal!",
+  "mensch": "What do you call a potato that acts like a decent human being? A mensch-tato!",
+  "shofar": "Why do we blow the shofar? To traffic-jam all evil intentions!",
+  "simchat torah": "What dance do you do on Simchat Torah? The scroll and shuffle!",
+  "purim": "Why do we raise noise on Purim? To get our point across in stereo!",
+  "dreidel": "Why did the dreidel apply for a job? It wanted to make a good spin-pression!",
+  "passover": "What do you call someone who derives pleasure from the bread of affliction? A matzah-chist!",
+  "yom kippur": "What’s the hardest part about fasting on Yom Kippur? Keeping your composure when dreaming of bagels!",
+  "gelt": "Why is Hanukkah gelt like a good joke? It makes cents!"
   "help": "I can only answer a few questions. Try saying hello, or ask how I am."
 };
 
