@@ -1,3 +1,4 @@
+
 // Define a simple set of question-answer pairs
 const responses = {
   "hello": "Hi there! How can I help you?",
@@ -7,10 +8,10 @@ const responses = {
   "2": "So much better than one",
   "3": "Booyah Kasha",
   "4": "Oy",
-  "help": "Hashem please send help"
+  "help": "I can only answer a few questions. Try saying hello, or ask how I am."
 };
 
-const defaultResponse = "What what what, say that again?";
+const defaultResponse = "I'm sorry, I don't understand that.";
 
 // Grab elements from the DOM
 const chatbox = document.getElementById("chatbox");
