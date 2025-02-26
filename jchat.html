@@ -4,45 +4,115 @@
   <meta charset="UTF-8">
   <title>E2 - JChat</title>
   <style>
+    /* Base styles for a dark, matrix-themed page */
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      font-family: 'Courier New', monospace;
+      color: #0f0;
+      position: relative;
+    }
+    
+    /* Container to center the chat UI */
+    .container {
       max-width: 500px;
       margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1; /* Ensure content is above the background pseudo-elements */
     }
+    
+    h1 {
+      text-align: center;
+      color: #0f0;
+      text-shadow: 0 0 5px #0f0;
+    }
+    
+    /* Chatbox styling with a semi-transparent backdrop */
     #chatbox {
-      border: 1px solid #ccc;
+      border: 1px solid #0f0;
       padding: 10px;
       height: 300px;
       overflow-y: auto;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 5px;
     }
+    
     .userMessage {
       text-align: right;
       margin: 5px 0;
+      color: #fff;
     }
+    
     .botMessage {
       text-align: left;
       margin: 5px 0;
-      color: blue;
+      color: #0f0;
     }
+    
+    /* Input field and button styling */
     #userInput {
-      width: 80%;
+      width: 75%;
       padding: 10px;
       margin-top: 10px;
+      background: #222;
+      border: 1px solid #0f0;
+      border-radius: 3px;
+      color: #0f0;
     }
+    
     #sendBtn {
-      padding: 10px;
+      padding: 10px 15px;
+      margin-top: 10px;
+      background: #0f0;
+      color: #000;
+      border: none;
+      border-radius: 3px;
       cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    #sendBtn:hover {
+      background: #0c0;
+    }
+    
+    /* Pseudo-elements for the Matrix snapshot background */
+    body::before {
+      content: "0101010101010101\n1010101010101010\n0101010101010101";
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+      color: rgba(0, 255, 0, 0.05);
+      white-space: pre;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    body::after {
+      content: "1010010110 01011010\n01011010 10100101";
+      position: fixed;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 30px;
+      color: rgba(0, 255, 0, 0.03);
+      white-space: pre;
+      pointer-events: none;
+      z-index: -1;
     }
   </style>
 </head>
 <body>
-
-  <h1>E2 - Rudimentary Javascript Chatbot v1</h1>
-  <div id="chatbox"></div>
-
-  <input type="text" id="userInput" placeholder="Type your message..." />
-  <button id="sendBtn">Send</button>
-
+  <div class="container">
+    <h1>E2 - Rudimentary Javascript Chatbot v1</h1>
+    <div id="chatbox"></div>
+    <input type="text" id="userInput" placeholder="Say something please" />
+    <button id="sendBtn">Query it</button>
+  </div>
+  
   <script src="scripts/jchat.js"></script>
 </body>
 </html>
