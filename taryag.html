@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>E2 - Taryag Bot</title>
+  <style>
+    /* Base styles for a parchment-inspired background */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(45deg, #faf3e0, #f5e6c9);
+      font-family: Georgia, "Times New Roman", serif;
+      color: #2d2d2d;
+      position: relative;
+    }
+    
+    /* Container to center the chat UI with a scroll-like border */
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #d2b48c;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 1;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #5a3e36;
+      font-size: 24px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #d2b48c;
+      padding-bottom: 10px;
+    }
+    
+    /* Chatbox styling with a scrollable text area */
+    #chatbox {
+      border: 1px solid #d2b48c;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      background-color: #fff;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    
+    .userMessage {
+      text-align: right;
+      margin: 5px 0;
+      color: #000;
+    }
+    
+    .botMessage {
+      text-align: left;
+      margin: 5px 0;
+      color: #5a3e36;
+    }
+    
+    /* Input field and button styling */
+    #userInput {
+      width: 75%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #f5e6c9;
+      border: 1px solid #d2b48c;
+      border-radius: 3px;
+      font-size: 16px;
+      color: #2d2d2d;
+    }
+    
+    #sendBtn {
+      padding: 10px 15px;
+      margin-top: 10px;
+      background: #d2b48c;
+      color: #2d2d2d;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-size: 16px;
+    }
+    
+    #sendBtn:hover {
+      background: #b59d82;
+    }
+    
+    /* Watermark with a Hebrew element from Hebraic history */
+    body::before {
+      content: "בראשית";
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      color: rgba(90, 62, 54, 0.05);
+      font-family: Georgia, "Times New Roman", serif;
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>E2 - Taryag Bot</h1>
+    <div id="chatbox"></div>
+    <input type="text" id="userInput" placeholder="Which number of the 613 would you like to see?" />
+    <button id="sendBtn">Query</button>
+  </div>
+  
+  <script src="scripts/jchat.js"></script>
+</body>
+</html>
