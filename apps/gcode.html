@@ -2,53 +2,155 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>G-code Trainer</title>
   <style>
-    body {
-      display: flex;
-      height: 100vh;
+    /* Basic reset and mobile-friendly layout */
+    html, body {
       margin: 0;
-      font-family: sans-serif;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      height: 100%;
     }
     #console {
-      width: 50%;
+      flex: 1;
       background: #f0f0f0;
-      padding: 20px;
+      padding: 10px;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
     #display {
-      width: 50%;
+      flex: 1;
       background: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    #gcodeInput {
+    textarea {
       width: 100%;
-      height: 80%;
+      height: 150px;
       font-size: 16px;
       padding: 10px;
       box-sizing: border-box;
+      resize: vertical;
     }
-    #submitBtn {
+    button {
       width: 100%;
       padding: 10px;
       font-size: 16px;
       margin-top: 10px;
+      cursor: pointer;
     }
-    canvas {
-      border: 1px solid #000;
+    /* Help modal styles */
+    #helpModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #helpContent {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    /* Responsive layout for smaller screens */
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+      }
+      #console, #display {
+        height: 50%;
+      }
+      textarea {
+        height: 100px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="console">
-    <textarea id="gcodeInput" placeholder="Enter G-code here..."></textarea>
-    <button id="submitBtn">Run Command</button>
+  <div class="container">
+    <div id="console">
+      <textarea id="gcodeInput" placeholder="Enter G-code commands here, one per line..."></textarea>
+      <button id="submitBtn">Run Commands</button>
+      <button id="helpBtn">Help</button>
+    </div>
+    <div id="display">
+      <canvas id="simulationCanvas" width="600" height="600"></canvas>
+    </div>
   </div>
-  <div id="display">
-    <canvas id="simulationCanvas" width="600" height="600"></canvas>
+
+  <!-- Help Modal -->
+  <div id="helpModal">
+    <div id="helpContent">
+      <h2>G-code Basics &amp; Features</h2>
+      <p>
+        G-code is the language used to control CNC machines. This trainer supports several commands and modes:
+      </p>
+      <ul>
+        <li>
+          <strong>G0 / G1</strong>: Linear move commands.
+          <ul>
+            <li>
+              In <strong>Absolute Mode (G90)</strong>: Coordinates (X, Y) are interpreted as offsets from the grid origin (the center).
+            </li>
+            <li>
+              In <strong>Relative Mode (G91)</strong>: Coordinates are interpreted relative to the current position.
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>G2 / G3</strong>: Arc move commands.
+          <ul>
+            <li><strong>G2</strong>: Clockwise arc.</li>
+            <li><strong>G3</strong>: Counter-clockwise arc.</li>
+            <li>
+              Parameters:
+              <ul>
+                <li><strong>X</strong> and <strong>Y</strong>: Destination coordinates (processed according to the current mode).</li>
+                <li><strong>I</strong> and <strong>J</strong>: Offsets from the start position to the arc’s center (always incremental).</li>
+                <li>Optional feed rate <strong>F</strong> is parsed but does not affect simulation speed.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>G90</strong>: Switch to Absolute Mode (default).
+        </li>
+        <li>
+          <strong>G91</strong>: Switch to Relative Mode.
+        </li>
+        <li>
+          You can enter multiple commands by separating them with newlines.
+        </li>
+      </ul>
+      <p>Examples:</p>
+      <ul>
+        <li><code>G90</code> – Set absolute mode.</li>
+        <li><code>G1 X50 Y100</code> – Move linearly to 50 right and 100 up from origin (absolute mode).</li>
+        <li><code>G91</code> – Set relative mode.</li>
+        <li><code>G1 X10 Y-20</code> – Move 10 right and 20 down relative to the current position (relative mode).</li>
+        <li>
+          <code>G2 X50 Y0 I0 J-25</code> – Create a clockwise arc to the specified destination.
+        </li>
+      </ul>
+      <button id="closeHelpBtn">Close</button>
+    </div>
   </div>
+
   <script src="../scripts/gcode.js"></script>
 </body>
 </html>
