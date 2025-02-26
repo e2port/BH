@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G-code Trainer</title>
+  <style>
+    /* Basic reset and mobile-friendly layout */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      height: 100%;
+    }
+    #console {
+      flex: 1;
+      background: #f0f0f0;
+      padding: 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    #display {
+      flex: 1;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      font-size: 16px;
+      padding: 10px;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    /* Help modal styles */
+    #helpModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #helpContent {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    /* Responsive layout for smaller screens */
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+      }
+      #console, #display {
+        height: 50%;
+      }
+      textarea {
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="console">
+      <textarea id="gcodeInput" placeholder="Enter G-code command here..."></textarea>
+      <button id="submitBtn">Run Command</button>
+      <button id="helpBtn">Help</button>
+    </div>
+    <div id="display">
+      <canvas id="simulationCanvas" width="600" height="600"></canvas>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div id="helpModal">
+    <div id="helpContent">
+      <h2>G-code Basics</h2>
+      <p>G-code is the language used to control CNC machines. Here are some basics:</p>
+      <ul>
+        <li><strong>G0 / G1</strong>: Move command (rapid or controlled move).</li>
+        <li><strong>X</strong> and <strong>Y</strong>: Specify coordinates. (Coordinates are interpreted as offsets from the center.)</li>
+      </ul>
+      <p>Examples:</p>
+      <ul>
+        <li><code>G1 X50 Y100</code> – Moves to a point 50 units right and 100 units up (relative to the center).</li>
+        <li><code>G0 X-50 Y-25</code> – Rapid move to 50 units left and 25 units down.</li>
+      </ul>
+      <button id="closeHelpBtn">Close</button>
+    </div>
+  </div>
+
+  <script src="../scripts/gcode1.js"></script>
+</body>
+</html>
