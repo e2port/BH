@@ -2,15 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hebrew Gematria Calculator</title>
+  <link rel="icon" href="images/ic.webp" type="image/webp" />
   <style>
     body { font-family: Arial, sans-serif; margin: 2rem; }
     input { font-size: 1.2rem; padding: 0.5rem; width: 300px; }
     button { font-size: 1.2rem; padding: 0.5rem 1rem; margin-left: 1rem; }
     #result { margin-top: 1rem; font-weight: bold; }
+
+     /* Hebrew Text at Top Right */
+    .hebrew-modest {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.9em;
+      color: #5a3e36;
+    }
+
   </style>
 </head>
 <body>
+  <!-- Small Hebrew Text at Top Right -->
+  <div class="hebrew-modest">בס"ד</div>
   <h1>Hebrew Gematria Calculator</h1>
   <input type="text" id="inputText" placeholder="הקלד מילה או ביטוי בעברית" />
   <button onclick="calculateGematria()">חשב גמטריה</button>
