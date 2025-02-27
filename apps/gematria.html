@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hebrew Gematria Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    input { font-size: 1.2rem; padding: 0.5rem; width: 300px; }
+    button { font-size: 1.2rem; padding: 0.5rem 1rem; margin-left: 1rem; }
+    #result { margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Hebrew Gematria Calculator</h1>
+  <input type="text" id="inputText" placeholder="הקלד מילה או ביטוי בעברית" />
+  <button onclick="calculateGematria()">חשב גמטריה</button>
+  <p id="result"></p>
+
+  <script>
+    // Define gematria values as provided
+    const gematriaValues = {
+      'א': 1,
+      'ב': 2,
+      'ג': 3,
+      'ד': 4,
+      'ה': 5,
+      'ו': 6,
+      'ז': 7,
+      'ח': 8,
+      'ט': 9,
+      'י': 10,
+      'כ': 20,
+      'ל': 30,
+      'מ': 40,
+      'נ': 50,
+      'ס': 60,
+      'ע': 70,
+      'פ': 80,
+      'צ': 90,
+      'ק': 100,
+      'ר': 200,
+      'ש': 300,
+      'ת': 400,
+      // Final forms
+      'ך': 500,
+      'ם': 600,
+      'ן': 700,
+      'ף': 800,
+      'ץ': 900
+    };
+
+    function calculateGematria() {
+      const input = document.getElementById("inputText").value;
+      let total = 0;
+      // Loop through each character in the input text
+      for (let char of input) {
+        if (gematriaValues[char] !== undefined) {
+          total += gematriaValues[char];
+        }
+      }
+      // Display the result
+      document.getElementById("result").innerText = "ערך גמטריה: " + total;
+    }
+  </script>
+</body>
+</html>
