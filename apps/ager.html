@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Age Calculator</title>
+  <style>
+    /* Overall page style */
+    body {
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+    }
+    /* Container styling */
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      max-width: 400px;
+    }
+    /* Input styling */
+    input[type="date"] {
+      font-size: 1rem;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 20px;
+    }
+    /* Button styling */
+    button {
+      font-size: 1rem;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      background: #fff;
+      color: #0072ff;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    button:hover {
+      background: #e0e0e0;
+      transform: scale(1.05);
+    }
+    /* Result display styling */
+    .result {
+      margin-top: 20px;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .result p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Age Calculator</h1>
+    <p>Enter your birth date:</p>
+    <input type="date" id="birthDate" />
+    <br>
+    <button onclick="calculateAge()">Calculate Age</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateAge() {
+      const birthDateInput = document.getElementById('birthDate').value;
+      if (!birthDateInput) {
+        alert('Please enter your birth date.');
+        return;
+      }
+      
+      const birthDate = new Date(birthDateInput);
+      const now = new Date();
+      
+      // Check if the birth date is in the future
+      if (birthDate > now) {
+        alert('Birth date cannot be in the future.');
+        return;
+      }
+      
+      const diffMs = now - birthDate; // difference in milliseconds
+      const seconds = diffMs / 1000;
+      const minutes = seconds / 60;
+      const hours = minutes / 60;
+      const days = hours / 24;
+      const weeks = days / 7;
+      // Using average month and year lengths for approximation:
+      const months = days / 30.44;
+      const years = days / 365.25;
+      
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <p><strong>Seconds:</strong> ${Math.floor(seconds)}</p>
+        <p><strong>Minutes:</strong> ${Math.floor(minutes)}</p>
+        <p><strong>Hours:</strong> ${Math.floor(hours)}</p>
+        <p><strong>Days:</strong> ${Math.floor(days)}</p>
+        <p><strong>Weeks:</strong> ${Math.floor(weeks)}</p>
+        <p><strong>Months:</strong> ${months.toFixed(2)}</p>
+        <p><strong>Years:</strong> ${years.toFixed(2)}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
