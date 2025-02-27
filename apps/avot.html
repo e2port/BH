@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Torah Characters</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .character-list {
+      max-width: 600px;
+      margin: 20px auto;
+      list-style: none;
+      padding: 0;
+    }
+    .character-list li {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .character-list li:hover {
+      background: #eee;
+    }
+    /* Modal styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 600px;
+      position: relative;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .modal-content p {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Old Testament Characters</h1>
+  <ul class="character-list" id="characterList">
+    <li data-character="adam">Adam</li>
+    <li data-character="noah">Noah</li>
+    <li data-character="abraham">Abraham</li>
+    <li data-character="moses">Moses</li>
+    <li data-character="david">David</li>
+    <li data-character="solomon">Solomon</li>
+  </ul>
+
+  <!-- Modal -->
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="modalClose">&times;</span>
+      <div id="modalText"></div>
+    </div>
+  </div>
+
+  <script>
+    // Data for each character: title and a two-paragraph description
+    const characters = {
+      'adam': {
+        title: 'Adam',
+        description: `<p>Adam is known as the first man created by God according to the Genesis account. His creation marked the beginning of human life, and his story is integral to the understanding of humanity's origins.</p>
+                      <p>Despite his initial state of perfection, Adam's decision to eat from the forbidden tree led to the fall, setting the stage for the challenges and complexities that would define human existence.</p>`
+      },
+      'noah': {
+        title: 'Noah',
+        description: `<p>Noah is celebrated for building the ark and surviving the great flood, which was sent to cleanse the world of its corruption. His unwavering obedience to God amid a corrupt society is a key aspect of his character.</p>
+                      <p>The story of Noah underscores themes of judgment, salvation, and the promise of new beginnings, symbolized by the covenant and the rainbow that followed the flood.</p>`
+      },
+      'abraham': {
+        title: 'Abraham',
+        description: `<p>Abraham is revered as the patriarch of the Israelite people. His willingness to leave his homeland and follow God's call is emblematic of profound faith and trust in divine promises.</p>
+                      <p>His life is marked by significant trials, including the test of sacrificing his son Isaac, which has left a lasting legacy on the values of obedience and faithfulness in biblical tradition.</p>`
+      },
+      'moses': {
+        title: 'Moses',
+        description: `<p>Moses is one of the most prominent figures in the Old Testament, known for leading the Israelites out of Egyptian bondage. His encounter with the burning bush and the subsequent liberation of his people are legendary.</p>
+                      <p>Receiving the Ten Commandments on Mount Sinai, Moses not only shaped the spiritual foundation of his nation but also left an enduring legacy of law, order, and moral guidance.</p>`
+      },
+      'david': {
+        title: 'David',
+        description: `<p>David, once a humble shepherd boy, rose to become one of Israel's most celebrated kings. His military exploits, personal struggles, and deep devotion to God define his multifaceted legacy.</p>
+                      <p>Renowned for his poetic contributions, particularly the Psalms, David's life story is one of triumph, repentance, and the complex interplay between power and vulnerability.</p>`
+      },
+      'solomon': {
+        title: 'Solomon',
+        description: `<p>Solomon, the son of David, is famed for his exceptional wisdom and for building the magnificent First Temple in Jerusalem. His reign ushered in an era of prosperity and cultural flourishing.</p>
+                      <p>Although his later years were marred by controversies and internal strife, Solomon's legacy endures through his proverbs and writings, which continue to inspire and guide many.</p>`
+      }
+    };
+
+    // DOM Elements
+    const characterList = document.getElementById('characterList');
+    const infoModal = document.getElementById('infoModal');
+    const modalText = document.getElementById('modalText');
+    const modalClose = document.getElementById('modalClose');
+
+    // When a character name is clicked, show the modal with its info
+    characterList.addEventListener('click', function(e) {
+      if (e.target && e.target.matches("li[data-character]")) {
+        const charKey = e.target.getAttribute('data-character');
+        const character = characters[charKey];
+        if (character) {
+          modalText.innerHTML = `<h2>${character.title}</h2>${character.description}`;
+          infoModal.style.display = 'block';
+        }
+      }
+    });
+
+    // Close the modal when the user clicks the close button
+    modalClose.addEventListener('click', function() {
+      infoModal.style.display = 'none';
+    });
+
+    // Close the modal if the user clicks outside of the modal content
+    window.addEventListener('click', function(e) {
+      if (e.target == infoModal) {
+        infoModal.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
