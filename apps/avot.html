@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Torah Characters</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E2 - Avot Bot</title>
+  <link rel="icon" href="images/ic.webp" type="image/webp" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,6 +12,15 @@
       padding: 20px;
       margin: 0;
     }
+     /* Hebrew Text at Top Right */
+    .hebrew-modest {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.9em;
+      color: #5a3e36;
+    }
+
     h1 {
       text-align: center;
       color: #333;
@@ -75,7 +86,9 @@
   </style>
 </head>
 <body>
-  <h1>Old Testament Characters</h1>
+   <!-- Small Hebrew Text at Top Right -->
+  <div class="hebrew-modest">בס"ד</div>
+  <h1>E2 - Avot Bot</h1>
   <ul class="character-list" id="characterList">
     <li data-character="adam">Adam</li>
     <li data-character="noah">Noah</li>
