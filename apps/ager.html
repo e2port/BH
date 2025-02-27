@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Age Calculator</title>
+  <link rel="icon" href="images/ic.webp" type="image/webp" />
+
+  
   <style>
     /* Overall page style */
     body {
@@ -15,6 +19,15 @@
       margin: 0;
       color: #fff;
     }
+     /* Hebrew Text at Top Right */
+    .hebrew-modest {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.9em;
+      color: #5a3e36;
+    }
+
     /* Container styling */
     .container {
       background: rgba(255, 255, 255, 0.1);
@@ -64,6 +77,8 @@
 </head>
 <body>
   <div class="container">
+    <!-- Small Hebrew Text at Top Right -->
+    <div class="hebrew-modest">בס"ד</div>
     <h1>Age Calculator</h1>
     <p>Enter your birth date:</p>
     <input type="date" id="birthDate" />
