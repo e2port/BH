@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Debugging: Swirling DNA with Matrix Rain</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    // Get the canvas and context
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, L;
+    
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      // Recalculate helix length to cover the canvas
+      L = Math.sqrt(width * width + height * height) + 100;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let time = 0;
+
+    // DNA helix parameters
+    const diagAngle = Math.PI / 4; // 45° angle
+    const v = { x: Math.cos(diagAngle), y: Math.sin(diagAngle) }; // axis direction
+    const u = { x: -Math.sin(diagAngle), y: Math.cos(diagAngle) }; // perpendicular direction
+
+    const amplitude = 50;      // Increased amplitude for a larger helix
+    const frequency = 0.05;    // Twist speed along the helix
+    const step = 8;            // Spacing between helix segments
+
+    // Particle system (unchanged)
+    const particles = [];
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = Math.random() * 2 + 1;
+        this.alpha = 1;
+        this.size = Math.random() * 2 + 1;
+        this.life = 0;
+        this.maxLife = Math.random() * 50 + 50;
+        this.char = String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96));
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life++;
+        this.alpha = 1 - this.life / this.maxLife;
+      }
+      draw(ctx) {
+        ctx.fillStyle = "rgba(255, 255, 0, " + this.alpha + ")";
+        ctx.font = this.size + "px monospace";
+        ctx.fillText(this.char, this.x, this.y);
+      }
+    }
+    function spawnParticle(x, y) {
+      particles.push(new Particle(x, y));
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.05;
+      
+      // Clear the canvas completely (no trail) for debugging
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw the helix centered on the screen by iterating from -L/2 to L/2
+      for (let t = -L/2; t < L/2; t += step) {
+        // Compute center along the helix axis
+        let cx = t * v.x + width / 2;
+        let cy = t * v.y + height / 2;
+        
+        // Calculate the phase and offset
+        let phase = t * frequency + time;
+        let offsetMag = amplitude * Math.sin(phase);
+        
+        // Determine the positions for the two strands
+        let x1 = cx + offsetMag * u.x;
+        let y1 = cy + offsetMag * u.y;
+        let x2 = cx - offsetMag * u.x;
+        let y2 = cy - offsetMag * u.y;
+        
+        // Draw the strand points with a solid color
+        ctx.fillStyle = "#00FFFF"; // aqua blue
+        ctx.beginPath();
+        ctx.arc(x1, y1, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x2, y2, 4, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw the connecting "rung" with a dynamic red shade
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        let redShade = Math.floor(100 + 155 * ((Math.sin(phase) + 1) / 2)); // value between 100 and 255
+        ctx.strokeStyle = "rgb(" + redShade + ", 0, 0)";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Occasionally spawn a yellow particle at the rung's midpoint
+        if (Math.random() < 0.03) {
+          spawnParticle((x1 + x2) / 2, (y1 + y2) / 2);
+        }
+      }
+      
+      // Update and draw the Matrix rain particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.update();
+        p.draw(ctx);
+        if (p.life > p.maxLife) {
+          particles.splice(i, 1);
+        }
+      }
+    }
+    animate();
+  </script>
+</body>
+</html>
