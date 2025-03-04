@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Badass Interactive Square</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+    
+    // Linear interpolation helper.
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+    
+    // Define our moving square (formerly dot).
+    const square = {
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: 20, // square side length
+      // Increased speed.
+      dx: (Math.random() - 0.5) * 2,
+      dy: (Math.random() - 0.5) * 2,
+      color: { r: 255, g: 255, b: 0 }, // neon yellow.
+      fading: false,
+      fadeProgress: 0, // 0 to 1 during fading.
+      fadeDuration: 1500 // milliseconds.
+    };
+    
+    // Pointer trail for tracer effect.
+    const pointerTrail = [];
+    const trailLifetime = 1500; // ms
+    const closeLoopThreshold = 30; // pixels
+    
+    function addPointerPoint(x, y) {
+      pointerTrail.push({ x, y, t: performance.now() });
+    }
+    
+    canvas.addEventListener('mousemove', (e) => {
+      addPointerPoint(e.clientX, e.clientY);
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      addPointerPoint(touch.clientX, touch.clientY);
+    });
+    
+    // Ray-casting algorithm to check if a point is inside a polygon.
+    function pointInPolygon(x, y, polygon) {
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].x, yi = polygon[i].y;
+        const xj = polygon[j].x, yj = polygon[j].y;
+        const intersect = ((yi > y) !== (yj > y)) &&
+                          (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+    
+    let lastTime = performance.now();
+    function animate(now) {
+      const deltaTime = now - lastTime;
+      lastTime = now;
+      const currentTime = performance.now();
+      
+      // Update pointer trail: Remove points older than trailLifetime.
+      while (pointerTrail.length && currentTime - pointerTrail[0].t > trailLifetime) {
+        pointerTrail.shift();
+      }
+      
+      // Update square position if not fading.
+      if (!square.fading) {
+        square.x += square.dx;
+        square.y += square.dy;
+        // Bounce off canvas boundaries.
+        if (square.x - square.size/2 < 0 || square.x + square.size/2 > width) {
+          square.dx = -square.dx;
+          square.x = Math.max(square.size/2, Math.min(square.x, width - square.size/2));
+        }
+        if (square.y - square.size/2 < 0 || square.y + square.size/2 > height) {
+          square.dy = -square.dy;
+          square.y = Math.max(square.size/2, Math.min(square.y, height - square.size/2));
+        }
+      } else {
+        // Update fade progress.
+        square.fadeProgress += deltaTime / square.fadeDuration;
+        if (square.fadeProgress >= 1) {
+          // Fade complete: reset square.
+          square.fading = false;
+          square.fadeProgress = 0;
+          square.x = Math.random() * width;
+          square.y = Math.random() * height;
+          square.color = { r: 255, g: 255, b: 0 }; // Reset to yellow.
+          square.dx = (Math.random() - 0.5) * 2;
+          square.dy = (Math.random() - 0.5) * 2;
+        } else {
+          // Transition color from yellow (255,255,0) to blue (0,0,255).
+          square.color = {
+            r: Math.round(lerp(255, 0, square.fadeProgress)),
+            g: Math.round(lerp(255, 0, square.fadeProgress)),
+            b: Math.round(lerp(0, 255, square.fadeProgress))
+          };
+        }
+      }
+      
+      // Draw a dramatic radial background.
+      const bgGrad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height));
+      bgGrad.addColorStop(0, '#00d4ff');
+      bgGrad.addColorStop(1, '#004f7c');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw the pointer trail with a pronounced, glowing effect.
+      ctx.save();
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = 'rgba(255,50,50,0.8)';
+      for (let i = 0; i < pointerTrail.length; i++) {
+        const pt = pointerTrail[i];
+        const age = currentTime - pt.t;
+        const alpha = 1 - age / trailLifetime;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,50,50,${alpha})`;
+        ctx.fill();
+      }
+      ctx.restore();
+      
+      // Draw the moving square (with glow).
+      ctx.save();
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = `rgba(${square.color.r}, ${square.color.g}, ${square.color.b}, 0.8)`;
+      ctx.fillStyle = `rgb(${square.color.r},${square.color.g},${square.color.b})`;
+      ctx.fillRect(square.x - square.size/2, square.y - square.size/2, square.size, square.size);
+      ctx.restore();
+      
+      // Check for a closed pointer trail.
+      if (pointerTrail.length > 10) {
+        const first = pointerTrail[0];
+        const last = pointerTrail[pointerTrail.length - 1];
+        const dx = first.x - last.x;
+        const dy = first.y - last.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance < closeLoopThreshold) {
+          // Use the trail points as polygon vertices.
+          const polygon = pointerTrail.map(pt => ({ x: pt.x, y: pt.y }));
+          if (pointInPolygon(square.x, square.y, polygon) && !square.fading) {
+            square.fading = true;
+            square.fadeProgress = 0;
+          }
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
