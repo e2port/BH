@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dedication Slideshow - Refined Edition</title>
+  <style>
+    /* Overall page styling */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #eaeaea;
+      font-family: "Georgia", serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    /* Slideshow container */
+    #slideshow {
+      width: 70%;
+      max-width: 900px;
+      background-color: #fff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      padding: 40px;
+      text-align: center;
+    }
+    /* Generic slide style */
+    .slide {
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .slide.active {
+      opacity: 1;
+    }
+    /* Headings and text */
+    .slide h1 {
+      font-size: 2.5em;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .slide p {
+      font-size: 1.2em;
+      line-height: 1.5;
+      color: #555;
+      margin: 0;
+    }
+    /* Picture slide styling */
+    .slide img {
+      width: 100%;
+      max-height: 500px;
+      object-fit: cover;
+      border-radius: 4px;
+      display: block;
+    }
+    .caption {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 1.3em;
+      border-radius: 4px;
+    }
+    /* Next button styling */
+    #nextButton {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      color: #fff;
+      background: #007acc;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #nextButton:hover {
+      background: #005f99;
+    }
+  </style>
+</head>
+<body>
+  <div id="slideshow">
+    <!-- Slide content will be inserted here -->
+  </div>
+  <button id="nextButton">Next</button>
+
+  <script>
+    // Define an array of slide objects.
+    // Slide types: 'intro', 'picture', 'text', and 'conclusion'
+    const slides = [
+      {
+        type: 'intro',
+        title: 'Welcome to Our Dedication',
+        text: 'A curated journey of cherished memories and milestones.'
+      },
+      {
+        type: 'picture',
+        image: 'images/picture1.jpg',
+        caption: 'A New Beginning'
+      },
+      {
+        type: 'text',
+        title: 'Inspiration & Aspiration',
+        text: 'Our shared dreams and quiet moments have guided us with grace and determination.'
+      },
+      {
+        type: 'picture',
+        image: 'images/picture2.jpg',
+        caption: 'Moments of Triumph'
+      },
+      {
+        type: 'text',
+        title: 'Reflections on Our Journey',
+        text: 'Every memory forms a unique thread in the tapestry of our lives, woven with passion and care.'
+      },
+      {
+        type: 'picture',
+        image: 'images/picture3.jpg',
+        caption: 'Horizons Unfold'
+      },
+      {
+        type: 'text',
+        title: 'A Promising Future',
+        text: 'With hope and perseverance, we embrace the future with gratitude and excitement.'
+      },
+      {
+        type: 'conclusion',
+        title: 'Thank You',
+        text: 'We appreciate your presence on this remarkable journey.'
+      }
+    ];
+
+    let currentSlide = 0;
+    const slideshow = document.getElementById('slideshow');
+    const nextButton = document.getElementById('nextButton');
+
+    // Build slide HTML based on type.
+    function createSlideContent(slide) {
+      let html = '';
+      if (slide.type === 'intro' || slide.type === 'text' || slide.type === 'conclusion') {
+        html += `<h1>${slide.title}</h1>`;
+        html += `<p>${slide.text}</p>`;
+      } else if (slide.type === 'picture') {
+        html += `<div style="position: relative;">`;
+        html += `<img src="${slide.image}" alt="Slide Image">`;
+        html += `<div class="caption">${slide.caption}</div>`;
+        html += `</div>`;
+      }
+      return html;
+    }
+
+    // Render the current slide with a smooth fade transition.
+    function renderSlide(index) {
+      // Clear current slide with a fade-out effect.
+      const oldSlide = slideshow.querySelector('.slide');
+      if (oldSlide) {
+        oldSlide.classList.remove('active');
+        setTimeout(() => {
+          slideshow.innerHTML = '';
+          addNewSlide(index);
+        }, 500);
+      } else {
+        addNewSlide(index);
+      }
+    }
+
+    // Add new slide content and fade it in.
+    function addNewSlide(index) {
+      const slide = slides[index];
+      const slideDiv = document.createElement('div');
+      slideDiv.className = 'slide active';
+      slideDiv.innerHTML = createSlideContent(slide);
+      slideshow.appendChild(slideDiv);
+    }
+
+    // Initial slide render.
+    renderSlide(currentSlide);
+
+    // Advance slide on button click.
+    nextButton.addEventListener('click', () => {
+      currentSlide++;
+      if (currentSlide >= slides.length) {
+        currentSlide = 0; // Loop back to the beginning or disable button if desired.
+      }
+      renderSlide(currentSlide);
+    });
+  </script>
+</body>
+</html>
