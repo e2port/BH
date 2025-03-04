@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grayscale Analog Clock with Blue Star</title>
+  <style>
+    body {
+      margin: 0;
+      /* Soothing grayscale gradient background */
+      background: linear-gradient(135deg, #ddd, #aaa);
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    let width, height, centerX, centerY, clockRadius;
+    
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      centerX = width / 2;
+      centerY = height / 2;
+      // Set clock radius to 80% of half the smaller dimension.
+      clockRadius = Math.min(width, height) / 2 * 0.8;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+    
+    // Draw a simple clock face with 12 tick marks:
+    function drawClockFace() {
+      // Draw the circular face.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, clockRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.strokeStyle = "#888";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      
+      // Draw 12 hour tick marks.
+      for (let i = 0; i < 12; i++) {
+        let angle = (2 * Math.PI / 12) * i - Math.PI / 2;
+        let outerX = centerX + clockRadius * Math.cos(angle);
+        let outerY = centerY + clockRadius * Math.sin(angle);
+        // Big notches for 12, 3, 6, 9 (i.e. every 3 hours), smaller for others.
+        let tickLength = (i % 3 === 0) ? clockRadius * 0.15 : clockRadius * 0.08;
+        let innerX = centerX + (clockRadius - tickLength) * Math.cos(angle);
+        let innerY = centerY + (clockRadius - tickLength) * Math.sin(angle);
+        ctx.beginPath();
+        ctx.moveTo(innerX, innerY);
+        ctx.lineTo(outerX, outerY);
+        ctx.strokeStyle = "#444";
+        ctx.lineWidth = (i % 3 === 0) ? 4 : 2;
+        ctx.stroke();
+      }
+    }
+    
+    // Draw a curved hand given its angle, length, thickness, color, and a curvature factor.
+    // A positive curvature factor curves the hand one way, a negative factor the other.
+    function drawCurvedHand(angle, length, thickness, color, curvature) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      // The control point is placed at (length/2, curvature * length) to yield a subtle curve.
+      ctx.quadraticCurveTo(length / 2, curvature * length, length, 0);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = thickness;
+      ctx.lineCap = "round";
+      ctx.stroke();
+      ctx.restore();
+    }
+    
+    // Draw a blue Star of David (Jewish star) at the center.
+    // This star spins counter-clockwise over the hands.
+    function drawBlueStar(time) {
+      const starRadius = clockRadius * 0.1;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      // Rotate counter-clockwise at a moderate pace (0.5 radians per second).
+      ctx.rotate(-time * 0.5);
+      ctx.fillStyle = "#00F";  // blue color
+      
+      // Draw the upward (pointing up) triangle.
+      ctx.beginPath();
+      ctx.moveTo(0, -starRadius);
+      ctx.lineTo(starRadius * Math.sin(Math.PI / 3), starRadius * Math.cos(Math.PI / 3));
+      ctx.lineTo(-starRadius * Math.sin(Math.PI / 3), starRadius * Math.cos(Math.PI / 3));
+      ctx.closePath();
+      ctx.fill();
+      
+      // Draw the downward (inverted) triangle.
+      ctx.beginPath();
+      ctx.moveTo(0, starRadius);
+      ctx.lineTo(starRadius * Math.sin(Math.PI / 3), -starRadius * Math.cos(Math.PI / 3));
+      ctx.lineTo(-starRadius * Math.sin(Math.PI / 3), -starRadius * Math.cos(Math.PI / 3));
+      ctx.closePath();
+      ctx.fill();
+      
+      ctx.restore();
+    }
+    
+    // Main animation loop.
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, width, height);
+      
+      drawClockFace();
+      
+      // Get the current time.
+      const now = new Date();
+      const seconds = now.getSeconds() + now.getMilliseconds() / 1000;
+      const minutes = now.getMinutes() + seconds / 60;
+      const hours = (now.getHours() % 12) + minutes / 60;
+      
+      // Calculate hand angles (subtracting PI/2 to position 12 at the top).
+      const secondAngle = (2 * Math.PI / 60) * seconds - Math.PI / 2;
+      const minuteAngle = (2 * Math.PI / 60) * minutes - Math.PI / 2;
+      const hourAngle = (2 * Math.PI / 12) * hours - Math.PI / 2;
+      
+      // Draw the three hands, each with its own length, thickness, and subtle curvature.
+      // Hour hand: thick, short, dark.
+      drawCurvedHand(hourAngle, clockRadius * 0.4, 8, "#222", -0.1);
+      // Minute hand: medium, longer, medium-gray.
+      drawCurvedHand(minuteAngle, clockRadius * 0.6, 6, "#555", 0.1);
+      // Second hand: thin, longest, light-gray.
+      drawCurvedHand(secondAngle, clockRadius * 0.8, 3, "#888", -0.07);
+      
+      // Draw the blue Star of David over the center.
+      drawBlueStar(now.getTime() / 1000);
+    }
+    
+    animate();
+  </script>
+</body>
+</html>
