@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waving American Flag</title>
+  <style>
+    /* Reset and center page */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: sans-serif;
+    }
+    /* Flag container with official proportions (approx. 10:19) */
+    .flag {
+      position: relative;
+      width: 90vw;
+      max-width: 900px;
+      aspect-ratio: 10 / 19;
+      overflow: hidden;
+      filter: url(#wavy);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+    /* 13 horizontal stripes */
+    .stripe {
+      position: absolute;
+      height: calc(100% / 13);
+      width: 100%;
+      left: 0;
+    }
+    .stripe:nth-child(odd) { background-color: #B22234; }
+    .stripe:nth-child(even) { background-color: #fff; }
+    /* Manually position each stripe (each stripe height ≈7.69%) */
+    .stripe:nth-child(1) { top: 0%; }
+    .stripe:nth-child(2) { top: 7.69%; }
+    .stripe:nth-child(3) { top: 15.38%; }
+    .stripe:nth-child(4) { top: 23.08%; }
+    .stripe:nth-child(5) { top: 30.77%; }
+    .stripe:nth-child(6) { top: 38.46%; }
+    .stripe:nth-child(7) { top: 46.15%; }
+    .stripe:nth-child(8) { top: 53.85%; }
+    .stripe:nth-child(9) { top: 61.54%; }
+    .stripe:nth-child(10) { top: 69.23%; }
+    .stripe:nth-child(11) { top: 76.92%; }
+    .stripe:nth-child(12) { top: 84.62%; }
+    .stripe:nth-child(13) { top: 92.31%; }
+    
+    /* The blue canton (union) */
+    .canton {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      /* Officially, the canton height is 7/13 of the flag’s height */
+      height: calc(7 / 13 * 100%);
+      background-color: #3C3B6E;
+      padding: 5%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+    }
+    /* Rows for stars */
+    .row {
+      display: flex;
+      justify-content: space-between;
+    }
+    /* Even rows have one fewer star and are centered */
+    .row.even {
+      justify-content: space-around;
+    }
+    /* Star styling – using the Unicode star (★) */
+    .star {
+      color: #fff;
+      font-size: 1.2em;
+      line-height: 1;
+    }
+    @media (max-width: 600px) {
+      .star { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Inline SVG filter to create a gentle wind ripple effect -->
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none;">
+    <filter id="wavy">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="3" seed="2">
+        <animate attributeName="baseFrequency" dur="10s" values="0.02 0.05;0.03 0.08;0.02 0.05" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="10" />
+    </filter>
+  </svg>
+  <div class="flag">
+    <!-- 13 Stripes -->
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    <div class="stripe"></div>
+    
+    <!-- Canton with stars -->
+    <div class="canton">
+      <div class="row odd">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row even">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row odd">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row even">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row odd">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row even">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row odd">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row even">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+      <div class="row odd">
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+        <span class="star">&#9733;</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
