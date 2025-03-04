@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Highbrow American Flag</title>
+  <style>
+    /* Basic reset and a dark, refined background */
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #111;
+      height: 100%;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="mainCanvas"></canvas>
+  <script>
+    // Setup main canvas
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Define flag dimensions (using the 1.9:1 ratio: height=600, width=1140)
+    const flagWidth = 1140;
+    const flagHeight = 600;
+
+    // Create an offscreen canvas to render the static flag
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = flagWidth;
+    offCanvas.height = flagHeight;
+    const offCtx = offCanvas.getContext('2d');
+
+    // Function to draw a 5-pointed star
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+      let rot = Math.PI / 2 * 3;
+      let x = cx;
+      let y = cy;
+      const step = Math.PI / spikes;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - outerRadius);
+      for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+      }
+      ctx.lineTo(cx, cy - outerRadius);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Draw the flag into the offscreen canvas
+    function drawFlag() {
+      // Draw 13 stripes (top stripe is red)
+      const stripeHeight = flagHeight / 13;
+      for (let i = 0; i < 13; i++) {
+        offCtx.fillStyle = (i % 2 === 0) ? '#B22234' : '#fff';
+        offCtx.fillRect(0, i * stripeHeight, flagWidth, stripeHeight);
+      }
+      // Draw the blue canton
+      const cantonHeight = flagHeight * (7 / 13);
+      const cantonWidth = flagWidth * 0.4; // roughly 40% of flag width
+      offCtx.fillStyle = '#3C3B6E';
+      offCtx.fillRect(0, 0, cantonWidth, cantonHeight);
+
+      // Draw the 50 stars in 9 rows (alternating rows of 6 and 5 stars)
+      offCtx.fillStyle = '#fff';
+      const starRows = 9;
+      const hMargin = cantonWidth * 0.1; // horizontal margin within canton
+      const vMargin = cantonHeight * 0.1; // vertical margin within canton
+      const usableWidth = cantonWidth - 2 * hMargin;
+      const usableHeight = cantonHeight - 2 * vMargin;
+      for (let row = 0; row < starRows; row++) {
+        // Even rows (0-indexed) have 6 stars, odd rows have 5 stars
+        const starsInRow = (row % 2 === 0) ? 6 : 5;
+        const hSpacing = usableWidth / (starsInRow - 1);
+        const cy = vMargin + row * (usableHeight / (starRows - 1));
+        for (let col = 0; col < starsInRow; col++) {
+          // For rows with 5 stars, center them
+          const offsetX = (row % 2 === 0) ? 0 : hSpacing / 2;
+          const cx = hMargin + col * hSpacing + offsetX;
+          // Draw a star with an outer radius scaled to flag size
+          drawStar(offCtx, cx, cy, 5, 10, 4);
+        }
+      }
+    }
+    drawFlag();
+
+    // Animation variables
+    let time = 0;
+    function animate() {
+      time += 0.02;
+      // Clear the main canvas and paint a refined background gradient
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 50, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height)/1.2);
+      grad.addColorStop(0, '#222');
+      grad.addColorStop(1, '#000');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Compute a scaling factor so the flag fits elegantly in the window
+      const scale = Math.min(canvas.width / flagWidth, canvas.height / flagHeight) * 0.9;
+      const drawWidth = flagWidth * scale;
+      const drawHeight = flagHeight * scale;
+      const offsetX = (canvas.width - drawWidth) / 2;
+      const offsetY = (canvas.height - drawHeight) / 2;
+
+      // Ripple parameters (horizontal displacement per slice)
+      const amplitude = 10 * scale; // maximum horizontal displacement
+      const waveLength = 30; // wavelength in flag coordinate pixels
+      const sliceHeight = 2; // process the flag 2 pixels at a time vertically
+
+      // For each horizontal slice, compute a horizontal offset using a sine wave
+      for (let sy = 0; sy < flagHeight; sy += sliceHeight) {
+        const dx = amplitude * Math.sin((sy / waveLength) + time);
+        ctx.drawImage(
+          offCanvas,
+          0, sy, flagWidth, sliceHeight,              // source slice
+          offsetX + dx, offsetY + sy * scale,           // destination position (apply dx)
+          drawWidth, sliceHeight * scale                // destination size (scaled)
+        );
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
