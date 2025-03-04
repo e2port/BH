@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Yellow Dot Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    // Update canvas size on resize.
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    // Utility: Linear interpolation.
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    // Utility: Interpolate between two RGB colors.
+    function lerpColor(color1, color2, t) {
+      const r = Math.round(lerp(color1.r, color2.r, t));
+      const g = Math.round(lerp(color1.g, color2.g, t));
+      const b = Math.round(lerp(color1.b, color2.b, t));
+      return `rgb(${r},${g},${b})`;
+    }
+
+    // Dot (yellow puck) definition.
+    const dot = {
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: 15,
+      // Random slow velocity between -0.5 and 0.5 px per frame.
+      dx: (Math.random() - 0.5) * 1,
+      dy: (Math.random() - 0.5) * 1,
+      color: { r: 255, g: 255, b: 0 }, // Yellow.
+      fading: false,
+      fadeProgress: 0, // from 0 to 1 when fading.
+      fadeDuration: 1500 // in milliseconds.
+    };
+
+    // Pointer trail stores points with timestamp.
+    const pointerTrail = [];
+    const trailLifetime = 1500; // ms
+    const closeLoopThreshold = 30; // pixels: if start and end of trail are within this, consider closed.
+
+    // Event listeners for mouse and touch.
+    function addPointerPoint(x, y) {
+      pointerTrail.push({ x, y, t: performance.now() });
+    }
+    canvas.addEventListener('mousemove', (e) => {
+      addPointerPoint(e.clientX, e.clientY);
+    });
+    canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      addPointerPoint(touch.clientX, touch.clientY);
+    });
+
+    // Ray-casting algorithm: Check if point is inside polygon.
+    function pointInPolygon(x, y, polygon) {
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].x, yi = polygon[i].y;
+        const xj = polygon[j].x, yj = polygon[j].y;
+        const intersect = ((yi > y) !== (yj > y)) &&
+                          (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    // Animation loop.
+    let lastTime = performance.now();
+    function animate(now) {
+      const deltaTime = now - lastTime;
+      lastTime = now;
+      
+      // Update pointer trail: remove points older than trailLifetime.
+      const currentTime = performance.now();
+      while (pointerTrail.length && currentTime - pointerTrail[0].t > trailLifetime) {
+        pointerTrail.shift();
+      }
+
+      // Update dot position if not fading.
+      if (!dot.fading) {
+        dot.x += dot.dx;
+        dot.y += dot.dy;
+        // Bounce off the boundaries.
+        if (dot.x - dot.radius < 0 || dot.x + dot.radius > width) {
+          dot.dx = -dot.dx;
+          dot.x = Math.max(dot.radius, Math.min(dot.x, width - dot.radius));
+        }
+        if (dot.y - dot.radius < 0 || dot.y + dot.radius > height) {
+          dot.dy = -dot.dy;
+          dot.y = Math.max(dot.radius, Math.min(dot.y, height - dot.radius));
+        }
+      } else {
+        // Update fade progress.
+        dot.fadeProgress += deltaTime / dot.fadeDuration;
+        if (dot.fadeProgress >= 1) {
+          // Fade complete: reset dot.
+          dot.fading = false;
+          dot.fadeProgress = 0;
+          dot.x = Math.random() * width;
+          dot.y = Math.random() * height;
+          // Reset color to yellow.
+          dot.color = { r: 255, g: 255, b: 0 };
+          // New random velocity.
+          dot.dx = (Math.random() - 0.5) * 1;
+          dot.dy = (Math.random() - 0.5) * 1;
+        } else {
+          // Gradually change dot color from yellow to blue.
+          // Yellow: (255, 255, 0) → Blue: (0, 0, 255)
+          dot.color = {
+            r: Math.round(lerp(255, 0, dot.fadeProgress)),
+            g: Math.round(lerp(255, 0, dot.fadeProgress)),
+            b: Math.round(lerp(0, 255, dot.fadeProgress))
+          };
+        }
+      }
+
+      // Draw the background (aqua blue gradient).
+      const grad = ctx.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, '#00d4ff');  // bright aqua blue
+      grad.addColorStop(1, '#004f7c');  // deep blue
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw the pointer trail as a series of reddish circles.
+      for (let i = 0; i < pointerTrail.length; i++) {
+        const pt = pointerTrail[i];
+        const age = currentTime - pt.t;
+        const alpha = 1 - age / trailLifetime;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 50, 50, ${alpha})`;
+        ctx.fill();
+      }
+
+      // OPTIONAL: For visualizing the trail as a connected path (if desired)
+      // if (pointerTrail.length > 2) {
+      //   ctx.beginPath();
+      //   ctx.moveTo(pointerTrail[0].x, pointerTrail[0].y);
+      //   for (let i = 1; i < pointerTrail.length; i++) {
+      //     ctx.lineTo(pointerTrail[i].x, pointerTrail[i].y);
+      //   }
+      //   ctx.strokeStyle = 'rgba(255,50,50,0.5)';
+      //   ctx.lineWidth = 3;
+      //   ctx.stroke();
+      // }
+
+      // Draw the moving dot.
+      ctx.beginPath();
+      ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgb(${dot.color.r},${dot.color.g},${dot.color.b})`;
+      ctx.fill();
+
+      // Check if pointer trail forms a closed loop.
+      if (pointerTrail.length > 10) {
+        const first = pointerTrail[0];
+        const last = pointerTrail[pointerTrail.length - 1];
+        const dx = first.x - last.x;
+        const dy = first.y - last.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < closeLoopThreshold) {
+          // Use the trail points as polygon vertices.
+          const polygon = pointerTrail.map(pt => ({ x: pt.x, y: pt.y }));
+          // If the dot's center is inside the polygon, trigger fade.
+          if (pointInPolygon(dot.x, dot.y, polygon) && !dot.fading) {
+            dot.fading = true;
+            dot.fadeProgress = 0;
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
