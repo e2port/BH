@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cyberpunk Pizza Slice Capture</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+    
+    // Linear interpolation helper.
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+    
+    // Our moving "pizza slice" (a triangle) object.
+    const pizzaSlice = {
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: 30, // controls the overall scale of the slice.
+      dx: (Math.random() - 0.5) * 3,  // slightly faster than before.
+      dy: (Math.random() - 0.5) * 3,
+      // Starting neon pizza color: a bright yellow-orange.
+      color: { r: 255, g: 200, b: 0 },
+      fading: false,
+      fadeProgress: 0,
+      fadeDuration: 1500  // milliseconds.
+    };
+    
+    // Pointer trail to record the last 1.5 seconds of pointer movements.
+    const pointerTrail = [];
+    const trailLifetime = 1500; // ms
+    const closeLoopThreshold = 30; // pixels
+    
+    function addPointerPoint(x, y) {
+      pointerTrail.push({ x, y, t: performance.now() });
+    }
+    
+    canvas.addEventListener('mousemove', (e) => {
+      addPointerPoint(e.clientX, e.clientY);
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      addPointerPoint(touch.clientX, touch.clientY);
+    });
+    
+    // Utility: Ray-casting to determine if a point is inside a polygon.
+    function pointInPolygon(x, y, polygon) {
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].x, yi = polygon[i].y;
+        const xj = polygon[j].x, yj = polygon[j].y;
+        const intersect = ((yi > y) !== (yj > y)) &&
+                          (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+    
+    // Draw a stylized pizza slice (triangle with curved crust).
+    function drawPizzaSlice(ctx, x, y, size, color) {
+      ctx.beginPath();
+      // Apex of the slice (pointing upward).
+      const apexX = x;
+      const apexY = y - size * 1.2;
+      // Base corners.
+      const leftX = x - size;
+      const leftY = y + size * 0.8;
+      const rightX = x + size;
+      const rightY = y + size * 0.8;
+      ctx.moveTo(apexX, apexY);
+      ctx.lineTo(leftX, leftY);
+      // Use a quadratic curve to create a curved crust at the base.
+      ctx.quadraticCurveTo(x, y + size * 1.4, rightX, rightY);
+      ctx.closePath();
+      
+      ctx.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+      ctx.fill();
+      
+      // Add a neon border for extra cyberpunk flair.
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},0.8)`;
+      ctx.stroke();
+    }
+    
+    let lastTime = performance.now();
+    function animate(now) {
+      const deltaTime = now - lastTime;
+      lastTime = now;
+      const currentTime = performance.now();
+      
+      // Update pointer trail: remove points older than trailLifetime.
+      while (pointerTrail.length && currentTime - pointerTrail[0].t > trailLifetime) {
+        pointerTrail.shift();
+      }
+      
+      // Update pizza slice movement.
+      if (!pizzaSlice.fading) {
+        pizzaSlice.x += pizzaSlice.dx;
+        pizzaSlice.y += pizzaSlice.dy;
+        // Bounce off edges.
+        if (pizzaSlice.x - pizzaSlice.size < 0 || pizzaSlice.x + pizzaSlice.size > width) {
+          pizzaSlice.dx = -pizzaSlice.dx;
+          pizzaSlice.x = Math.max(pizzaSlice.size, Math.min(pizzaSlice.x, width - pizzaSlice.size));
+        }
+        if (pizzaSlice.y - pizzaSlice.size * 1.2 < 0 || pizzaSlice.y + pizzaSlice.size * 0.8 > height) {
+          pizzaSlice.dy = -pizzaSlice.dy;
+          pizzaSlice.y = Math.max(pizzaSlice.size * 1.2, Math.min(pizzaSlice.y, height - pizzaSlice.size * 0.8));
+        }
+      } else {
+        // Fade transition: color changes from neon yellow-orange to cyberpunk blue.
+        pizzaSlice.fadeProgress += deltaTime / pizzaSlice.fadeDuration;
+        if (pizzaSlice.fadeProgress >= 1) {
+          // Reset the pizza slice.
+          pizzaSlice.fading = false;
+          pizzaSlice.fadeProgress = 0;
+          pizzaSlice.x = Math.random() * width;
+          pizzaSlice.y = Math.random() * height;
+          pizzaSlice.color = { r: 255, g: 200, b: 0 };
+          pizzaSlice.dx = (Math.random() - 0.5) * 3;
+          pizzaSlice.dy = (Math.random() - 0.5) * 3;
+        } else {
+          // Interpolate from yellow-orange (255,200,0) to cyberpunk blue (0,150,255).
+          pizzaSlice.color = {
+            r: Math.round(lerp(255, 0, pizzaSlice.fadeProgress)),
+            g: Math.round(lerp(200, 150, pizzaSlice.fadeProgress)),
+            b: Math.round(lerp(0, 255, pizzaSlice.fadeProgress))
+          };
+        }
+      }
+      
+      // Draw cyberpunk background: a deep radial gradient with subtle grid lines.
+      const bgGrad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height));
+      bgGrad.addColorStop(0, '#1a0033');
+      bgGrad.addColorStop(1, '#000');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw subtle grid lines.
+      ctx.strokeStyle = 'rgba(80, 0, 120, 0.2)';
+      ctx.lineWidth = 1;
+      const gridSpacing = 50;
+      for (let x = 0; x < width; x += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      
+      // Draw pointer trail with enhanced neon glow.
+      ctx.save();
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = 'rgba(255,20,20,0.9)';
+      for (let i = 0; i < pointerTrail.length; i++) {
+        const pt = pointerTrail[i];
+        const age = currentTime - pt.t;
+        const alpha = 1 - age / trailLifetime;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,20,20,${alpha})`;
+        ctx.fill();
+      }
+      ctx.restore();
+      
+      // Draw the moving pizza slice with neon glow.
+      ctx.save();
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = `rgba(${pizzaSlice.color.r}, ${pizzaSlice.color.g}, ${pizzaSlice.color.b}, 0.8)`;
+      drawPizzaSlice(ctx, pizzaSlice.x, pizzaSlice.y, pizzaSlice.size, pizzaSlice.color);
+      ctx.restore();
+      
+      // Check if the pointer trail forms a closed loop.
+      if (pointerTrail.length > 10) {
+        const first = pointerTrail[0];
+        const last = pointerTrail[pointerTrail.length - 1];
+        const dx = first.x - last.x;
+        const dy = first.y - last.y;
+        if (Math.hypot(dx, dy) < closeLoopThreshold) {
+          // Use pointer trail as polygon.
+          const polygon = pointerTrail.map(pt => ({ x: pt.x, y: pt.y }));
+          if (pointInPolygon(pizzaSlice.x, pizzaSlice.y, polygon) && !pizzaSlice.fading) {
+            pizzaSlice.fading = true;
+            pizzaSlice.fadeProgress = 0;
+          }
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
