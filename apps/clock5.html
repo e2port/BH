@@ -87,7 +87,7 @@
       ctx.save();
       ctx.translate(centerX, centerY);
       // Rotate counter-clockwise at a moderate pace (0.5 radians per second).
-      ctx.rotate(-time * 0.5);
+      ctx.rotate(-time * 20);
       ctx.fillStyle = "#00F";  // blue color
       
       // Draw the upward (pointing up) triangle.
@@ -129,11 +129,11 @@
       
       // Draw the three hands, each with its own length, thickness, and subtle curvature.
       // Hour hand: thick, short, dark.
-      drawCurvedHand(hourAngle, clockRadius * 0.4, 8, "#222", -0.1);
+      drawCurvedHand(hourAngle, clockRadius * 0.4, 12, "#222", -0.1);
       // Minute hand: medium, longer, medium-gray.
-      drawCurvedHand(minuteAngle, clockRadius * 0.6, 6, "#555", 0.1);
+      drawCurvedHand(minuteAngle, clockRadius * 0.7, 6, "#555", 0.1);
       // Second hand: thin, longest, light-gray.
-      drawCurvedHand(secondAngle, clockRadius * 0.8, 3, "#888", -0.07);
+      drawCurvedHand(secondAngle, clockRadius * 0.9, 3, "#888", -0.07);
       
       // Draw the blue Star of David over the center.
       drawBlueStar(now.getTime() / 1000);
