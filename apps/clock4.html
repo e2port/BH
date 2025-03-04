@@ -135,12 +135,12 @@
       ctx.save();
       ctx.translate(centerX, centerY);
       // Spin counter-clockwise at a moderate pace
-      ctx.rotate(-time * 0.5);
+      ctx.rotate(-time * 2.5);
       
-      // Draw a 5-point star as the symbol
+      // Draw a 12-point star as the symbol
       ctx.fillStyle = "#FFD700"; // gold color
       ctx.beginPath();
-      const numPoints = 5;
+      const numPoints = 12;
       const outerRadius = clockRadius * 0.07;
       const innerRadius = outerRadius * 0.5;
       for (let i = 0; i < numPoints * 2; i++) {
