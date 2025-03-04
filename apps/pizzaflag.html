@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flag Transition: Pizza → American</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #111;
+      height: 100%;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="mainCanvas"></canvas>
+  <script>
+    // ---------------------------
+    // Setup flag dimensions & offscreen canvases
+    // American flag proportions: 1.9:1 (we use 1140x600)
+    const flagWidth = 1140;
+    const flagHeight = 600;
+    
+    // Offscreen canvas for American flag (background, static drawing)
+    const offAmerican = document.createElement('canvas');
+    offAmerican.width = flagWidth;
+    offAmerican.height = flagHeight;
+    const offAmerCtx = offAmerican.getContext('2d');
+    
+    // Draw a majestic, accurate American flag (13 stripes, blue canton & 50 stars)
+    function drawAmericanFlag(ctx) {
+      const stripeHeight = flagHeight / 13;
+      for (let i = 0; i < 13; i++) {
+        ctx.fillStyle = (i % 2 === 0) ? '#B22234' : '#fff';
+        ctx.fillRect(0, i * stripeHeight, flagWidth, stripeHeight);
+      }
+      // Blue canton (covers 7 stripes)
+      const cantonHeight = flagHeight * (7 / 13);
+      const cantonWidth = flagWidth * 0.4;
+      ctx.fillStyle = '#3C3B6E';
+      ctx.fillRect(0, 0, cantonWidth, cantonHeight);
+      
+      // Draw 50 stars arranged in 9 rows (6 stars on even rows, 5 on odd)
+      ctx.fillStyle = '#fff';
+      const starRows = 9;
+      const hMargin = cantonWidth * 0.1;
+      const vMargin = cantonHeight * 0.1;
+      const usableWidth = cantonWidth - 2 * hMargin;
+      const usableHeight = cantonHeight - 2 * vMargin;
+      for (let row = 0; row < starRows; row++) {
+        const starsInRow = (row % 2 === 0) ? 6 : 5;
+        const hSpacing = (starsInRow > 1) ? usableWidth / (starsInRow - 1) : 0;
+        const cy = vMargin + row * (usableHeight / (starRows - 1));
+        for (let col = 0; col < starsInRow; col++) {
+          const offsetX = (row % 2 === 0) ? 0 : hSpacing / 2;
+          const cx = hMargin + col * hSpacing + offsetX;
+          drawStar(ctx, cx, cy, 5, 10, 4);
+        }
+      }
+    }
+    
+    // Function to draw a 5-pointed star given center & radii
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+      let rot = Math.PI / 2 * 3;
+      const step = Math.PI / spikes;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - outerRadius);
+      for (let i = 0; i < spikes; i++) {
+        let x = cx + Math.cos(rot) * outerRadius;
+        let y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+    
+    drawAmericanFlag(offAmerCtx);
+    
+    // Offscreen canvas for the pizzay flag (foreground, to be dissolved)
+    const offPizza = document.createElement('canvas');
+    offPizza.width = flagWidth;
+    offPizza.height = flagHeight;
+    const offPizzaCtx = offPizza.getContext('2d');
+    
+    function drawPizzaFlag(ctx) {
+      // Create a pizza-inspired gradient background:
+      // a vibrant tomato red fading to a rich cheesy yellow.
+      const grad = ctx.createLinearGradient(0, 0, flagWidth, flagHeight);
+      grad.addColorStop(0, '#FF5733'); // tomato red
+      grad.addColorStop(1, '#FFC300'); // cheesy yellow
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, flagWidth, flagHeight);
+      
+      // Draw a prominent pizza slice in the center
+      ctx.save();
+      ctx.translate(flagWidth / 2, flagHeight / 2);
+      // Define the slice: tip at the top, wide base at the bottom
+      const apex = { x: 0, y: -flagHeight * 0.3 };
+      const bottomLeft = { x: -flagWidth * 0.2, y: flagHeight * 0.3 };
+      const bottomRight = { x: flagWidth * 0.2, y: flagHeight * 0.3 };
+      
+      ctx.beginPath();
+      ctx.moveTo(apex.x, apex.y);
+      ctx.lineTo(bottomLeft.x, bottomLeft.y);
+      // Curved crust using a quadratic curve
+      ctx.quadraticCurveTo(0, flagHeight * 0.25, bottomRight.x, bottomRight.y);
+      ctx.closePath();
+      // Fill with a warm, cheesy hue
+      ctx.fillStyle = '#F4C430';
+      ctx.fill();
+      
+      // Add a robust border in a contrasting pizza sauce orange
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#FF4500';
+      ctx.stroke();
+      
+      // Scatter some pepperoni circles on the slice
+      ctx.fillStyle = '#B22222';
+      const pepperoni = [
+        { x: -flagWidth * 0.08, y: -flagHeight * 0.1 },
+        { x: flagWidth * 0.05, y: -flagHeight * 0.05 },
+        { x: -flagWidth * 0.03, y: flagHeight * 0.05 },
+        { x: flagWidth * 0.08, y: flagHeight * 0.1 },
+        { x: 0, y: 0 }
+      ];
+      pepperoni.forEach(pos => {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Optional: add subtle grid lines for a modern twist
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 2;
+      for (let i = -40; i <= 40; i += 10) {
+        ctx.beginPath();
+        ctx.moveTo(-flagWidth * 0.2, i);
+        ctx.lineTo(flagWidth * 0.2, i);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    
+    drawPizzaFlag(offPizzaCtx);
+    
+    // ---------------------------
+    // Main canvas & animation setup
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    
+    let time = 0; // for wave animation
+    
+    // Dissolution effect state (applies to the pizza flag)
+    let dissolving = false;
+    let flagDissolved = false;
+    let dissolutionStartTime = 0;
+    const tileCols = 30;
+    const tileRows = 20;
+    let tiles = []; // each tile: {col, row, delay, startTime}
+    const fadeDuration = 1500; // slower fade out (in ms)
+    
+    // On click, trigger the falling-tile cascade dissolution effect if click is inside flag bounds
+    canvas.addEventListener('click', function(e) {
+      // Compute the flag's drawn area (centered & scaled)
+      const scale = Math.min(canvas.width / flagWidth, canvas.height / flagHeight) * 0.9;
+      const drawWidth = flagWidth * scale;
+      const drawHeight = flagHeight * scale;
+      const offsetX = (canvas.width - drawWidth) / 2;
+      const offsetY = (canvas.height - drawHeight) / 2;
+      
+      const clickX = e.clientX;
+      const clickY = e.clientY;
+      if (clickX < offsetX || clickX > offsetX + drawWidth ||
+          clickY < offsetY || clickY > offsetY + drawHeight) return;
+      if (dissolving || flagDissolved) return;
+      
+      dissolving = true;
+      dissolutionStartTime = performance.now();
+      
+      // Convert click to flag coordinate space
+      const flagClickX = (clickX - offsetX) / scale;
+      const flagClickY = (clickY - offsetY) / scale;
+      
+      // Prepare the tile grid; each tile's delay is based on its distance from the click
+      tiles = [];
+      const tileW = flagWidth / tileCols;
+      const tileH = flagHeight / tileRows;
+      const maxDist = Math.hypot(flagWidth, flagHeight);
+      for (let row = 0; row < tileRows; row++) {
+        for (let col = 0; col < tileCols; col++) {
+          const centerX = col * tileW + tileW / 2;
+          const centerY = row * tileH + tileH / 2;
+          const dist = Math.hypot(centerX - flagClickX, centerY - flagClickY);
+          const delay = (dist / maxDist) * 1200; // delays up to ~1200ms for a cascading effect
+          tiles.push({
+            col: col,
+            row: row,
+            delay: delay,
+            startTime: dissolutionStartTime + delay
+          });
+        }
+      }
+    });
+    
+    // Draw the majestic American flag (waving, background)
+    function drawAmericanFlagNormal(scale, offsetX, offsetY) {
+      const amplitude = 10 * scale;
+      const waveLength = 30;
+      const sliceHeight = 2; // in flag coordinate pixels
+      for (let sy = 0; sy < flagHeight; sy += sliceHeight) {
+        const dx = amplitude * Math.sin((sy / waveLength) + time);
+        ctx.drawImage(offAmerican,
+          0, sy, flagWidth, sliceHeight,
+          offsetX + dx * scale, offsetY + sy * scale,
+          flagWidth * scale, sliceHeight * scale
+        );
+      }
+    }
+    
+    // Draw the pizza flag normally (foreground)
+    function drawPizzaFlagNormal(scale, offsetX, offsetY) {
+      ctx.drawImage(offPizza, 0, 0, flagWidth, flagHeight,
+                    offsetX, offsetY, flagWidth * scale, flagHeight * scale);
+    }
+    
+    // Draw the pizza flag in dissolving (tiled falling cascade) mode
+    function drawPizzaFlagDissolving(scale, offsetX, offsetY) {
+      const amplitude = 10 * scale;
+      const waveLength = 30;
+      const tileW = flagWidth / tileCols;
+      const tileH = flagHeight / tileRows;
+      let allFaded = true;
+      const currentTime = performance.now();
+      
+      tiles.forEach(tile => {
+        let progress = (currentTime - tile.startTime) / fadeDuration;
+        progress = Math.min(Math.max(progress, 0), 1);
+        const alpha = 1 - progress;
+        if (alpha > 0) allFaded = false;
+        
+        const sx = tile.col * tileW;
+        const sy = tile.row * tileH;
+        // Add a subtle wave offset as before
+        const tileCenterY = sy + tileH / 2;
+        const dx = amplitude * Math.sin((tileCenterY / waveLength) + time);
+        // Falling effect: tiles drop down as they fade
+        const fallOffset = progress * 100;  // Adjust this value for a more pronounced fall
+        
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(offPizza,
+          sx, sy, tileW, tileH,
+          offsetX + sx * scale + dx * scale, offsetY + sy * scale + fallOffset * scale,
+          tileW * scale, tileH * scale
+        );
+        ctx.restore();
+      });
+      
+      if (allFaded) {
+        flagDissolved = true;
+        dissolving = false;
+      }
+    }
+    
+    // Main animation loop
+    function animate() {
+      time += 0.02;
+      
+      // Clear canvas & draw a refined radial background
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 50, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height)/1.2);
+      grad.addColorStop(0, '#222');
+      grad.addColorStop(1, '#000');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Compute scale & centered drawing position for the flag
+      const scale = Math.min(canvas.width / flagWidth, canvas.height / flagHeight) * 0.9;
+      const drawWidth = flagWidth * scale;
+      const drawHeight = flagHeight * scale;
+      const offsetX = (canvas.width - drawWidth) / 2;
+      const offsetY = (canvas.height - drawHeight) / 2;
+      
+      // Draw the majestic, waving American flag as the background
+      drawAmericanFlagNormal(scale, offsetX, offsetY);
+      
+      // Draw the pizzay flag (foreground) if it hasn't fully dissolved
+      if (!flagDissolved) {
+        if (!dissolving) {
+          drawPizzaFlagNormal(scale, offsetX, offsetY);
+        } else {
+          drawPizzaFlagDissolving(scale, offsetX, offsetY);
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  </script>
+</body>
+</html>
