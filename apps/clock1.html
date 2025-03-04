@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DNA Helix Clock</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    // Canvas setup and responsive resizing
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, centerX, centerY, clockRadius;
+    
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      centerX = width / 2;
+      centerY = height / 2;
+      // Use 90% of the half-dimension for clock radius
+      clockRadius = Math.min(width, height) / 2 * 0.9;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Draw the clock face with tick marks
+    function drawClockFace() {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      for (let i = 0; i < 60; i++) {
+        ctx.beginPath();
+        // Large ticks for 12, 3, 6, 9; small ticks for others
+        let tickLength = (i % 5 === 0) ? clockRadius * 0.1 : clockRadius * 0.05;
+        ctx.lineWidth = (i % 5 === 0) ? 4 : 2;
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.rotate(Math.PI / 30);
+        ctx.moveTo(0, -clockRadius);
+        ctx.lineTo(0, -clockRadius + tickLength);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Draw a spinning DNA helix along a hand line.
+    // 'angle' rotates the hand from the clock center.
+    // 'length' is the length of the hand.
+    // 'time' gives the animation phase.
+    // 'config' holds parameters for styling.
+    function drawDNAHand(angle, length, time, config) {
+      const diagAngle = config.diagAngle || Math.PI / 4;
+      const amplitude = config.amplitude;
+      const frequency = config.frequency;
+      const step = config.step;
+      // Axis (v) and perpendicular (u) vectors for helix geometry
+      const v = { x: Math.cos(diagAngle), y: Math.sin(diagAngle) };
+      const u = { x: -Math.sin(diagAngle), y: Math.cos(diagAngle) };
+
+      ctx.save();
+      // Move to clock center and rotate for the current hand angle
+      ctx.translate(centerX, centerY);
+      ctx.rotate(angle);
+      
+      // Draw the helix along the x-axis (from 0 to 'length')
+      for (let t = 0; t < length; t += step) {
+        // Center position of the helix at this segment
+        let cx = t;
+        let cy = 0;
+        let phase = t * frequency + time;
+        let offsetMag = amplitude * Math.sin(phase);
+        
+        // Calculate positions for the two helix strands
+        let x1 = cx + offsetMag * u.x;
+        let y1 = cy + offsetMag * u.y;
+        let x2 = cx - offsetMag * u.x;
+        let y2 = cy - offsetMag * u.y;
+        
+        // Draw the two points for the strands
+        ctx.fillStyle = config.strandColor;
+        ctx.beginPath();
+        ctx.arc(x1, y1, config.pointSize, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x2, y2, config.pointSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw the connecting rung between strands with a dynamic red tint
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        let redShade = Math.floor(100 + 155 * ((Math.sin(phase) + 1) / 2));
+        ctx.strokeStyle = "rgb(" + redShade + ", 0, 0)";
+        ctx.lineWidth = config.rungWidth;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    
+    // Draw a neon lightsaber–style second hand.
+    function drawSecondHand(angle, length) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(angle);
+      
+      // Create a gradient for a neon glow effect
+      let grad = ctx.createLinearGradient(0, 0, length, 0);
+      grad.addColorStop(0, "rgba(0,255,255,0.8)");
+      grad.addColorStop(0.5, "rgba(0,255,255,1)");
+      grad.addColorStop(1, "rgba(0,255,255,0.8)");
+      
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#00FFFF";
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(length, 0);
+      ctx.stroke();
+      
+      ctx.restore();
+    }
+    
+    // Main animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // Get the current local time
+      let now = new Date();
+      let seconds = now.getSeconds() + now.getMilliseconds() / 1000;
+      let minutes = now.getMinutes() + seconds / 60;
+      let hours = now.getHours() % 12 + minutes / 60;
+      
+      // Convert time units into angles (subtract PI/2 so that 0 starts at the top)
+      let secondAngle = (Math.PI / 30) * seconds - Math.PI/2;
+      let minuteAngle = (Math.PI / 30) * minutes - Math.PI/2;
+      let hourAngle = (Math.PI / 6) * hours - Math.PI/2;
+      
+      // Clear the canvas for each frame
+      ctx.clearRect(0, 0, width, height);
+      
+      // Draw the clock face with tick marks
+      drawClockFace();
+      
+      // Use current time in seconds for DNA helix animation phase
+      let animTime = now.getTime() / 1000;
+      
+      // Hour hand: a shorter, thinner DNA helix (magenta)
+      drawDNAHand(hourAngle, clockRadius * 0.5, animTime, {
+        diagAngle: Math.PI / 4,
+        amplitude: 8,          // smaller wiggle
+        frequency: 0.1,
+        step: 6,
+        strandColor: "#FF00FF", // magenta
+        pointSize: 2,
+        rungWidth: 2
+      });
+      
+      // Minute hand: a longer, more pronounced DNA helix (cyan)
+      drawDNAHand(minuteAngle, clockRadius * 0.8, animTime, {
+        diagAngle: Math.PI / 4,
+        amplitude: 12,         // larger wiggle
+        frequency: 0.08,
+        step: 6,
+        strandColor: "#00FFFF", // cyan
+        pointSize: 2,
+        rungWidth: 2
+      });
+      
+      // Second hand: a neon lightsaber-style hand
+      drawSecondHand(secondAngle, clockRadius * 0.9);
+    }
+    
+    animate();
+  </script>
+</body>
+</html>
