@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Badass Dedication Slideshow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: linear-gradient(135deg, #000, #222);
+      font-family: 'Oswald', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #slideshow {
+      position: relative;
+      width: 80%;
+      max-width: 1000px;
+      height: 600px;
+      overflow: hidden;
+      border: 5px solid #444;
+      border-radius: 8px;
+      background: #111;
+    }
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .slide.active {
+      opacity: 1;
+    }
+    .slide img {
+      max-width: 100%;
+      max-height: 100%;
+      border: 3px solid #fff;
+      border-radius: 4px;
+    }
+    .caption {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      font-size: 1.8em;
+      border-radius: 4px;
+    }
+    .text-slide h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+    .text-slide p {
+      font-size: 1.5em;
+      line-height: 1.4;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    #nextButton {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background: #e50914;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+      z-index: 10;
+    }
+    #nextButton:hover {
+      opacity: 1;
+    }
+    /* Keyframe animations for smooth, badass transitions */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-50px); }
+    }
+    .animate-in {
+      animation: slideIn 2s ease forwards;
+    }
+    .animate-out {
+      animation: slideOut 2s ease forwards;
+    }
+  </style>
+</head>
+<body>
+  <div id="slideshow">
+    <!-- Slides will be dynamically inserted here -->
+  </div>
+  <button id="nextButton">Next</button>
+
+  <script>
+    // Define an array of slide objects (intro, picture slides with captions, text slides, and a conclusion)
+    const slides = [
+      {
+        type: 'intro',
+        title: 'WELCOME TO THE ODYSSEY',
+        text: 'Embark on a journey of legacy and rebellion.'
+      },
+      {
+        type: 'picture',
+        image: 'images/badass1.jpg',
+        caption: 'Rise from the Ashes'
+      },
+      {
+        type: 'text',
+        title: 'THE CALL OF DESTINY',
+        text: 'Every scar tells a story, every battle forges a legend. This is our chronicle, unbound and unstoppable.'
+      },
+      {
+        type: 'picture',
+        image: 'images/badass2.jpg',
+        caption: 'Forged in Fire'
+      },
+      {
+        type: 'text',
+        title: 'CONQUERING THE NIGHT',
+        text: 'Under the cover of darkness, our spirits rise. The world trembles before our resolve.'
+      },
+      {
+        type: 'picture',
+        image: 'images/badass3.jpg',
+        caption: 'Unyielding'
+      },
+      {
+        type: 'text',
+        title: 'THE FINAL VERSE',
+        text: 'As the curtain falls, our legacy remains eternal. A testament to the relentless force within.'
+      },
+      {
+        type: 'conclusion',
+        title: 'THE EPILOGUE',
+        text: 'This saga is etched in time—a bold statement of defiance and triumph.'
+      }
+    ];
+
+    let currentSlide = 0;
+    const slideshow = document.getElementById('slideshow');
+    const nextButton = document.getElementById('nextButton');
+
+    // Create HTML for each slide based on its type.
+    function createSlideContent(slide) {
+      let content = '';
+      if (slide.type === 'intro' || slide.type === 'text' || slide.type === 'conclusion') {
+        content += `<div class="text-slide">`;
+        content += `<h1>${slide.title}</h1>`;
+        content += `<p>${slide.text}</p>`;
+        content += `</div>`;
+      } else if (slide.type === 'picture') {
+        content += `<div style="position: relative; width: 100%; height: 100%;">`;
+        content += `<img src="${slide.image}" alt="Slide Image">`;
+        content += `<div class="caption">${slide.caption}</div>`;
+        content += `</div>`;
+      }
+      return content;
+    }
+
+    // Render the current slide with a smooth animated transition.
+    function renderSlide(index) {
+      const slideObj = slides[index];
+      const slideDiv = document.createElement('div');
+      slideDiv.className = 'slide animate-in';
+      slideDiv.innerHTML = createSlideContent(slideObj);
+      slideshow.appendChild(slideDiv);
+
+      // If there's a previous slide, animate it out then remove it.
+      const previousSlides = slideshow.querySelectorAll('.slide');
+      if (previousSlides.length > 1) {
+        const oldSlide = previousSlides[0];
+        oldSlide.classList.remove('animate-in');
+        oldSlide.classList.add('animate-out');
+        setTimeout(() => {
+          if (oldSlide && oldSlide.parentElement) {
+            oldSlide.parentElement.removeChild(oldSlide);
+          }
+        }, 2000); // Duration matches the animation time
+      }
+    }
+
+    // Initial slide render.
+    renderSlide(currentSlide);
+
+    // Advance the slide on button click.
+    nextButton.addEventListener('click', () => {
+      currentSlide = (currentSlide + 1) % slides.length;
+      renderSlide(currentSlide);
+    });
+  </script>
+</body>
+</html>
