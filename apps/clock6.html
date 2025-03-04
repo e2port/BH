@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Elegant Analog Clock</title>
+  <style>
+    /* Reset margins and set a subtle background */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #f5f5f5;
+      overflow: hidden;
+    }
+    /* Ensure the canvas fills the window */
+    canvas {
+      display: block;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="clockCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('clockCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Resize the canvas to fit the window
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Draw the clock face, tick marks, and hands
+    function drawClock() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Determine center and radius (with margin)
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(centerX, centerY) * 0.9;
+
+      // Draw the clock face
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.lineWidth = radius * 0.05;
+      ctx.strokeStyle = '#333333';
+      ctx.stroke();
+
+      // Draw tick marks (longer marks for hours, shorter for minutes)
+      for (let i = 0; i < 60; i++) {
+        const angle = (i * Math.PI / 30);
+        const tickStart = (i % 5 === 0) ? radius * 0.85 : radius * 0.9;
+        const tickEnd = radius * 0.98;
+        const startX = centerX + tickStart * Math.cos(angle);
+        const startY = centerY + tickStart * Math.sin(angle);
+        const endX = centerX + tickEnd * Math.cos(angle);
+        const endY = centerY + tickEnd * Math.sin(angle);
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.lineWidth = (i % 5 === 0) ? radius * 0.02 : radius * 0.01;
+        ctx.strokeStyle = '#333333';
+        ctx.stroke();
+      }
+
+      // Get current local time
+      const now = new Date();
+      const sec = now.getSeconds() + now.getMilliseconds() / 1000;
+      const min = now.getMinutes() + sec / 60;
+      const hr = now.getHours() % 12 + min / 60;
+
+      // Draw hour hand
+      const hourAngle = (Math.PI / 6) * hr - Math.PI / 2;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(hourAngle);
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.05, 0);
+      ctx.lineTo(radius * 0.5, 0);
+      ctx.lineWidth = radius * 0.05;
+      ctx.strokeStyle = '#333333';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw minute hand
+      const minuteAngle = (Math.PI / 30) * min - Math.PI / 2;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(minuteAngle);
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.05, 0);
+      ctx.lineTo(radius * 0.7, 0);
+      ctx.lineWidth = radius * 0.03;
+      ctx.strokeStyle = '#555555';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw second hand
+      const secondAngle = (Math.PI / 30) * sec - Math.PI / 2;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(secondAngle);
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.1, 0);
+      ctx.lineTo(radius * 0.8, 0);
+      ctx.lineWidth = radius * 0.01;
+      ctx.strokeStyle = '#d40000';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw the center pivot
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 0.05, 0, 2 * Math.PI);
+      ctx.fillStyle = '#333333';
+      ctx.fill();
+    }
+
+    // Update the clock using requestAnimationFrame for smooth animation
+    function updateClock() {
+      drawClock();
+      requestAnimationFrame(updateClock);
+    }
+    updateClock();
+  </script>
+</body>
+</html>
