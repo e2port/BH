@@ -161,12 +161,16 @@ nav a:hover {
       margin-top: 20px;
     }
     .gallery-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
     }
     .gallery-item img {
       width: 100%;
-      height: auto;
-      border: 1px solid rgba(0, 0, 0, 0.3);
+      height: 200px;
+      object-fit: cover; /* Crops the image to fill the area */
+      border: 2px solid rgba(0, 0, 0, 0.3);
       transition: transform 0.3s ease;
     }
     .gallery-item img:hover {
@@ -183,6 +187,7 @@ nav a:hover {
       color: #000;
       padding: 5px;
       margin-top: 5px;
+      min-height: 3rem;
       border: 1px solid rgba(0, 0, 0, 0.3);
       border-radius: 4px;
     }
@@ -223,8 +228,6 @@ nav a:hover {
       font-weight: bold;
       cursor: pointer;
     }
-
-
   </style>
 </head>
 <body>
@@ -233,7 +236,6 @@ nav a:hover {
   <!-- Matrix Rain Background Canvas -->
   <canvas id="hwind-bg"></canvas>
   <div class="container">
-    <!-- Header and Navigation (kept from index.html) -->
     <header>
       <h1>E2's Digital Portfolio</h1>
       <p class="light-gray">Applied Data Scientist & Tech Strategist</p>
@@ -245,12 +247,10 @@ nav a:hover {
       <a href="attributions.html">Attributions</a>
       <a href="index.html#contact">Contact</a>
     </nav>
-
     <!-- ===================== -->
     <!-- Gallery Sections Begin -->
     <!-- ===================== -->
-
-    <!-- Section 4: Documents -->
+    <!-- Section 1: Documents -->
     <div id="docs" class="mini-canvas">
       <h2>PDF Documents</h2>
       <table style="width: 100%; border-collapse: collapse;">
@@ -291,7 +291,7 @@ nav a:hover {
       </table>
     </div>
 
-    <!-- Section 3: Apps Gallery -->
+    <!-- Section 2: Apps Gallery -->
     <div id="apps" class="mini-canvas">
       <h2>JS-based Apps</h2>
       <div class="gallery-grid">
@@ -452,7 +452,7 @@ nav a:hover {
         </div>
       </div>
     </div>
-    <!-- Section 1: Images Gallery -->
+    <!-- Section 3: Images Gallery -->
     <div id="images" class="mini-canvas">
       <h2>Images</h2>
       <div class="gallery-grid">
@@ -483,7 +483,7 @@ nav a:hover {
       </div>
     </div>
 
-    <!-- Section 2: Animations Gallery -->
+    <!-- Section 4: Animations Gallery -->
     <div id="animations" class="mini-canvas">
       <h2>Animations</h2>
       <div class="gallery-grid">
@@ -557,8 +557,7 @@ nav a:hover {
           <div class="info-box"> 
             Click the preview window to open the full-screen animation in a new tab and immerse yourself in the wind
           </p></div>
-        </div>        
-             
+        </div>                 
       </div>
     </div>
 
@@ -594,12 +593,9 @@ nav a:hover {
         <iframe src="" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
-
     <!-- ===================== -->
     <!-- Gallery Sections End -->
     <!-- ===================== -->
-
-    <!-- Bottom Contact Section (kept from index.html) -->
     <div id="contact" class="mini-canvas">
       <h2>Contact</h2>
       <p>
@@ -612,9 +608,6 @@ nav a:hover {
       &copy; 2025 E2 Port. All rights reserved. | Contact: <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
     </footer>
   </div>
-
- 
-
   <!-- Grayscale Matrix Rain Background Animation Script -->
  <script>
     const canvas = document.getElementById('hwind-bg');
@@ -624,7 +617,6 @@ nav a:hover {
     let scale = window.devicePixelRatio;
     const baseWidth = 800;
     const baseHeight = 600;
-
     function setCanvasSize() {
         scale = window.devicePixelRatio; // Update scale on resize
         canvas.width = baseWidth * scale;
@@ -645,7 +637,6 @@ nav a:hover {
         ctx.shadowColor = "rgba(120, 120, 120, 1)"; // muted gray shadow
         ctx.shadowBlur = 10;
         ctx.font = "bold " + fontSize + "px monospace";
-
         for (let i = 0; i < drops.length; i++) {
             const text = characters.charAt(Math.floor(Math.random() * characters.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -657,18 +648,14 @@ nav a:hover {
         requestAnimationFrame(draw);
     }
     draw();
-
     window.addEventListener('resize', setCanvasSize);
   </script>
-
-
   <!-- Video Modal Script -->
   <script>
     const videoLinks = document.querySelectorAll(".video-link");
     const videoModal = document.getElementById("video-modal");
     const videoIframe = videoModal.querySelector("iframe");
     const videoModalClose = document.getElementById("video-modal-close");
-
     videoLinks.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
@@ -677,12 +664,10 @@ nav a:hover {
         videoModal.classList.add("active");
       });
     });
-
     videoModalClose.addEventListener("click", () => {
       videoModal.classList.remove("active");
       videoIframe.src = "";
     });
-
     videoModal.addEventListener("click", (e) => {
       if (e.target === videoModal) {
         videoModal.classList.remove("active");
