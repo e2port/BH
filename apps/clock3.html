@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ancient Egypt Themed Clock</title>
+  <style>
+    /* Papyrus-inspired background and font */
+    body {
+      margin: 0;
+      background: #f7e9c7; /* light, papyrus-like beige */
+      overflow: hidden;
+      font-family: 'Papyrus', fantasy;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="clockCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById("clockCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Adjust the canvas to always fill the window.
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // Main function to draw the clock
+    function drawClock() {
+      // Clear the canvas for redrawing.
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(centerX, centerY) * 0.8;
+
+      // Draw the clock face using a radial gradient to simulate aged papyrus.
+      let faceGrad = ctx.createRadialGradient(centerX, centerY, radius * 0.2, centerX, centerY, radius);
+      faceGrad.addColorStop(0, "#fef9e7"); // very light center
+      faceGrad.addColorStop(1, "#d4a76a"); // warm, aged tone at the edges
+      ctx.fillStyle = faceGrad;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw the outer border of the clock face in a dark gold/brown hue.
+      ctx.strokeStyle = "#8b5e3c"; 
+      ctx.lineWidth = radius * 0.03;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw tick marks for each minute.
+      for (let i = 0; i < 60; i++) {
+        let angle = (Math.PI / 30) * i;
+        let innerTick = radius * 0.88;
+        // Longer, more prominent ticks every 5 minutes.
+        let outerTick = (i % 5 === 0) ? radius * 0.80 : radius * 0.83;
+        let tickColor = (i % 5 === 0) ? "#8b5e3c" : "#a67c52"; 
+        ctx.strokeStyle = tickColor;
+        ctx.lineWidth = (i % 5 === 0) ? 4 : 2;
+        ctx.beginPath();
+        let x1 = centerX + innerTick * Math.cos(angle);
+        let y1 = centerY + innerTick * Math.sin(angle);
+        let x2 = centerX + outerTick * Math.cos(angle);
+        let y2 = centerY + outerTick * Math.sin(angle);
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+
+      // Get the current local time.
+      const now = new Date();
+      const seconds = now.getSeconds() + now.getMilliseconds() / 1000;
+      const minutes = now.getMinutes() + seconds / 60;
+      const hours = now.getHours() % 12 + minutes / 60;
+
+      // Calculate angles for each hand (offset by -90° so that 12 o'clock is at the top).
+      const secondAngle = (Math.PI / 30) * seconds - Math.PI / 2;
+      const minuteAngle = (Math.PI / 30) * minutes - Math.PI / 2;
+      const hourAngle = (Math.PI / 6) * hours - Math.PI / 2;
+
+      // Draw the hour hand in a thick, dark gold style.
+      ctx.strokeStyle = "#8b5e3c";
+      ctx.lineWidth = radius * 0.05;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(centerX + radius * 0.5 * Math.cos(hourAngle), centerY + radius * 0.5 * Math.sin(hourAngle));
+      ctx.stroke();
+
+      // Draw the minute hand in a slightly thinner bronze tone.
+      ctx.strokeStyle = "#a67c52";
+      ctx.lineWidth = radius * 0.035;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(centerX + radius * 0.7 * Math.cos(minuteAngle), centerY + radius * 0.7 * Math.sin(minuteAngle));
+      ctx.stroke();
+
+      // Draw the second hand in a slender copper color.
+      ctx.strokeStyle = "#b87333"; // copper-like hue
+      ctx.lineWidth = radius * 0.015;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(centerX + radius * 0.8 * Math.cos(secondAngle), centerY + radius * 0.8 * Math.sin(secondAngle));
+      ctx.stroke();
+
+      // Draw the central pivot as a small filled circle.
+      ctx.fillStyle = "#8b5e3c";
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 0.04, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Continuously update the clock.
+    function animate() {
+      drawClock();
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
