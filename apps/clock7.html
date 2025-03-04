@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Psychedelic Badass Clock</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="clockCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('clockCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Resize canvas to fill the window
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Main drawing routine
+    function drawClock() {
+      // Calculate center and radius
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(centerX, centerY) * 0.8;
+      
+      // Get current time
+      const now = new Date();
+      const sec = now.getSeconds() + now.getMilliseconds() / 1000;
+      const min = now.getMinutes() + sec / 60;
+      const hr = now.getHours() % 12 + min / 60;
+
+      // Create a dynamic hue for psychedelic effect
+      const timeHue = (performance.now() / 50) % 360;
+
+      // Faint trail effect (draw semi-transparent black rectangle)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw an animated glowing background behind the clock
+      let bgGradient = ctx.createRadialGradient(centerX, centerY, radius * 0.3, centerX, centerY, radius * 1.2);
+      bgGradient.addColorStop(0, `hsla(${timeHue}, 100%, 50%, 0.2)`);
+      bgGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 1.2, 0, 2 * Math.PI);
+      ctx.fillStyle = bgGradient;
+      ctx.fill();
+
+      // Draw the clock face with neon glow
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = '#111';
+      ctx.fill();
+      ctx.lineWidth = radius * 0.05;
+      let neonHue = (timeHue + 180) % 360;
+      ctx.strokeStyle = `hsl(${neonHue}, 100%, 50%)`;
+      ctx.shadowColor = `hsl(${neonHue}, 100%, 50%)`;
+      ctx.shadowBlur = radius * 0.1;
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw tick marks with neon colors and glowing edges
+      for (let i = 0; i < 60; i++) {
+        const angle = i * Math.PI / 30;
+        const tickStart = (i % 5 === 0) ? radius * 0.85 : radius * 0.9;
+        const tickEnd = radius * 0.98;
+        const startX = centerX + tickStart * Math.cos(angle);
+        const startY = centerY + tickStart * Math.sin(angle);
+        const endX = centerX + tickEnd * Math.cos(angle);
+        const endY = centerY + tickEnd * Math.sin(angle);
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.lineWidth = (i % 5 === 0) ? radius * 0.03 : radius * 0.01;
+        ctx.strokeStyle = `hsl(${(timeHue + i * 6) % 360}, 100%, 70%)`;
+        ctx.shadowColor = `hsl(${(timeHue + i * 6) % 360}, 100%, 70%)`;
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0; // reset
+      }
+
+      // Draw the hour hand
+      const hourAngle = (Math.PI / 6) * hr - Math.PI / 2;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(hourAngle);
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.05, 0);
+      ctx.lineTo(radius * 0.5, 0);
+      ctx.lineWidth = radius * 0.06;
+      ctx.strokeStyle = `hsl(${(timeHue + 50) % 360}, 100%, 60%)`;
+      ctx.shadowColor = `hsl(${(timeHue + 50) % 360}, 100%, 60%)`;
+      ctx.shadowBlur = 20;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw the minute hand
+      const minuteAngle = (Math.PI / 30) * min - Math.PI / 2;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(minuteAngle);
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.05, 0);
+      ctx.lineTo(radius * 0.7, 0);
+      ctx.lineWidth = radius * 0.04;
+      ctx.strokeStyle = `hsl(${(timeHue + 100) % 360}, 100%, 60%)`;
+      ctx.shadowColor = `hsl(${(timeHue + 100) % 360}, 100%, 60%)`;
+      ctx.shadowBlur = 20;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw the second hand
+      const secondAngle = (Math.PI / 30) * sec - Math.PI / 2;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(secondAngle);
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.1, 0);
+      ctx.lineTo(radius * 0.8, 0);
+      ctx.lineWidth = radius * 0.01;
+      ctx.strokeStyle = `hsl(${(timeHue + 150) % 360}, 100%, 50%)`;
+      ctx.shadowColor = `hsl(${(timeHue + 150) % 360}, 100%, 50%)`;
+      ctx.shadowBlur = 15;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw a glowing center hub with a pulsating effect
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 0.07, 0, Math.PI * 2);
+      ctx.fillStyle = `hsl(${(timeHue + 200) % 360}, 100%, 60%)`;
+      ctx.shadowColor = `hsl(${(timeHue + 200) % 360}, 100%, 60%)`;
+      ctx.shadowBlur = 30;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // Update the clock continuously with smooth animation
+    function updateClock() {
+      drawClock();
+      requestAnimationFrame(updateClock);
+    }
+    updateClock();
+  </script>
+</body>
+</html>
