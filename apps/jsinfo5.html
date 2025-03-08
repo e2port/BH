@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fallout Terminal: Your Digital Shadow</title>
+  <style>
+    /* Fallout terminal aesthetic: green text on black background with monospaced font */
+    body {
+      background-color: black;
+      color: #00ff00;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2em;
+      letter-spacing: 1px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+      max-width: 1000px;
+    }
+    th, td {
+      border: 1px solid #00ff00;
+      padding: 8px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #003300;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #001a00;
+    }
+    caption {
+      caption-side: top;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .group {
+      background-color: #002200;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h1>TERMINAL View: USER's DIGITAL SHADOW</h1>
+  <table>
+    <caption>Data Points, Their Meaning, and Data Points to Avoid</caption>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+        <th>Meaning</th>
+        <th>Undesirable Exposure</th>
+      </tr>
+    </thead>
+    <tbody id="infoTable">
+      <!-- JavaScript will populate rows below -->
+    </tbody>
+  </table>
+
+  <script>
+    async function populateInfo() {
+      // Get battery level asynchronously
+      let batteryLevel = "N/A";
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          batteryLevel = (battery.level * 100) + "%";
+        } catch (e) {
+          batteryLevel = "N/A";
+        }
+      }
+
+      // Helper: Get WebGL Vendor information
+      function getWebGLVendor() {
+        try {
+          const canvas = document.createElement("canvas");
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (gl) {
+            const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+            if (debugInfo) {
+              return gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+            }
+          }
+        } catch (e) {}
+        return "N/A";
+      }
+
+      // Access connection details if available
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+      // Build an array of 16 objects (organized in groups)
+      const data = [
+        // Group 1: User-related data
+        { 
+          parameter: "Timezone Offset", 
+          value: new Date().getTimezoneOffset() + " minutes", 
+          meaning: "Local offset from UTC (reveals approximate location/timezone).", 
+          undesired: "Exact offset aids geolocation."
+        },
+        { 
+          parameter: "Languages", 
+          value: navigator.languages ? navigator.languages.join(", ") : navigator.language, 
+          meaning: "Preferred languages of the user.", 
+          undesired: "Multiple language settings expose regional identity."
+        },
+        { 
+          parameter: "Connection Type", 
+          value: (connection && connection.effectiveType) ? connection.effectiveType : "N/A", 
+          meaning: "Type of network connection (e.g., 4g, wifi).", 
+          undesired: "Reveals ISP and approximate location."
+        },
+        { 
+          parameter: "Downlink Speed", 
+          value: (connection && connection.downlink) ? connection.downlink + " Mbps" : "N/A", 
+          meaning: "Estimated effective downlink speed.", 
+          undesired: "Precise speed hints at network infrastructure."
+        },
+        // Group 2: Device-related data
+        { 
+          parameter: "Operating System", 
+          value: navigator.platform || "N/A", 
+          meaning: "Underlying operating system.", 
+          undesired: "Specific OS details may reveal vulnerabilities."
+        },
+        { 
+          parameter: "Battery Level", 
+          value: batteryLevel, 
+          meaning: "Current battery charge level.", 
+          undesired: "Exposes device status and tracking metric."
+        },
+        { 
+          parameter: "Screen Orientation", 
+          value: (screen.orientation && screen.orientation.type) ? screen.orientation.type : "N/A", 
+          meaning: "Current screen orientation (landscape/portrait).", 
+          undesired: "Hints at device form factor and usage."
+        },
+        { 
+          parameter: "Screen Resolution", 
+          value: screen.width + " x " + screen.height, 
+          meaning: "Physical screen dimensions.", 
+          undesired: "Unique resolution aids in fingerprinting."
+        },
+        { 
+          parameter: "Device Memory (GB)", 
+          value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A", 
+          meaning: "Approximate amount of RAM.", 
+          undesired: "Memory size narrows down device models."
+        },
+        // Group 3: Usage/environment-related data
+        { 
+          parameter: "WebGL Vendor", 
+          value: getWebGLVendor(), 
+          meaning: "GPU vendor via WebGL.", 
+          undesired: "Detailed GPU info can be exploited."
+        },
+        { 
+          parameter: "Browser Plugins", 
+          value: (navigator.plugins ? navigator.plugins.length : "N/A"), 
+          meaning: "Number of installed browser plugins.", 
+          undesired: "Plugin count reveals browser configuration."
+        },
+        { 
+          parameter: "Cookies Enabled", 
+          value: (navigator.cookieEnabled ? "Yes" : "No"), 
+          meaning: "Whether cookies are allowed.", 
+          undesired: "Allows persistent tracking."
+        },
+        { 
+          parameter: "Java Enabled", 
+          value: (navigator.javaEnabled && navigator.javaEnabled()) ? "Enabled" : "Disabled", 
+          meaning: "Indicates if Java is enabled.", 
+          undesired: "Java can introduce serious security risks."
+        },
+        { 
+          parameter: "Do Not Track", 
+          value: (navigator.doNotTrack || "N/A"), 
+          meaning: "User’s tracking preference.", 
+          undesired: "‘N/A’ implies no explicit privacy protection."
+        },
+        { 
+          parameter: "Local Storage", 
+          value: (typeof localStorage !== "undefined") ? "Available" : "Not Available", 
+          meaning: "Availability of persistent local storage.", 
+          undesired: "May be exploited for unauthorized tracking."
+        },
+        { 
+          parameter: "Session Storage", 
+          value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available", 
+          meaning: "Availability of session-specific storage.", 
+          undesired: "Can be used to maintain and hijack sessions."
+        }
+      ];
+      
+      const tableBody = document.getElementById("infoTable");
+      data.forEach(item => {
+        const row = document.createElement("tr");
+        
+        const cellParam = document.createElement("td");
+        cellParam.textContent = item.parameter;
+        row.appendChild(cellParam);
+        
+        const cellValue = document.createElement("td");
+        cellValue.textContent = item.value;
+        row.appendChild(cellValue);
+        
+        const cellMeaning = document.createElement("td");
+        cellMeaning.textContent = item.meaning;
+        row.appendChild(cellMeaning);
+        
+        const cellUndesired = document.createElement("td");
+        cellUndesired.textContent = item.undesired;
+        row.appendChild(cellUndesired);
+        
+        tableBody.appendChild(row);
+      });
+    }
+    
+    window.onload = populateInfo;
+  </script>
+</body>
+</html>
