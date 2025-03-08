@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Exposé: Your Digital Shadow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Using a modern, clean font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+    }
+    .container {
+      max-width: 1000px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    p.description {
+      text-align: center;
+      font-size: 1.1em;
+      margin-bottom: 30px;
+      color: #b0b0b0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #262626;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+    th, td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+      word-break: break-all;
+    }
+    th {
+      background-color: #333;
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+    tr:nth-child(even) {
+      background-color: #2e2e2e;
+    }
+    tr:hover {
+      background-color: #3a3a3a;
+      transition: background-color 0.2s ease-in-out;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Digital Exposé</h1>
+    <p class="description">Revealing the alarming data points that form your public digital shadow.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody id="infoTable">
+        <!-- Information rows will be injected here -->
+      </tbody>
+    </table>
+  </div>
+  <footer>
+    &copy; 2025 Digital Exposé. All rights reserved.
+  </footer>
+
+  <script>
+    // Synchronous information and helper functions
+
+    // Returns the WebGL renderer string
+    function getWebGLRenderer() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          if (debugInfo) {
+            return gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          }
+        }
+      } catch (e) { }
+      return "N/A";
+    }
+
+    // Returns the WebGL vendor string
+    function getWebGLVendor() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          if (debugInfo) {
+            return gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+          }
+        }
+      } catch (e) { }
+      return "N/A";
+    }
+
+    // Create a simple canvas fingerprint hash
+    function getCanvasFingerprint() {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = "top";
+        ctx.font = "14px Arial";
+        ctx.fillStyle = "#f60";
+        ctx.fillRect(125, 1, 62, 20);
+        ctx.fillStyle = "#069";
+        ctx.fillText("Digital Shadow", 2, 15);
+        ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+        ctx.fillText("Digital Shadow", 4, 17);
+        const dataURL = canvas.toDataURL();
+        // A very simple hash: sum of char codes modulo 100000
+        let hash = 0;
+        for (let i = 0; i < dataURL.length; i++) {
+          hash = (hash + dataURL.charCodeAt(i)) % 100000;
+        }
+        return hash;
+      } catch (e) {
+        return "N/A";
+      }
+    }
+
+    // Main async function to collect all info
+    async function getScaryInfo() {
+      const info = [];
+      // 1. User Agent
+      info.push({ label: "User Agent", value: navigator.userAgent || "N/A" });
+      // 2. Operating System (platform)
+      info.push({ label: "Operating System", value: navigator.platform || "N/A" });
+      // 3. Browser Vendor
+      info.push({ label: "Browser Vendor", value: navigator.vendor || "N/A" });
+      // 4. Browser Language
+      info.push({ label: "Browser Language", value: navigator.language || "N/A" });
+      // 5. Cookies Enabled
+      info.push({ label: "Cookies Enabled", value: navigator.cookieEnabled ? "Yes" : "No" });
+      // 6. Do Not Track
+      info.push({ label: "Do Not Track", value: navigator.doNotTrack || "N/A" });
+      // 7. Local Storage Availability
+      info.push({ label: "Local Storage", value: (typeof localStorage !== "undefined") ? "Available" : "Not Available" });
+      // 8. Session Storage Availability
+      info.push({ label: "Session Storage", value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available" });
+      // 9. IndexedDB Support
+      info.push({ label: "IndexedDB", value: (typeof indexedDB !== "undefined") ? "Supported" : "Not Supported" });
+      // 10. Browser Plugins Count
+      info.push({ label: "Browser Plugins", value: navigator.plugins.length });
+      // 11. Screen Resolution
+      info.push({ label: "Screen Resolution", value: screen.width + " x " + screen.height });
+      // 12. Hardware Concurrency
+      info.push({ label: "Hardware Concurrency", value: navigator.hardwareConcurrency || "N/A" });
+      // 13. Device Memory
+      info.push({ label: "Device Memory", value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A" });
+      // 14. Connection Type
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      info.push({ label: "Connection Type", value: (connection && connection.effectiveType) ? connection.effectiveType : "N/A" });
+      // 15. WebGL Renderer
+      info.push({ label: "WebGL Renderer", value: getWebGLRenderer() });
+
+      // --- Additional (asynchronous / advanced) "scary" info ---
+
+      // 16. Public IP Address
+      let publicIP = "N/A";
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        publicIP = data.ip;
+      } catch (e) {
+        publicIP = "N/A";
+      }
+      info.push({ label: "Public IP Address", value: publicIP });
+
+      // 17. Canvas Fingerprint
+      info.push({ label: "Canvas Fingerprint", value: getCanvasFingerprint() });
+
+      // 18. WebGL Vendor
+      info.push({ label: "WebGL Vendor", value: getWebGLVendor() });
+
+      // 19. Downlink Speed
+      const downlink = (connection && connection.downlink) ? connection.downlink + " Mbps" : "N/A";
+      info.push({ label: "Downlink Speed", value: downlink });
+
+      // 20. Round Trip Time (RTT)
+      const rtt = (connection && connection.rtt) ? connection.rtt + " ms" : "N/A";
+      info.push({ label: "Round Trip Time", value: rtt });
+
+      // 21. Save Data Mode
+      const saveData = (connection && typeof connection.saveData === "boolean") ? (connection.saveData ? "Enabled" : "Disabled") : "N/A";
+      info.push({ label: "Save Data Mode", value: saveData });
+
+      // 22. Maximum Touch Points
+      info.push({ label: "Maximum Touch Points", value: navigator.maxTouchPoints || "N/A" });
+
+      // 23. Battery Level
+      let batteryLevel = "N/A";
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          batteryLevel = (battery.level * 100) + "%";
+        } catch (e) {
+          batteryLevel = "N/A";
+        }
+      }
+      info.push({ label: "Battery Level", value: batteryLevel });
+
+      // 24. Media Devices Count
+      let mediaCount = "N/A";
+      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          mediaCount = devices.length;
+        } catch (e) {
+          mediaCount = "N/A";
+        }
+      }
+      info.push({ label: "Media Devices Count", value: mediaCount });
+
+      // 25. Preferred Color Scheme
+      const colorScheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? "Dark" : "Light";
+      info.push({ label: "Preferred Color Scheme", value: colorScheme });
+
+      // 26. Languages
+      const languages = (navigator.languages && navigator.languages.length) ? navigator.languages.join(", ") : navigator.language;
+      info.push({ label: "Languages", value: languages });
+
+      // 27. Screen Orientation
+      const orientation = (screen.orientation && screen.orientation.type) ? screen.orientation.type : "N/A";
+      info.push({ label: "Screen Orientation", value: orientation });
+
+      return info;
+    }
+
+    // Populate the table with collected info
+    async function populateScaryInfo() {
+      const infoData = await getScaryInfo();
+      const tableBody = document.getElementById("infoTable");
+      infoData.forEach(item => {
+        const row = document.createElement("tr");
+        const cellLabel = document.createElement("td");
+        cellLabel.textContent = item.label;
+        const cellValue = document.createElement("td");
+        cellValue.textContent = item.value;
+        row.appendChild(cellLabel);
+        row.appendChild(cellValue);
+        tableBody.appendChild(row);
+      });
+    }
+
+    window.onload = populateScaryInfo;
+  </script>
+</body>
+</html>
