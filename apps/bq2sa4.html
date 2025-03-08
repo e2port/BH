@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Are You an Animal Lover?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Cheerful pastel styling for animal lovers */
+    body {
+      background-color: #f0f8ff; /* Alice Blue */
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 5px;
+    }
+    p.subtitle {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    /* Table styling */
+    table {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto 20px auto;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      border: 4px solid #ffb300;
+      box-shadow: 0 0 15px rgba(255, 179, 0, 0.5);
+    }
+    th, td {
+      padding: 10px 15px;
+      border: 1px solid #ffb300;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 1.1em;
+    }
+    .question-cell {
+      width: 80%;
+    }
+    .checkbox-cell {
+      width: 20%;
+      text-align: center;
+    }
+    /* Result box styling */
+    .result-box {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 10px solid #66bb6a;
+      background-color: #ffffff;
+      box-shadow: 0 0 20px rgba(102, 187, 106, 0.5);
+      font-size: 1.2em;
+      line-height: 1.5;
+      text-align: center;
+      white-space: pre-line; /* to show line breaks in ASCII art */
+    }
+    /* Custom circular checkbox styling */
+    input[type="checkbox"].circle {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #ffecb3, #fffde7);
+      border: 2px solid #ffb300;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+      margin: auto;
+      display: block;
+    }
+    input[type="checkbox"].circle:checked {
+      background: linear-gradient(45deg, #c8e6c9, #e8f5e9);
+      border: 2px solid #66bb6a;
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2em; }
+      th, td { font-size: 0.9em; }
+      .result-box { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Are You an Animal Lover?</h1>
+  <p class="subtitle">Discover how much you adore our furry, feathered, and finned friends!</p>
+  <table id="quizTable">
+    <!-- Quiz questions will be inserted here dynamically -->
+  </table>
+  <div class="result-box" id="resultBox">
+    <!-- Live result will appear here -->
+  </div>
+  
+  <script>
+    // Pool of 20 animal-themed questions.
+    const questionPool = [
+      "I always stop to pet a stray animal I encounter.",
+      "I follow animal rescue and sanctuary pages on social media.",
+      "I visit animal shelters or sanctuaries regularly.",
+      "I have more than one pet at home.",
+      "I donate to animal charities whenever I can.",
+      "I enjoy watching documentaries about wildlife.",
+      "I volunteer at animal rescue centers or shelters.",
+      "I prefer adopting pets rather than buying them.",
+      "I feel happier when I'm surrounded by animals.",
+      "I love spending time in nature with animals.",
+      "I decorate my home with animal-themed items.",
+      "I participate in local pet adoption events.",
+      "I always share cute animal videos with friends.",
+      "I celebrate my pet's birthday every year.",
+      "I believe in protecting endangered species.",
+      "I actively support animal conservation efforts.",
+      "I talk about my pets to anyone who will listen.",
+      "I consider my pets as part of my family.",
+      "I prefer spending time with animals over people.",
+      "I get excited every time I see a new animal at the park."
+    ];
+    
+    // Shuffle function (Fisher-Yates algorithm)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    
+    // Select 5 random questions from the pool.
+    const selectedQuestions = shuffleArray([...questionPool]).slice(0, 5);
+    
+    // Populate the quiz table with the selected questions.
+    const quizTable = document.getElementById("quizTable");
+    selectedQuestions.forEach((question, index) => {
+      const row = document.createElement("tr");
+      
+      // Question cell
+      const questionCell = document.createElement("td");
+      questionCell.className = "question-cell";
+      questionCell.textContent = question;
+      row.appendChild(questionCell);
+      
+      // Checkbox cell with custom circular styling
+      const checkboxCell = document.createElement("td");
+      checkboxCell.className = "checkbox-cell";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "circle";
+      checkbox.id = "q" + index;
+      checkbox.addEventListener("change", updateResult);
+      checkboxCell.appendChild(checkbox);
+      row.appendChild(checkboxCell);
+      
+      quizTable.appendChild(row);
+    });
+    
+    // ASCII art for each status (each art is at least 5 rows tall):
+    const asciiArt = {
+      0: "   /\\_/\\  \n  ( -.- ) \n  (  ___ ) \n   \\___/  \n    :-(   ",
+      1: " (\\_/)\n (._.)\n (   )\n /   \\\n(     )",
+      2: "  /\\_/\\ \n ( o.o )\n  > ^ < \n (     )\n  `---' ",
+      3: "   /\\_/\\\n  ( o.o )\n   > ^ < \n  /     \\\n (       )",
+      4: "   /\\     /\\\n  {  `---'  }\n  {  O   O  }\n  ~~>  V  <~~\n   \\  \\|/  /\n    `-----'"
+    };
+    
+    // Function to update the live result.
+    function updateResult() {
+      let score = 0;
+      // Count how many checkboxes are checked.
+      for (let i = 0; i < 5; i++) {
+        const checkbox = document.getElementById("q" + i);
+        if (checkbox && checkbox.checked) {
+          score++;
+        }
+      }
+      
+      let status = "";
+      let description = "";
+      
+      if (score === 0) {
+        status = "Not an Animal Lover";
+        description = "It appears animals haven't yet charmed you.\nMaybe it's time to experience some furry love!";
+      } else if (score === 1) {
+        status = "Casual Admirer";
+        description = "You have a mild fondness for animals.\nA little pet here and there brings a smile to your day!";
+      } else if (score === 2) {
+        status = "Animal Appreciator";
+        description = "You enjoy the quirky antics of animals.\nThey add a delightful spark to your life!";
+      } else if (score === 3) {
+        status = "Devoted Pet Pal";
+        description = "You clearly have a soft spot for animals.\nYour heart warms with every purr and wag!";
+      } else { // score is 4 or 5
+        status = "Ultimate Animal Lover";
+        description = "Your love for animals is off the charts!\nThey’re not just pets—they’re cherished family!";
+      }
+      
+      // Use asciiArt based on score: for 4 or 5, use the art for key 4.
+      const art = asciiArt[score >= 4 ? 4 : score];
+      
+      const resultBox = document.getElementById("resultBox");
+      resultBox.textContent = "Your Score: " + score + " / 5\n\n" +
+                              "Status: " + status + "\n\n" +
+                              description + "\n\n" +
+                              art;
+    }
+    
+    // Initialize the live result.
+    updateResult();
+  </script>
+</body>
+</html>
