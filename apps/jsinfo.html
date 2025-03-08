@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Terminal - User System Info</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00FF00;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #infoTable {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 90%;
+    }
+    #infoTable th, #infoTable td {
+      border: 1px solid #00FF00;
+      padding: 10px;
+      text-align: left;
+    }
+    #infoTable th {
+      background-color: #003300;
+    }
+  </style>
+</head>
+<body>
+  <h1>TERMINAL - User Info</h1>
+  <table id="infoTable">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody id="infoBody">
+      <!-- JavaScript will insert rows here -->
+    </tbody>
+  </table>
+
+  <script>
+    function getSystemInfo() {
+      const info = [];
+      
+      // 1. Local Time
+      info.push({ label: "Local Time", value: new Date().toLocaleString() });
+      
+      // 2. Operating System (using navigator.platform)
+      info.push({ label: "Operating System", value: navigator.platform || "N/A" });
+      
+      // 3. Browser (user agent string)
+      info.push({ label: "Browser", value: navigator.userAgent || "N/A" });
+      
+      // 4. Browser Vendor
+      info.push({ label: "Browser Vendor", value: navigator.vendor || "N/A" });
+      
+      // 5. Browser Language
+      info.push({ label: "Browser Language", value: navigator.language || "N/A" });
+      
+      // 6. Cookies Enabled
+      info.push({ label: "Cookies Enabled", value: navigator.cookieEnabled ? "Yes" : "No" });
+      
+      // 7. Online Status
+      info.push({ label: "Online Status", value: navigator.onLine ? "Online" : "Offline" });
+      
+      // 8. Screen Width
+      info.push({ label: "Screen Width", value: screen.width + " px" });
+      
+      // 9. Screen Height
+      info.push({ label: "Screen Height", value: screen.height + " px" });
+      
+      // 10. Screen Pixel Depth
+      info.push({ label: "Screen Pixel Depth", value: screen.pixelDepth + " bits" });
+      
+      // 11. Color Depth
+      info.push({ label: "Color Depth", value: screen.colorDepth + " bits" });
+      
+      // 12. Timezone Offset (in minutes)
+      info.push({ label: "Timezone Offset", value: new Date().getTimezoneOffset() + " minutes" });
+      
+      // 13. Current URL
+      info.push({ label: "Current URL", value: location.href });
+      
+      // 14. Referrer
+      info.push({ label: "Referrer", value: document.referrer || "N/A" });
+      
+      // 15. Document Title
+      info.push({ label: "Document Title", value: document.title });
+      
+      // 16. User Agent
+      info.push({ label: "User Agent", value: navigator.userAgent });
+      
+      // 17. Number of Plugins
+      info.push({ label: "Number of Plugins", value: navigator.plugins.length });
+      
+      // 18. Device Memory (GB)
+      info.push({ label: "Device Memory", value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A" });
+      
+      // 19. Hardware Concurrency (logical processors)
+      info.push({ label: "Hardware Concurrency", value: navigator.hardwareConcurrency || "N/A" });
+      
+      // 20. Touch Support
+      info.push({ label: "Touch Support", value: ('ontouchstart' in window) ? "Yes" : "No" });
+      
+      // 21. Local Storage Availability
+      info.push({ label: "Local Storage", value: (typeof localStorage !== "undefined") ? "Available" : "Not Available" });
+      
+      // 22. Session Storage Availability
+      info.push({ label: "Session Storage", value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available" });
+      
+      // 23. IndexedDB Availability
+      info.push({ label: "IndexedDB", value: (typeof indexedDB !== "undefined") ? "Available" : "Not Available" });
+      
+      // 24. App Name
+      info.push({ label: "App Name", value: navigator.appName || "N/A" });
+      
+      // 25. App Code Name
+      info.push({ label: "App Code Name", value: navigator.appCodeName || "N/A" });
+      
+      // 26. App Version
+      info.push({ label: "App Version", value: navigator.appVersion || "N/A" });
+      
+      // 27. Connection Type (if available)
+      info.push({ label: "Connection Type", value: (navigator.connection && navigator.connection.effectiveType) ? navigator.connection.effectiveType : "N/A" });
+      
+      // 28. Do Not Track
+      info.push({ label: "Do Not Track", value: navigator.doNotTrack || "N/A" });
+      
+      // 29. Java Enabled
+      info.push({ label: "Java Enabled", value: navigator.javaEnabled() ? "Yes" : "No" });
+      
+      // 30. Screen Orientation (if available)
+      info.push({ label: "Screen Orientation", value: (screen.orientation && screen.orientation.type) ? screen.orientation.type : "N/A" });
+      
+      return info;
+    }
+
+    function populateInfo() {
+      const infoData = getSystemInfo();
+      const infoBody = document.getElementById("infoBody");
+      infoData.forEach(item => {
+        const row = document.createElement("tr");
+        const cellLabel = document.createElement("td");
+        cellLabel.textContent = item.label;
+        const cellValue = document.createElement("td");
+        cellValue.textContent = item.value;
+        row.appendChild(cellLabel);
+        row.appendChild(cellValue);
+        infoBody.appendChild(row);
+      });
+    }
+
+    window.onload = populateInfo;
+  </script>
+</body>
+</html>
