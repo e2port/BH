@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Shadow</title>
+  <style>
+    /* Global Fallout terminal aesthetic */
+    body {
+      background-color: #000;
+      color: #00ff00;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.2em;
+      letter-spacing: 1px;
+    }
+    table {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      border: 2px solid #00ff00;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    }
+    caption {
+      caption-side: top;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    th, td {
+      border: 1px solid #00ff00;
+      padding: 10px 15px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: linear-gradient(90deg, #003300, #005500);
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: rgba(0, 50, 0, 0.4);
+    }
+    tr:hover {
+      background-color: rgba(0, 80, 0, 0.6);
+      transition: background-color 0.2s ease-in-out;
+    }
+    /* Make first column bold and slightly larger */
+    td:first-child {
+      font-weight: bold;
+      font-size: 1.05em;
+    }
+    /* Responsive table */
+    @media (max-width: 768px) {
+      table, th, td {
+        font-size: 0.85em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>USER's DIGITAL SHADOW</h1>
+  <table>
+    <caption>Parameters, Their Meanings, Risks &amp; Example Bad Values</caption>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+        <th>Meaning</th>
+        <th>Undesirable Exposure</th>
+        <th>Bad Value Trigger</th>
+      </tr>
+    </thead>
+    <tbody id="infoTable">
+      <!-- Rows populated via JavaScript -->
+    </tbody>
+  </table>
+
+  <script>
+    async function populateInfo() {
+      // Get Battery Level asynchronously
+      let batteryLevel = "N/A";
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          batteryLevel = (battery.level * 100) + "%";
+        } catch (e) {
+          batteryLevel = "N/A";
+        }
+      }
+
+      // Connection details
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+      // Helper: Get WebGL Vendor
+      function getWebGLVendor() {
+        try {
+          const canvas = document.createElement("canvas");
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (gl) {
+            const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+            if (debugInfo) {
+              return gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+            }
+          }
+        } catch (e) {}
+        return "N/A";
+      }
+
+      // Helper: Get WebGL Renderer
+      function getWebGLRenderer() {
+        try {
+          const canvas = document.createElement("canvas");
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (gl) {
+            const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+            if (debugInfo) {
+              return gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+            }
+          }
+        } catch (e) {}
+        return "N/A";
+      }
+
+      // Helper: Canvas Fingerprint (a simple hash)
+      function getCanvasFingerprint() {
+        try {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          ctx.textBaseline = "top";
+          ctx.font = "14px Arial";
+          ctx.fillStyle = "#f60";
+          ctx.fillRect(125, 1, 62, 20);
+          ctx.fillStyle = "#069";
+          ctx.fillText("Digital Shadow", 2, 15);
+          ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+          ctx.fillText("Digital Shadow", 4, 17);
+          const dataURL = canvas.toDataURL();
+          let hash = 0;
+          for (let i = 0; i < dataURL.length; i++) {
+            hash = (hash + dataURL.charCodeAt(i)) % 100000;
+          }
+          return hash;
+        } catch (e) {
+          return "N/A";
+        }
+      }
+
+      // Build an array of 32 data objects
+      const data = [
+        {
+          parameter: "Timezone Offset",
+          value: new Date().getTimezoneOffset() + " minutes",
+          meaning: "Local offset from UTC; reveals approximate timezone.",
+          undesired: "Exact offset can help pinpoint your region.",
+          badExample: "0 minutes (GMT)"
+        },
+        {
+          parameter: "Languages",
+          value: navigator.languages ? navigator.languages.join(", ") : navigator.language,
+          meaning: "User's preferred languages.",
+          undesired: "Multiple languages expose regional identity.",
+          badExample: "en-US,fr-FR"
+        },
+        {
+          parameter: "Connection Type",
+          value: (connection && connection.effectiveType) ? connection.effectiveType : "N/A",
+          meaning: "Type of network connection (e.g., 4g, wifi).",
+          undesired: "Reveals network infrastructure details.",
+          badExample: "4g"
+        },
+        {
+          parameter: "Downlink Speed",
+          value: (connection && connection.downlink) ? connection.downlink + " Mbps" : "N/A",
+          meaning: "Estimated effective downlink speed.",
+          undesired: "Precise speed indicates network quality.",
+          badExample: "25 Mbps"
+        },
+        {
+          parameter: "Operating System",
+          value: navigator.platform || "N/A",
+          meaning: "Underlying OS/platform information.",
+          undesired: "Specific OS details can be exploited.",
+          badExample: "Win32"
+        },
+        {
+          parameter: "Battery Level",
+          value: batteryLevel,
+          meaning: "Current battery charge status.",
+          undesired: "Exposes device usage patterns.",
+          badExample: "100%"
+        },
+        {
+          parameter: "Screen Orientation",
+          value: (screen.orientation && screen.orientation.type) ? screen.orientation.type : "N/A",
+          meaning: "Current screen orientation (landscape/portrait).",
+          undesired: "Reveals device posture and usage habits.",
+          badExample: "landscape-primary"
+        },
+        {
+          parameter: "Screen Resolution",
+          value: screen.width + " x " + screen.height,
+          meaning: "Physical screen dimensions in pixels.",
+          undesired: "Unique resolution aids fingerprinting.",
+          badExample: "1920 x 1080"
+        },
+        {
+          parameter: "Device Memory (GB)",
+          value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A",
+          meaning: "Approximate amount of RAM available.",
+          undesired: "Narrows down device models.",
+          badExample: "8 GB"
+        },
+        {
+          parameter: "WebGL Vendor",
+          value: getWebGLVendor(),
+          meaning: "GPU vendor information from WebGL.",
+          undesired: "Exposes specific graphics hardware details.",
+          badExample: "NVIDIA Corporation"
+        },
+        {
+          parameter: "Browser Plugins",
+          value: (navigator.plugins ? navigator.plugins.length : "N/A"),
+          meaning: "Number of installed browser plugins.",
+          undesired: "Unique plugin counts aid in fingerprinting.",
+          badExample: "0"
+        },
+        {
+          parameter: "Cookies Enabled",
+          value: (navigator.cookieEnabled ? "Yes" : "No"),
+          meaning: "Whether cookies are permitted in the browser.",
+          undesired: "Allows persistent tracking.",
+          badExample: "Yes"
+        },
+        {
+          parameter: "Java Enabled",
+          value: (navigator.javaEnabled && navigator.javaEnabled() ? "Enabled" : "Disabled"),
+          meaning: "Whether Java is enabled in the browser.",
+          undesired: "Java can introduce major security risks.",
+          badExample: "Enabled"
+        },
+        {
+          parameter: "Do Not Track",
+          value: (navigator.doNotTrack || "N/A"),
+          meaning: "User’s tracking preference.",
+          undesired: "‘N/A’ means no explicit privacy protection.",
+          badExample: "N/A"
+        },
+        {
+          parameter: "Local Storage",
+          value: (typeof localStorage !== "undefined") ? "Available" : "Not Available",
+          meaning: "Persistent storage available to the browser.",
+          undesired: "Can be exploited for tracking.",
+          badExample: "Available"
+        },
+        {
+          parameter: "Session Storage",
+          value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available",
+          meaning: "Temporary storage for the session.",
+          undesired: "May be used for session hijacking.",
+          badExample: "Available"
+        },
+        {
+          parameter: "User Agent",
+          value: navigator.userAgent || "N/A",
+          meaning: "Detailed string about browser, OS, and engine.",
+          undesired: "Exposes full system configuration.",
+          badExample: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)…"
+        },
+        {
+          parameter: "WebGL Renderer",
+          value: getWebGLRenderer(),
+          meaning: "Detailed GPU renderer info from WebGL.",
+          undesired: "Exposes precise graphics hardware details.",
+          badExample: "GeForce GTX 1080"
+        },
+        {
+          parameter: "Hardware Concurrency",
+          value: navigator.hardwareConcurrency || "N/A",
+          meaning: "Number of logical CPU cores.",
+          undesired: "May reveal performance capabilities.",
+          badExample: "4"
+        },
+        {
+          parameter: "Canvas Fingerprint",
+          value: getCanvasFingerprint(),
+          meaning: "A hash of canvas rendering used for fingerprinting.",
+          undesired: "Unique hash can identify your device persistently.",
+          badExample: "12345"
+        },
+        {
+          parameter: "Screen Color Depth",
+          value: screen.colorDepth + " bits",
+          meaning: "Bit depth of the screen's color representation.",
+          undesired: "Identifies unique display properties.",
+          badExample: "24 bits"
+        },
+        {
+          parameter: "Pixel Depth",
+          value: screen.pixelDepth + " bits",
+          meaning: "Bits used to display a single pixel.",
+          undesired: "Further narrows down hardware fingerprint.",
+          badExample: "24 bits"
+        },
+        {
+          parameter: "Touch Support",
+          value: ('ontouchstart' in window) ? "Supported" : "Not Supported",
+          meaning: "Indicates if the device supports touch input.",
+          undesired: "Can reveal device type (mobile/tablet).",
+          badExample: "Supported"
+        },
+        {
+          parameter: "Max Touch Points",
+          value: navigator.maxTouchPoints || "N/A",
+          meaning: "Maximum number of simultaneous touch contacts.",
+          undesired: "Higher values indicate modern touch devices.",
+          badExample: "10"
+        },
+        {
+          parameter: "App Name",
+          value: navigator.appName || "N/A",
+          meaning: "Name of the browser application.",
+          undesired: "Often generic, but may leak legacy info.",
+          badExample: "Netscape"
+        },
+        {
+          parameter: "App Version",
+          value: navigator.appVersion || "N/A",
+          meaning: "Version information of the browser.",
+          undesired: "Detailed version can expose vulnerabilities.",
+          badExample: "5.0 (Windows)"
+        },
+        {
+          parameter: "Browser Language",
+          value: navigator.language || "N/A",
+          meaning: "Default language of the browser interface.",
+          undesired: "May reveal regional settings.",
+          badExample: "en-US"
+        },
+        {
+          parameter: "Round Trip Time (RTT)",
+          value: (connection && connection.rtt) ? connection.rtt + " ms" : "N/A",
+          meaning: "Estimated network round-trip time.",
+          undesired: "Precise RTT can be used for network profiling.",
+          badExample: "50 ms"
+        },
+        {
+          parameter: "Save Data Mode",
+          value: (connection && typeof connection.saveData === "boolean") ? (connection.saveData ? "Enabled" : "Disabled") : "N/A",
+          meaning: "Indicates if reduced data usage is preferred.",
+          undesired: "Enabled mode can affect data-driven tracking.",
+          badExample: "Enabled"
+        },
+        {
+          parameter: "Platform",
+          value: navigator.platform || "N/A",
+          meaning: "Underlying platform (often same as OS).",
+          undesired: "Exposes exact system details.",
+          badExample: "Win32"
+        },
+        {
+          parameter: "Referrer",
+          value: document.referrer || "N/A",
+          meaning: "The URL of the previous page, if any.",
+          undesired: "May leak your browsing history.",
+          badExample: "http://example.com"
+        },
+        {
+          parameter: "Current URL",
+          value: location.href,
+          meaning: "The URL of this current page.",
+          undesired: "Reveals your browsing context and sensitive pages.",
+          badExample: "https://secret-site.com/private"
+        }
+      ];
+      
+      // Populate table rows
+      const tableBody = document.getElementById("infoTable");
+      data.forEach(item => {
+        const row = document.createElement("tr");
+        
+        const tdParam = document.createElement("td");
+        tdParam.textContent = item.parameter;
+        row.appendChild(tdParam);
+        
+        const tdValue = document.createElement("td");
+        tdValue.textContent = item.value;
+        row.appendChild(tdValue);
+        
+        const tdMeaning = document.createElement("td");
+        tdMeaning.textContent = item.meaning;
+        row.appendChild(tdMeaning);
+        
+        const tdUndesired = document.createElement("td");
+        tdUndesired.textContent = item.undesired;
+        row.appendChild(tdUndesired);
+        
+        const tdBadExample = document.createElement("td");
+        tdBadExample.textContent = item.badExample;
+        row.appendChild(tdBadExample);
+        
+        tableBody.appendChild(row);
+      });
+    }
+    
+    window.onload = populateInfo;
+  </script>
+</body>
+</html>
