@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>E2: Digital Shadow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Dynamic background with subtle color shifts */
+    body {
+      background: linear-gradient(45deg, #000, #001a00, #000);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0;
+      padding: 20px;
+      color: #00ff00;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      letter-spacing: 1px;
+    }
+    /* Table styling */
+    table {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: #000;
+      border: 2px solid #00ff00;
+      box-shadow: 0 0 20px #00ff00;
+    }
+    /* Group header spans both columns */
+    .group-header {
+      background-color: #002000;
+      color: #00ff00;
+      text-align: center;
+      font-style: italic;
+      font-size: 1.2em;
+    }
+    th, td {
+      padding: 10px 15px;
+      border: 1px solid #00ff00;
+      text-align: left;
+      vertical-align: top;
+    }
+    /* Two-column rows: parameter names in bold neon green, values in white */
+    .param-cell {
+      font-weight: bold;
+      color: #00ff00;
+      width: 40%;
+    }
+    .value-cell {
+      color: #ffffff;
+      width: 60%;
+    }
+    /* Description row: spans both columns with smaller font and a subtle background */
+    .desc-row td {
+      font-size: 0.85em;
+      color: #cccccc;
+      background-color: #000;
+      padding: 5px 15px;
+      border-top: none;
+      border-bottom: 1px solid #00ff00;
+    }
+    /* Security score box */
+    .security-score {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 2px solid #00ff00;
+      background-color: #000;
+      box-shadow: 0 0 20px #00ff00;
+      color: #ffffff;
+      font-size: 1.1em;
+      line-height: 1.5;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 { font-size: 2em; }
+      th, td { font-size: 0.9em; }
+      .security-score { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>USER's DIGITAL SHADOW</h1>
+  <table id="infoTable">
+    <!-- Table content is inserted via JavaScript -->
+  </table>
+
+  <div class="security-score" id="securityScore">
+    <!-- Security score and description appear here -->
+  </div>
+
+  <script>
+    async function populateInfo() {
+      // Get Battery Level asynchronously
+      let batteryLevel = "N/A";
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          batteryLevel = (battery.level * 100) + "%";
+        } catch (e) {
+          batteryLevel = "N/A";
+        }
+      }
+      
+      // Connection details
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      
+      // Helper: Get WebGL Vendor
+      function getWebGLVendor() {
+        try {
+          const canvas = document.createElement("canvas");
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (gl) {
+            const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+            if (debugInfo) {
+              return gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+            }
+          }
+        } catch (e) {}
+        return "N/A";
+      }
+      
+      // Define grouped data (each with: parameter, value, meaning, undesired)
+      const groups = [
+        {
+          header: "User & Network Information",
+          items: [
+            {
+              parameter: "Timezone Offset",
+              value: new Date().getTimezoneOffset() + " minutes",
+              meaning: "Local offset from UTC indicating your approximate timezone.",
+              undesired: "Precise offset can aid geolocation."
+            },
+            {
+              parameter: "Languages",
+              value: navigator.languages ? navigator.languages.join(", ") : navigator.language,
+              meaning: "The languages preferred by your browser.",
+              undesired: "Exposes regional and cultural identity."
+            },
+            {
+              parameter: "Connection Type",
+              value: (connection && connection.effectiveType) ? connection.effectiveType : "N/A",
+              meaning: "Type of network connection (e.g., wifi, 4g).",
+              undesired: "May disclose ISP and network quality."
+            },
+            {
+              parameter: "Downlink Speed",
+              value: (connection && connection.downlink) ? connection.downlink + " Mbps" : "N/A",
+              meaning: "Estimated effective downlink speed.",
+              undesired: "Exact speed details might reveal network characteristics."
+            },
+            {
+              parameter: "Round Trip Time (RTT)",
+              value: (connection && connection.rtt) ? connection.rtt + " ms" : "N/A",
+              meaning: "Estimated network latency.",
+              undesired: "Precise RTT can allow for network profiling."
+            },
+            {
+              parameter: "Save Data Mode",
+              value: (connection && typeof connection.saveData === "boolean") ? (connection.saveData ? "Enabled" : "Disabled") : "N/A",
+              meaning: "Indicates if reduced data usage is active.",
+              undesired: "Disabled mode increases data exposure."
+            }
+          ]
+        },
+        {
+          header: "Device & Hardware Information",
+          items: [
+            {
+              parameter: "Operating System",
+              value: navigator.platform || "N/A",
+              meaning: "Underlying operating system or platform of your device.",
+              undesired: "Specific OS details may expose vulnerabilities."
+            },
+            {
+              parameter: "Battery Level",
+              value: batteryLevel,
+              meaning: "Current battery charge status.",
+              undesired: "May reveal device usage patterns."
+            },
+            {
+              parameter: "Screen Orientation",
+              value: (screen.orientation && screen.orientation.type) ? screen.orientation.type : "N/A",
+              meaning: "Current display orientation (landscape/portrait).",
+              undesired: "Can indicate device posture and usage."
+            },
+            {
+              parameter: "Screen Resolution",
+              value: screen.width + " x " + screen.height,
+              meaning: "Physical pixel dimensions of your display.",
+              undesired: "Unique resolutions aid in fingerprinting."
+            },
+            {
+              parameter: "Device Memory (GB)",
+              value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A",
+              meaning: "Approximate amount of RAM in your device.",
+              undesired: "Helps narrow down specific device models."
+            },
+            {
+              parameter: "Touch Support",
+              value: ('ontouchstart' in window) ? "Supported" : "Not Supported",
+              meaning: "Indicates whether your device supports touch input.",
+              undesired: "May reveal if you're using a mobile or tablet."
+            },
+            {
+              parameter: "Max Touch Points",
+              value: navigator.maxTouchPoints || "N/A",
+              meaning: "Maximum number of simultaneous touch inputs.",
+              undesired: "Higher values indicate modern touch devices."
+            }
+          ]
+        },
+        {
+          header: "Browser & Storage Information",
+          items: [
+            {
+              parameter: "WebGL Vendor",
+              value: getWebGLVendor(),
+              meaning: "GPU vendor information from WebGL.",
+              undesired: "Detailed GPU data can be misused."
+            },
+            {
+              parameter: "Browser Plugins",
+              value: (navigator.plugins ? navigator.plugins.length : "N/A"),
+              meaning: "Count of installed browser plugins.",
+              undesired: "Unique plugin configurations aid in fingerprinting."
+            },
+            {
+              parameter: "Cookies Enabled",
+              value: (navigator.cookieEnabled ? "Yes" : "No"),
+              meaning: "Indicates whether cookies are permitted.",
+              undesired: "Cookies enable persistent tracking."
+            },
+            {
+              parameter: "Java Enabled",
+              value: (navigator.javaEnabled && navigator.javaEnabled() ? "Enabled" : "Disabled"),
+              meaning: "Indicates if Java is enabled in your browser.",
+              undesired: "Java can introduce significant security risks."
+            },
+            {
+              parameter: "Do Not Track",
+              value: (navigator.doNotTrack || "N/A"),
+              meaning: "Your expressed preference regarding online tracking.",
+              undesired: "Absence of DNT may lead to over-tracking."
+            },
+            {
+              parameter: "Local Storage",
+              value: (typeof localStorage !== "undefined") ? "Available" : "Not Available",
+              meaning: "Persistent storage accessible to your browser.",
+              undesired: "May be exploited for unauthorized tracking."
+            },
+            {
+              parameter: "Session Storage",
+              value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available",
+              meaning: "Temporary storage for your browsing session.",
+              undesired: "Can be used to hijack session state."
+            }
+          ]
+        }
+      ];
+      
+      const table = document.getElementById("infoTable");
+      
+      // For each group, insert a header row then the parameter rows.
+      groups.forEach(group => {
+        // Group header row
+        const groupHeader = document.createElement("tr");
+        const groupHeaderCell = document.createElement("td");
+        groupHeaderCell.colSpan = 2;
+        groupHeaderCell.className = "group-header";
+        groupHeaderCell.textContent = group.header;
+        groupHeader.appendChild(groupHeaderCell);
+        table.appendChild(groupHeader);
+        
+        // Each item in the group
+        group.items.forEach(item => {
+          // Main row: two columns for parameter and value
+          const mainRow = document.createElement("tr");
+          
+          const paramCell = document.createElement("td");
+          paramCell.className = "param-cell";
+          paramCell.textContent = item.parameter;
+          mainRow.appendChild(paramCell);
+          
+          const valueCell = document.createElement("td");
+          valueCell.className = "value-cell";
+          valueCell.textContent = item.value;
+          mainRow.appendChild(valueCell);
+          
+          table.appendChild(mainRow);
+          
+          // Description row: spans both columns, with smaller font
+          const descRow = document.createElement("tr");
+          descRow.className = "desc-row";
+          const descCell = document.createElement("td");
+          descCell.colSpan = 2;
+          descCell.innerHTML = item.meaning + " " + item.undesired;
+          descRow.appendChild(descCell);
+          table.appendChild(descRow);
+        });
+      });
+      
+      // --- Calculate Security Level Score ---
+      // Risk factors:
+      // - Cookies Enabled: if "Yes", risk += 2.
+      // - Java Enabled: if "Enabled", risk += 2.
+      // - Do Not Track: if "N/A", risk += 2.
+      // - Local Storage: if available, risk += 1.
+      // - Session Storage: if available, risk += 1.
+      // - Browser Plugins: if count > 3, risk += 2.
+      // - Save Data Mode: if "Enabled", subtract 1; if "Disabled", add 1.
+      let riskScore = 0;
+      if (navigator.cookieEnabled) riskScore += 2;
+      if (navigator.javaEnabled && navigator.javaEnabled()) riskScore += 2;
+      if (!navigator.doNotTrack || navigator.doNotTrack === "N/A") riskScore += 2;
+      if (typeof localStorage !== "undefined") riskScore += 1;
+      if (typeof sessionStorage !== "undefined") riskScore += 1;
+      if (navigator.plugins && navigator.plugins.length > 3) riskScore += 2;
+      if (connection && typeof connection.saveData === "boolean") {
+        riskScore += (connection.saveData ? -1 : 1);
+      }
+      
+      // Final score: 10 minus riskScore, clamped between 1 and 10.
+      let finalScore = 10 - riskScore;
+      if (finalScore < 1) finalScore = 1;
+      if (finalScore > 10) finalScore = 10;
+      
+      // Descriptions for each score from 1 to 10.
+      const descriptions = [
+        "Score 1: Your system is extremely vulnerable. Almost every default setting exposes data that can be exploited.",
+        "Score 2: Your digital fingerprint is highly exposed. Multiple risk factors combine to create serious privacy concerns.",
+        "Score 3: Your security level is very low. Several default configurations leave you highly susceptible to tracking.",
+        "Score 4: Your system shows significant vulnerabilities. While not catastrophic, there are notable areas for improvement.",
+        "Score 5: Your security is below average. Many aspects of your configuration expose you to privacy risks.",
+        "Score 6: Your system has moderate security. Some risky factors are present; further hardening is advisable.",
+        "Score 7: Your digital footprint is moderately secure. A few exposures remain, but overall you are reasonably protected.",
+        "Score 8: Your configuration is fairly secure. Minor adjustments could further reduce your exposure.",
+        "Score 9: Your system is very secure. Most risk factors have been mitigated effectively.",
+        "Score 10: Your digital footprint is exceptionally secure. You have minimized exposure to potential tracking and vulnerabilities."
+      ];
+      
+      const scoreDiv = document.getElementById("securityScore");
+      scoreDiv.innerHTML = "<strong>Security Level Score: " + finalScore + " / 10</strong><br><br>" + descriptions[finalScore - 1];
+    }
+    
+    window.onload = populateInfo;
+  </script>
+</body>
+</html>
