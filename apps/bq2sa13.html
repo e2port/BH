@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>How Autistic Are You? (Fun Quiz)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Base page styling: dark, tech-inspired, with smooth transitions */
+    body {
+      background-color: #1a1a1a;
+      color: rgb(136, 136, 136);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      transition: filter 0.5s ease, color 0.5s ease, background 1s ease;
+      filter: grayscale(100%);
+    }
+    /* When score is 6 or 7, apply a cool animated gradient */
+    .dope {
+      animation: wildBG 3s infinite;
+      filter: grayscale(0%);
+    }
+    /* When score is 8 or 9, apply an even more intense animation */
+    .incredibly-dope {
+      animation: wildBGExtreme 1.5s infinite;
+      filter: grayscale(0%);
+    }
+    @keyframes wildBG {
+      0%   { background: linear-gradient(45deg, #ff2d2d, #ff9800); }
+      25%  { background: linear-gradient(45deg, #ff9800, #ffeb3b); }
+      50%  { background: linear-gradient(45deg, #4caf50, #2196f3); }
+      75%  { background: linear-gradient(45deg, #9c27b0, #3f51b5); }
+      100% { background: linear-gradient(45deg, #ff2d2d, #ff9800); }
+    }
+    @keyframes wildBGExtreme {
+      0%   { background: linear-gradient(45deg, #ff0000, #ff8c00); }
+      25%  { background: linear-gradient(45deg, #ff8c00, #ffd700); }
+      50%  { background: linear-gradient(45deg, #32cd32, #00ffff); }
+      75%  { background: linear-gradient(45deg, #00ffff, #8a2be2); }
+      100% { background: linear-gradient(45deg, #ff0000, #ff8c00); }
+    }
+    h1 {
+      text-align: center;
+      font-size: 3em;
+      margin-bottom: 10px;
+      transition: color 0.5s ease;
+    }
+    p.subtitle {
+      text-align: center;
+      font-size: 1.3em;
+      margin-bottom: 30px;
+      transition: color 0.5s ease;
+    }
+    /* Quiz table styling */
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 30px;
+      border-collapse: collapse;
+      background-color: #2a2a2a;
+      border: 3px solid #d4af37;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    }
+    th, td {
+      padding: 15px;
+      border: 1px solid #d4af37;
+      text-align: left;
+      font-size: 1.2em;
+    }
+    .question-cell { 
+      width: 80%; 
+    }
+    .checkbox-cell { 
+      width: 20%; 
+      text-align: center; 
+    }
+    /* Result box styling with monospaced font for ASCII art */
+    .result-box {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 5px solid #d4af37;
+      background-color: #2a2a2a;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
+      font-size: 1.2em;
+      line-height: 1.5;
+      text-align: center;
+      white-space: pre-line;
+      font-family: "Courier New", monospace;
+      transition: color 0.5s ease;
+    }
+    /* Custom circular input styling with dramatic neon shift */
+    input[type="checkbox"].circle {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: transparent;
+      border: 2px solid #d4af37;
+      cursor: pointer;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      display: block;
+      margin: auto;
+    }
+    input[type="checkbox"].circle:checked {
+      background: rgba(0, 255, 255, 1);
+      border-color: rgba(0, 200, 200, 1);
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2em; }
+      th, td { font-size: 1em; }
+      .result-box { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>How Autistic Are You?</h1>
+  <p class="subtitle">(For fun – not a diagnostic tool.) Answer honestly to reveal your unique profile.</p>
+  <table id="quizTable">
+    <!-- Quiz questions will be inserted here dynamically -->
+  </table>
+  <div class="result-box" id="resultBox">
+    <!-- Live result with metrics and ASCII emblem appears here -->
+  </div>
+  
+  <script>
+    // Pool of 40 lighthearted, self-reflective questions.
+    const questionPool = [
+      "I prefer routines and familiar environments.",
+      "I often notice small details others overlook.",
+      "I enjoy exploring niche interests intensely.",
+      "I feel overwhelmed in chaotic social settings.",
+      "I find comfort in repetitive tasks or hobbies.",
+      "I have strong preferences for specific textures or sounds.",
+      "I sometimes find it hard to interpret social cues.",
+      "I enjoy diving deep into specialized topics.",
+      "I prefer structured conversations over small talk.",
+      "I often organize things meticulously.",
+      "I notice patterns and symmetry in art and nature.",
+      "I have a unique way of processing sensory information.",
+      "I enjoy spending time alone with my thoughts.",
+      "I am passionate about my special interests.",
+      "I appreciate when plans are clear and predictable.",
+      "I sometimes prefer a quiet evening over a busy party.",
+      "I value logic and consistency in my daily routines.",
+      "I often excel in detail-oriented tasks.",
+      "I sometimes feel different from others in my perceptions.",
+      "I enjoy learning about obscure subjects in depth.",
+      "I appreciate precise and literal communication.",
+      "I sometimes find social interactions draining.",
+      "I have a strong memory for facts and figures.",
+      "I enjoy creating order out of chaos.",
+      "I often notice changes in my environment immediately.",
+      "I prefer clear rules and guidelines.",
+      "I enjoy engaging in activities that require focus.",
+      "I find comfort in predictable daily routines.",
+      "I sometimes struggle with unexpected changes.",
+      "I often seek out topics that fascinate me deeply.",
+      "I value detailed and thorough explanations.",
+      "I enjoy hobbies that involve systematic work.",
+      "I often prefer solitude to large gatherings.",
+      "I like having a set schedule for my day.",
+      "I am drawn to patterns and logical structures.",
+      "I sometimes prefer one-on-one interactions over group settings.",
+      "I appreciate when people are direct and clear.",
+      "I sometimes have sensory sensitivities.",
+      "I enjoy environments where I can control stimuli.",
+      "I prefer tasks that allow for deep concentration."
+    ];
+    
+    // Shuffle function (Fisher-Yates algorithm)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    
+    // Select 9 random questions from the pool.
+    const selectedQuestions = shuffleArray([...questionPool]).slice(0, 9);
+    
+    // Populate the quiz table.
+    const quizTable = document.getElementById("quizTable");
+    selectedQuestions.forEach((question, index) => {
+      const row = document.createElement("tr");
+      
+      const questionCell = document.createElement("td");
+      questionCell.className = "question-cell";
+      questionCell.textContent = question;
+      row.appendChild(questionCell);
+      
+      const checkboxCell = document.createElement("td");
+      checkboxCell.className = "checkbox-cell";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "circle";
+      checkbox.id = "q" + index;
+      checkbox.addEventListener("change", updateResult);
+      checkboxCell.appendChild(checkbox);
+      row.appendChild(checkboxCell);
+      
+      quizTable.appendChild(row);
+    });
+    
+    // ASCII art definitions: 6 rows x 20 columns.
+    // Progression from a chaotic wave pool to a perfectly ordered square.
+    const asciiArt = {
+      0: 
+`~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~`,
+      1:
+`||||||||||||||||||||
+||~~~~~~~~~~~~~~~~|| 
+||~~~~~~~~~~~~~~~~|| 
+||~~~~~~~~~~~~~~~~|| 
+||~~~~~~~~~~~~~~~~|| 
+||||||||||||||||||||`,
+      2:
+`====================
+====================
+||~~~~~~~~~~~~~~~~||
+||~~~~~~~~~~~~~~~~||
+====================
+====================`,
+      3:
+`====================
+====================
+====================
+||~~~~~~~~~~~~~~~~||
+====================
+====================`,
+      4:
+`====================
+====================
+====================
+====================
+||~~~~~~~~~~~~~~~~||
+====================`,
+      5:
+`####################
+####################
+####################
+####################
+####################
+####################`,
+      6:
+`####################
+####################
+####################
+####################
+####################
+####################`,
+      7:
+`@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@`,
+      8:
+`$$$$$$$$$$$$$$$$$$$$
+$$$$$$$$$$$$$$$$$$$$
+$$$$$$$$$$$$$$$$$$$$
+$$$$$$$$$$$$$$$$$$$$
+$$$$$$$$$$$$$$$$$$$$
+$$$$$$$$$$$$$$$$$$$$`,
+      9:
+`++++++++++++++++++++
+++++++++++++++++++++
+++++++++++++++++++++
+++++++++++++++++++++
+++++++++++++++++++++
+++++++++++++++++++++`
+    };
+    
+    // Define statuses for scores 0 through 9.
+    const statuses = {
+      0: {
+        title: "Ultra Neurotypical",
+        description: "You exhibit minimal unique traits – your perspective is entirely conventional."
+      },
+      1: {
+        title: "Barely On the Spectrum",
+        description: "A few hints of uniqueness peek through; you’re mostly in line with the norm."
+      },
+      2: {
+        title: "Mildly Quirky",
+        description: "Some quirks set you apart – you notice details that others might miss."
+      },
+      3: {
+        title: "Somewhat Unique",
+        description: "Your focus on details gives you a distinctive outlook on life."
+      },
+      4: {
+        title: "Noticeably Different",
+        description: "You approach life in an unconventional way that is refreshingly distinct."
+      },
+      5: {
+        title: "Moderately Autistic",
+        description: "You have a well‑defined way of engaging with the world that sets you apart."
+      },
+      6: {
+        title: "Strongly Autistic",
+        description: "Your intense focus and attention to detail are prominently on display."
+      },
+      7: {
+        title: "Very Autistic",
+        description: "Your unique perspective is unmistakably profound and deeply ingrained."
+      },
+      8: {
+        title: "Exceptionally Autistic",
+        description: "Your distinctive traits shine brightly, marking you as remarkably unique."
+      },
+      9: {
+        title: "Autism Extraordinaire",
+        description: "You are a masterpiece of unique perspective – extraordinary in every way."
+      }
+    };
+    
+    // Utility function to interpolate between two RGB colors.
+    function interpolateColor(color1, color2, factor) {
+      const result = color1.slice();
+      for (let i = 0; i < 3; i++) {
+        result[i] = Math.round(result[i] + factor * (color2[i] - color1[i]));
+      }
+      return result;
+    }
+    // Convert RGB array to CSS rgb() string.
+    function rgbToString(rgbArray) {
+      return "rgb(" + rgbArray.join(",") + ")";
+    }
+    
+    // Update the result display and dynamic styling.
+    function updateResult() {
+      let score = 0;
+      for (let i = 0; i < 9; i++) {
+        const checkbox = document.getElementById("q" + i);
+        if (checkbox && checkbox.checked) {
+          score++;
+        }
+      }
+      
+      const statusKey = score; // score 0 to 9
+      const status = statuses[statusKey];
+      const art = asciiArt[statusKey];
+      const percentage = Math.round((score / 9) * 100);
+      const engagementIndex = Math.round((score / 9) * 10);
+      
+      const resultText = 
+        "Raw Score: " + score + " / 9\n" +
+        "Autistic Quotient: " + percentage + "%\n" +
+        "Engagement Index: " + engagementIndex + " / 10\n\n" +
+        "Status: " + status.title + "\n\n" +
+        status.description + "\n\n" +
+        art + "\n\n" +
+        "Disclaimer: This quiz is for fun only and is not a diagnostic tool.";
+      
+      document.getElementById("resultBox").textContent = resultText;
+      
+      // Adjust grayscale filter: 100% when score=0, 0% when score=9.
+      const grayValue = Math.round((1 - score/9) * 100);
+      document.body.style.filter = "grayscale(" + grayValue + "%)";
+      
+      // Dynamically update text color (interpolating from dull gray to vibrant gold).
+      const startColor = [136, 136, 136]; // dull gray
+      const endColor = [255, 215, 0];      // vibrant gold
+      const ratio = score / 9;
+      const newColor = interpolateColor(startColor, endColor, ratio);
+      const newColorStr = rgbToString(newColor);
+      
+      document.body.style.color = newColorStr;
+      document.querySelector("h1").style.color = newColorStr;
+      document.querySelector("p.subtitle").style.color = newColorStr;
+      document.querySelector(".result-box").style.color = newColorStr;
+      
+      // Update background animation classes based on score.
+      // If score is 8 or 9, add "incredibly-dope"
+      // Else if score is 6 or 7, add "dope"
+      // Else remove both.
+      document.body.classList.remove("dope");
+      document.body.classList.remove("incredibly-dope");
+      if (score >= 8) {
+        document.body.classList.add("incredibly-dope");
+      } else if (score >= 6) {
+        document.body.classList.add("dope");
+      }
+    }
+    
+    // Initialize live result.
+    updateResult();
+  </script>
+</body>
+</html>
