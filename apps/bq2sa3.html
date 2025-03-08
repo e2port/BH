@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Are You an Animal Lover?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Cheerful pastel styling for animal lovers */
+    body {
+      background-color: #e0f7fa; /* light pastel cyan */
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #00695c;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 5px;
+    }
+    p.subtitle {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    /* Table styling for the quiz */
+    table {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto 20px auto;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      border: 4px solid #00695c;
+      box-shadow: 0 0 15px rgba(0,105,92,0.5);
+    }
+    th, td {
+      padding: 10px 15px;
+      border: 1px solid #00695c;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 1.1em;
+    }
+    .question-cell {
+      width: 80%;
+    }
+    .checkbox-cell {
+      width: 20%;
+      text-align: center;
+    }
+    /* Result box styling */
+    .result-box {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 10px solid #00695c;
+      background-color: #ffffff;
+      box-shadow: 0 0 20px rgba(0,105,92,0.5);
+      font-size: 1.2em;
+      line-height: 1.5;
+      text-align: center;
+    }
+    /* Custom checkbox styled as a cartoon cat head silhouette */
+    input[type="checkbox"].cat {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 2 C22 2, 12 12, 12 22 C12 32, 22 42, 32 42 C42 42, 52 32, 52 22 C52 12, 42 2, 32 2 Z M20 10 L24 0 L28 10 Z M36 10 L40 0 L44 10 Z' fill='%238B4513'/></svg>") no-repeat center center;
+      background-size: 80%;
+      cursor: pointer;
+      border: 2px solid #00695c;
+      border-radius: 50%;
+      margin: 0 auto;
+    }
+    input[type="checkbox"].cat:checked {
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 2 C22 2, 12 12, 12 22 C12 32, 22 42, 32 42 C42 42, 52 32, 52 22 C52 12, 42 2, 32 2 Z M20 10 L24 0 L28 10 Z M36 10 L40 0 L44 10 Z' fill='%23d2691e'/></svg>") no-repeat center center;
+      background-size: 80%;
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2em; }
+      th, td { font-size: 0.9em; }
+      .result-box { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Are You an Animal Lover?</h1>
+  <p class="subtitle">Take this fun quiz to discover how deeply you adore our furry and feathered friends!</p>
+  <table id="quizTable">
+    <!-- Quiz questions will be inserted here dynamically -->
+  </table>
+  <div class="result-box" id="resultBox">
+    <!-- Live result and cute ASCII art will appear here -->
+  </div>
+  
+  <script>
+    // Pool of 20 lighthearted animal-themed boolean questions.
+    const questionPool = [
+      "I always stop to pet a stray animal.",
+      "I follow animal rescue pages on social media.",
+      "I have visited a zoo or animal sanctuary recently.",
+      "I often talk to animals as if they understand me.",
+      "I enjoy watching nature documentaries.",
+      "I volunteer at animal shelters when I can.",
+      "I love spending time with my pets more than anything.",
+      "I am an advocate for animal rights.",
+      "I frequently donate to animal charities.",
+      "I have a collection of animal-themed items.",
+      "I always try to adopt rather than shop for pets.",
+      "I get excited at the sight of wildlife.",
+      "I actively support wildlife conservation efforts.",
+      "I have participated in pet adoption events.",
+      "I am passionate about protecting endangered species.",
+      "I find joy in caring for animals.",
+      "I enjoy visiting farms and interacting with animals.",
+      "I always share adorable animal videos with friends.",
+      "I prefer spending time with animals over people.",
+      "I can talk for hours about different animal species."
+    ];
+    
+    // Shuffle function (Fisher-Yates)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    
+    // Select 5 random questions from the pool.
+    const selectedQuestions = shuffleArray([...questionPool]).slice(0, 5);
+    
+    // Populate the quiz table with the selected questions.
+    const quizTable = document.getElementById("quizTable");
+    selectedQuestions.forEach((question, index) => {
+      const row = document.createElement("tr");
+      
+      // Question cell
+      const questionCell = document.createElement("td");
+      questionCell.className = "question-cell";
+      questionCell.textContent = question;
+      row.appendChild(questionCell);
+      
+      // Checkbox cell with custom cat head styling
+      const checkboxCell = document.createElement("td");
+      checkboxCell.className = "checkbox-cell";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "cat";
+      checkbox.id = "q" + index;
+      checkbox.addEventListener("change", updateResult);
+      checkboxCell.appendChild(checkbox);
+      row.appendChild(checkboxCell);
+      
+      quizTable.appendChild(row);
+    });
+    
+    // Function to update the live result.
+    function updateResult() {
+      let score = 0;
+      for (let i = 0; i < 5; i++) {
+        const checkbox = document.getElementById("q" + i);
+        if (checkbox && checkbox.checked) {
+          score++;
+        }
+      }
+      
+      let status = "";
+      let description = "";
+      
+      if (score === 0) {
+        status = "Not an Animal Lover";
+        description = "It seems the animal kingdom hasn't stolen your heart yet. ¯\\_(ツ)_/¯";
+      } else if (score === 1) {
+        status = "Casual Admirer";
+        description = "You appreciate animals, even if just a little. ฅ^•ﻌ•^ฅ";
+      } else if (score === 2) {
+        status = "Animal Appreciator";
+        description = "You enjoy the charm of animals and their quirky ways. (=^･ω･^=)";
+      } else if (score === 3) {
+        status = "Devoted Pet Pal";
+        description = "Your heart beats for your furry friends. ʕ•ᴥ•ʔ";
+      } else if (score >= 4) {
+        status = "Ultimate Animal Lover";
+        description = "Your love for animals knows no bounds! ヽ(=^･ω･^=)丿";
+      }
+      
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = "<strong>Your Score: " + score + " / 5</strong><br><br>" +
+                            "Status: " + status + "<br><br>" +
+                            description;
+    }
+    
+    // Initialize the live result.
+    updateResult();
+  </script>
+</body>
+</html>
