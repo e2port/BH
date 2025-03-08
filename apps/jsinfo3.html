@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Exposé: Your Digital Shadow</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    p.description {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1e1e1e;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    th, td {
+      padding: 15px;
+      border-bottom: 1px solid #333;
+      text-align: left;
+    }
+    th {
+      background-color: #333;
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+    tr:nth-child(even) {
+      background-color: #262626;
+    }
+    tr:hover {
+      background-color: #333;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Digital Exposé: Your Digital Shadow</h1>
+    <p class="description">Exposing the data points that form your public digital fingerprint.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody id="infoTable">
+        <!-- Data rows will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+  <footer>
+    &copy; 2025 Digital Exposé. All rights reserved.
+  </footer>
+
+  <script>
+    // Attempt to extract WebGL renderer info (reveals GPU details)
+    function getWebGLRenderer() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          if (debugInfo) {
+            return gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          }
+        }
+      } catch (e) { }
+      return "N/A";
+    }
+
+    // Gather 15 high-impact data points
+    function getScaryInfo() {
+      const info = [];
+      // 1. User Agent: Reveals browser and OS details.
+      info.push({ label: "User Agent", value: navigator.userAgent || "N/A" });
+      // 2. Operating System: Based on navigator.platform.
+      info.push({ label: "Operating System", value: navigator.platform || "N/A" });
+      // 3. Browser Vendor: Identifies the browser maker.
+      info.push({ label: "Browser Vendor", value: navigator.vendor || "N/A" });
+      // 4. Browser Language: Shows default language settings.
+      info.push({ label: "Browser Language", value: navigator.language || "N/A" });
+      // 5. Cookies Enabled: Indicates potential tracking capability.
+      info.push({ label: "Cookies Enabled", value: navigator.cookieEnabled ? "Yes" : "No" });
+      // 6. Do Not Track Setting: Reveals privacy preferences.
+      info.push({ label: "Do Not Track", value: navigator.doNotTrack || "N/A" });
+      // 7. Local Storage Availability: A common storage mechanism.
+      info.push({ label: "Local Storage", value: (typeof localStorage !== "undefined") ? "Available" : "Not Available" });
+      // 8. Session Storage Availability: Another persistent storage option.
+      info.push({ label: "Session Storage", value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available" });
+      // 9. IndexedDB Support: Enables more complex storage.
+      info.push({ label: "IndexedDB", value: (typeof indexedDB !== "undefined") ? "Supported" : "Not Supported" });
+      // 10. Browser Plugins Count: Helps in fingerprinting.
+      info.push({ label: "Browser Plugins", value: navigator.plugins.length });
+      // 11. Screen Resolution: Can hint at device type.
+      info.push({ label: "Screen Resolution", value: screen.width + " x " + screen.height });
+      // 12. Hardware Concurrency: Number of logical CPU cores.
+      info.push({ label: "Hardware Concurrency", value: navigator.hardwareConcurrency || "N/A" });
+      // 13. Device Memory: Approximate RAM in GB.
+      info.push({ label: "Device Memory", value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A" });
+      // 14. Connection Type: Reveals network quality (e.g., 4g, 3g).
+      info.push({ label: "Connection Type", value: (navigator.connection && navigator.connection.effectiveType) ? navigator.connection.effectiveType : "N/A" });
+      // 15. WebGL Renderer: Extracts GPU information.
+      info.push({ label: "WebGL Renderer", value: getWebGLRenderer() });
+      return info;
+    }
+
+    // Populate the table with our gathered info
+    function populateScaryInfo() {
+      const infoData = getScaryInfo();
+      const tableBody = document.getElementById("infoTable");
+      infoData.forEach(item => {
+        const row = document.createElement("tr");
+        const cellLabel = document.createElement("td");
+        cellLabel.textContent = item.label;
+        const cellValue = document.createElement("td");
+        cellValue.textContent = item.value;
+        row.appendChild(cellLabel);
+        row.appendChild(cellValue);
+        tableBody.appendChild(row);
+      });
+    }
+
+    window.onload = populateScaryInfo;
+  </script>
+</body>
+</html>
