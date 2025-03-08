@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Footprint: Public Data Exposé</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 90%;
+      max-width: 800px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px 15px;
+      text-align: left;
+    }
+    th {
+      background-color: #e8e8e8;
+    }
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Digital Footprint: Public Data Exposé</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody id="infoTable">
+      <!-- Data rows will be injected by JavaScript -->
+    </tbody>
+  </table>
+
+  <script>
+    function getSecurityInfo() {
+      const info = [];
+      // 1. User Agent (reveals browser and OS details)
+      info.push({ label: "User Agent", value: navigator.userAgent || "N/A" });
+      // 2. Operating System (Platform)
+      info.push({ label: "Operating System", value: navigator.platform || "N/A" });
+      // 3. Browser Vendor
+      info.push({ label: "Browser Vendor", value: navigator.vendor || "N/A" });
+      // 4. Browser Language
+      info.push({ label: "Browser Language", value: navigator.language || "N/A" });
+      // 5. Cookies Enabled (can be exploited for tracking)
+      info.push({ label: "Cookies Enabled", value: navigator.cookieEnabled ? "Yes" : "No" });
+      // 6. Do Not Track Setting
+      info.push({ label: "Do Not Track", value: navigator.doNotTrack || "N/A" });
+      // 7. Local Storage Availability
+      info.push({ label: "Local Storage", value: (typeof localStorage !== "undefined") ? "Available" : "Not Available" });
+      // 8. Session Storage Availability
+      info.push({ label: "Session Storage", value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available" });
+      // 9. IndexedDB Support
+      info.push({ label: "IndexedDB", value: (typeof indexedDB !== "undefined") ? "Supported" : "Not Supported" });
+      // 10. Number of Browser Plugins (helps in fingerprinting)
+      info.push({ label: "Browser Plugins", value: navigator.plugins.length });
+      // 11. Screen Resolution (can hint at device type)
+      info.push({ label: "Screen Resolution", value: screen.width + " x " + screen.height });
+      // 12. Color Depth
+      info.push({ label: "Color Depth", value: screen.colorDepth + " bits" });
+      // 13. Pixel Depth
+      info.push({ label: "Pixel Depth", value: screen.pixelDepth + " bits" });
+      // 14. Hardware Concurrency (number of logical processors)
+      info.push({ label: "Hardware Concurrency", value: navigator.hardwareConcurrency || "N/A" });
+      // 15. Device Memory (approximate RAM in GB)
+      info.push({ label: "Device Memory", value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A" });
+      // 16. Connection Type (effective network type)
+      info.push({ label: "Connection Type", value: (navigator.connection && navigator.connection.effectiveType) ? navigator.connection.effectiveType : "N/A" });
+      // 17. Online Status
+      info.push({ label: "Online Status", value: navigator.onLine ? "Online" : "Offline" });
+      // 18. Current URL (reveals your browsing context)
+      info.push({ label: "Current URL", value: location.href });
+      // 19. Document Referrer (source of traffic)
+      info.push({ label: "Referrer", value: document.referrer || "N/A" });
+      // 20. Timezone Offset (in minutes from UTC)
+      info.push({ label: "Timezone Offset", value: new Date().getTimezoneOffset() + " minutes" });
+      
+      return info;
+    }
+
+    function displaySecurityInfo() {
+      const info = getSecurityInfo();
+      const tableBody = document.getElementById("infoTable");
+      info.forEach(item => {
+        const row = document.createElement("tr");
+        const cellLabel = document.createElement("td");
+        cellLabel.textContent = item.label;
+        const cellValue = document.createElement("td");
+        cellValue.textContent = item.value;
+        row.appendChild(cellLabel);
+        row.appendChild(cellValue);
+        tableBody.appendChild(row);
+      });
+    }
+
+    window.onload = displaySecurityInfo;
+  </script>
+</body>
+</html>
