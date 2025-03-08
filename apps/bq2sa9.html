@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>How Religious Are You?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Bold, professional styling with dark background and gold accents */
+    body {
+      background-color: #1a1a1a;
+      color: #fefefe;
+      font-family: Georgia, serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #d4af37;
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+    p.subtitle {
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+      color: #ffffff;
+    }
+    /* Quiz table styling */
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 30px;
+      border-collapse: collapse;
+      background-color: #2a2a2a;
+      border: 3px solid #d4af37;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    }
+    th, td {
+      padding: 15px;
+      border: 1px solid #d4af37;
+      text-align: left;
+      font-size: 1.2em;
+    }
+    .question-cell { 
+      width: 80%; 
+    }
+    .checkbox-cell { 
+      width: 20%; 
+      text-align: center; 
+    }
+    /* Refined result box styling */
+    .result-box {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 5px solid #d4af37;
+      background-color: #2a2a2a;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
+      font-size: 1.2em;
+      line-height: 1.5;
+      text-align: center;
+      white-space: pre-line; /* preserve ASCII art line breaks */
+    }
+    /* Custom circular input styling with stronger color contrast */
+    input[type="checkbox"].circle {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #ffcc00;
+      border: 2px solid #d4af37;
+      cursor: pointer;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      display: block;
+      margin: auto;
+    }
+    input[type="checkbox"].circle:checked {
+      background: #ff5722;
+      border: 2px solid #bf360c;
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2em; }
+      th, td { font-size: 1em; }
+      .result-box { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>How Religious Are You?</h1>
+  <p class="subtitle">Answer these questions to see your spiritual alignment.</p>
+  <table id="quizTable">
+    <!-- Quiz questions will be inserted here dynamically -->
+  </table>
+  <div class="result-box" id="resultBox">
+    <!-- Live result with metrics and ASCII emblem appears here -->
+  </div>
+  
+  <script>
+    // Pool of 20 lighthearted religious-themed questions.
+    const questionPool = [
+      "I attend religious services regularly.",
+      "I have a personal altar or sacred space at home.",
+      "I often pray or meditate daily.",
+      "I read religious or spiritual texts frequently.",
+      "I engage in discussions about faith with peers.",
+      "I feel a strong connection to a higher power.",
+      "I celebrate religious holidays with enthusiasm.",
+      "I volunteer for community service organized by my faith.",
+      "I follow traditional rituals as part of my routine.",
+      "I find comfort in my spiritual practices during hard times.",
+      "I enjoy listening to inspirational religious music.",
+      "I have visited significant religious landmarks or pilgrimage sites.",
+      "I participate in group prayers or meditation sessions.",
+      "I find deep meaning in religious symbols and rituals.",
+      "I believe in the possibility of miracles.",
+      "I strive to live by the ethical teachings of my faith.",
+      "I often discuss spiritual matters with family or friends.",
+      "I keep a journal of my spiritual experiences.",
+      "I enjoy movies or literature with religious themes.",
+      "I make time daily for reflection and gratitude."
+    ];
+    
+    // Shuffle function (Fisher-Yates algorithm)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    
+    // Select 8 random questions from the pool.
+    const selectedQuestions = shuffleArray([...questionPool]).slice(0, 8);
+    
+    // Populate the quiz table.
+    const quizTable = document.getElementById("quizTable");
+    selectedQuestions.forEach((question, index) => {
+      const row = document.createElement("tr");
+      
+      const questionCell = document.createElement("td");
+      questionCell.className = "question-cell";
+      questionCell.textContent = question;
+      row.appendChild(questionCell);
+      
+      const checkboxCell = document.createElement("td");
+      checkboxCell.className = "checkbox-cell";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "circle";
+      checkbox.id = "q" + index;
+      checkbox.addEventListener("change", updateResult);
+      checkboxCell.appendChild(checkbox);
+      row.appendChild(checkboxCell);
+      
+      quizTable.appendChild(row);
+    });
+    
+    // ASCII art definitions using placeholders for spacing.
+    const asciiArt = {
+      0: 
+`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`,
+      1:
+`   .----.
+  /......\\
+ |........|
+  \\....../
+   '----'`,
+      2:
+`    .------.
+   /........\\
+  |..........|
+  |..........|
+   \\......../
+    '------'`,
+      3:
+`     .--------.
+    /..........\\
+   |............|
+   |............|
+   |............|
+    \\........../
+     '--------'`,
+      4:
+`   +------------+
+   |............|
+   |............|
+   |............|
+   +------------+`,
+      5:
+`   +--------------+
+   |..............|
+   |..............|
+   |..............|
+   |..............|
+   +--------------+`,
+      6:
+`   +----------------+
+   |................|
+   |................|
+   |................|
+   |................|
+   |................|
+   +----------------+`,
+      7:
+`   +================+
+   |................|
+   |................|
+   |................|
+   |................|
+   |................|
+   +================+`
+    };
+    
+    // Define 8 statuses.
+    const statuses = {
+      0: {
+        title: "Indifferent",
+        description: "Your spiritual journey appears dormant. You lean toward secular pursuits."
+      },
+      1: {
+        title: "Skeptic",
+        description: "Grounded in reason, you question established traditions."
+      },
+      2: {
+        title: "Questioning",
+        description: "You are curious about spirituality and explore various perspectives."
+      },
+      3: {
+        title: "Curious",
+        description: "Your interest in spiritual matters is emerging, hinting at deeper questions."
+      },
+      4: {
+        title: "Spiritual",
+        description: "You actively nurture your spiritual side and find comfort in your practices."
+      },
+      5: {
+        title: "Devout",
+        description: "Your commitment to faith is evident, playing a significant role in your life."
+      },
+      6: {
+        title: "Committed",
+        description: "Deep-seated beliefs and consistent practices define your spiritual identity."
+      },
+      7: {
+        title: "Super Religious",
+        description: "Your devotion is profound—spirituality permeates every facet of your life."
+      }
+    };
+    
+    // Update the result display.
+    function updateResult() {
+      let score = 0;
+      for (let i = 0; i < 8; i++) {
+        const checkbox = document.getElementById("q" + i);
+        if (checkbox && checkbox.checked) {
+          score++;
+        }
+      }
+      
+      // Map score: if score is 7 or 8, use key 7.
+      const statusKey = (score >= 7) ? 7 : score;
+      const status = statuses[statusKey];
+      const art = asciiArt[statusKey];
+      const percentage = Math.round((score / 8) * 100);
+      
+      const resultText = 
+        "Score: " + score + " / 8\n" +
+        "Percentage: " + percentage + "%\n\n" +
+        "Status: " + status.title + "\n\n" +
+        status.description + "\n\n" +
+        art;
+      
+      document.getElementById("resultBox").textContent = resultText;
+    }
+    
+    // Initialize live result.
+    updateResult();
+  </script>
+</body>
+</html>
