@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Shadow</title>
+  <style>
+    /* Dynamic background with subtle color shifts */
+    body {
+      background: linear-gradient(45deg, #000, #001a00, #000);
+      background-size: 400% 400%;
+      animation: gradientShift 12s ease infinite;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0;
+      padding: 20px;
+      color: #00ff00;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+    }
+    table {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: #000;
+      border: 2px solid #00ff00;
+      box-shadow: 0 0 20px #00ff00;
+    }
+    th, td {
+      padding: 10px 15px;
+      border: 1px solid #00ff00;
+    }
+    th {
+      background-color: #001400;
+      color: #00ff00;
+      font-size: 1.1em;
+    }
+    /* Table cell text: all values white on black */
+    td {
+      background-color: #000;
+      color: #ffffff;
+    }
+    /* First column: Parameter names (bolder, clearer) */
+    td:first-child {
+      font-weight: bold;
+      color: #00ff00;
+    }
+    /* Group header rows */
+    .group-header {
+      background-color: #002000;
+      color: #00ff00;
+      text-align: center;
+      font-style: italic;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>USER's DIGITAL SHADOW</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+        <th>Meaning</th>
+        <th>Undesirable Exposure</th>
+      </tr>
+    </thead>
+    <tbody id="infoTable">
+      <!-- Data rows will be inserted by JavaScript -->
+    </tbody>
+  </table>
+  <script>
+    async function populateInfo() {
+      // Get Battery Level asynchronously.
+      let batteryLevel = "N/A";
+      if(navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          batteryLevel = (battery.level * 100) + "%";
+        } catch(e) {
+          batteryLevel = "N/A";
+        }
+      }
+
+      // Connection details.
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+      // Helper: Get WebGL Vendor.
+      function getWebGLVendor() {
+        try {
+          const canvas = document.createElement("canvas");
+          const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if(gl) {
+            const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+            if(debugInfo) {
+              return gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+            }
+          }
+        } catch(e) {}
+        return "N/A";
+      }
+
+      // Group 1: User & Network Information
+      const group1 = [
+        {
+          parameter: "Timezone Offset",
+          value: new Date().getTimezoneOffset() + " minutes",
+          meaning: "Local offset from UTC; indicates your approximate geographic timezone.",
+          undesired: "Exact offset can help pinpoint your location."
+        },
+        {
+          parameter: "Languages",
+          value: navigator.languages ? navigator.languages.join(", ") : navigator.language,
+          meaning: "Preferred languages set in your browser.",
+          undesired: "Reveals regional and cultural identity."
+        },
+        {
+          parameter: "Connection Type",
+          value: (connection && connection.effectiveType) ? connection.effectiveType : "N/A",
+          meaning: "Type of network connection (e.g., wifi, 4g).",
+          undesired: "May expose your ISP type and connection quality."
+        },
+        {
+          parameter: "Downlink Speed",
+          value: (connection && connection.downlink) ? connection.downlink + " Mbps" : "N/A",
+          meaning: "Estimated effective downlink speed.",
+          undesired: "Exact speed details might be used to infer network characteristics."
+        },
+        {
+          parameter: "Round Trip Time (RTT)",
+          value: (connection && connection.rtt) ? connection.rtt + " ms" : "N/A",
+          meaning: "Estimated network round-trip time.",
+          undesired: "Precise RTT can be used for network profiling."
+        },
+        {
+          parameter: "Save Data Mode",
+          value: (connection && typeof connection.saveData === "boolean") ? (connection.saveData ? "Enabled" : "Disabled") : "N/A",
+          meaning: "Indicates if reduced data usage mode is active.",
+          undesired: "Reveals your data consumption preferences."
+        }
+      ];
+
+      // Group 2: Device & Hardware Information
+      const group2 = [
+        {
+          parameter: "Operating System",
+          value: navigator.platform || "N/A",
+          meaning: "Underlying OS or platform of your device.",
+          undesired: "Specific OS details may expose vulnerabilities."
+        },
+        {
+          parameter: "Battery Level",
+          value: batteryLevel,
+          meaning: "Current battery charge status.",
+          undesired: "Can reveal usage patterns and device status."
+        },
+        {
+          parameter: "Screen Orientation",
+          value: (screen.orientation && screen.orientation.type) ? screen.orientation.type : "N/A",
+          meaning: "Current orientation of your display (landscape/portrait).",
+          undesired: "May indicate your device's physical setup."
+        },
+        {
+          parameter: "Screen Resolution",
+          value: screen.width + " x " + screen.height,
+          meaning: "Physical pixel dimensions of your screen.",
+          undesired: "Unique resolutions assist in device fingerprinting."
+        },
+        {
+          parameter: "Device Memory (GB)",
+          value: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A",
+          meaning: "Approximate amount of RAM in your device.",
+          undesired: "Helps narrow down specific device models."
+        },
+        {
+          parameter: "Touch Support",
+          value: ('ontouchstart' in window) ? "Supported" : "Not Supported",
+          meaning: "Indicates if your device supports touch input.",
+          undesired: "Can reveal if you are using a mobile or tablet device."
+        },
+        {
+          parameter: "Max Touch Points",
+          value: navigator.maxTouchPoints || "N/A",
+          meaning: "Maximum number of simultaneous touch inputs.",
+          undesired: "High values indicate modern touch-enabled devices."
+        }
+      ];
+
+      // Group 3: Browser & Storage Information
+      const group3 = [
+        {
+          parameter: "WebGL Vendor",
+          value: getWebGLVendor(),
+          meaning: "GPU vendor as reported by WebGL.",
+          undesired: "Detailed GPU information can be misused."
+        },
+        {
+          parameter: "Browser Plugins",
+          value: (navigator.plugins ? navigator.plugins.length : "N/A"),
+          meaning: "Count of installed browser plugins.",
+          undesired: "Unique plugin configurations aid in fingerprinting."
+        },
+        {
+          parameter: "Cookies Enabled",
+          value: (navigator.cookieEnabled ? "Yes" : "No"),
+          meaning: "Indicates if cookies are allowed in your browser.",
+          undesired: "Cookies enable persistent tracking."
+        },
+        {
+          parameter: "Java Enabled",
+          value: (navigator.javaEnabled && navigator.javaEnabled() ? "Enabled" : "Disabled"),
+          meaning: "Indicates if Java is enabled in your browser.",
+          undesired: "Java can introduce significant security risks."
+        },
+        {
+          parameter: "Do Not Track",
+          value: (navigator.doNotTrack || "N/A"),
+          meaning: "Your expressed preference regarding online tracking.",
+          undesired: "Absence of a DNT signal can lead to over-tracking."
+        },
+        {
+          parameter: "Local Storage",
+          value: (typeof localStorage !== "undefined") ? "Available" : "Not Available",
+          meaning: "Persistent local storage provided by your browser.",
+          undesired: "Can be exploited to store and access tracking data."
+        },
+        {
+          parameter: "Session Storage",
+          value: (typeof sessionStorage !== "undefined") ? "Available" : "Not Available",
+          meaning: "Temporary storage for your browsing session.",
+          undesired: "May be used to maintain session state and tracking."
+        }
+      ];
+
+      // Insert group header and row data.
+      const tableBody = document.getElementById("infoTable");
+
+      function addGroupHeader(title) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.className = "group-header";
+        td.textContent = title;
+        tr.appendChild(td);
+        tableBody.appendChild(tr);
+      }
+
+      function addRows(group) {
+        group.forEach(item => {
+          const tr = document.createElement("tr");
+
+          const tdParam = document.createElement("td");
+          tdParam.textContent = item.parameter;
+          tr.appendChild(tdParam);
+
+          const tdValue = document.createElement("td");
+          tdValue.textContent = item.value;
+          tr.appendChild(tdValue);
+
+          const tdMeaning = document.createElement("td");
+          tdMeaning.textContent = item.meaning;
+          tr.appendChild(tdMeaning);
+
+          const tdUndesired = document.createElement("td");
+          tdUndesired.textContent = item.undesired;
+          tr.appendChild(tdUndesired);
+
+          tableBody.appendChild(tr);
+        });
+      }
+
+      // Group 1: User & Network Information.
+      addGroupHeader("User & Network Information");
+      addRows(group1);
+
+      // Group 2: Device & Hardware Information.
+      addGroupHeader("Device & Hardware Information");
+      addRows(group2);
+
+      // Group 3: Browser & Storage Information.
+      addGroupHeader("Browser & Storage Information");
+      addRows(group3);
+    }
+    window.onload = populateInfo;
+  </script>
+</body>
+</html>
