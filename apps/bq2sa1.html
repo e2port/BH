@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Are you a code-viber?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Dynamic background with subtle color shifts */
+    body {
+      background: linear-gradient(45deg, #000, #001a00, #000);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0;
+      padding: 20px;
+      color: #00ff00;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      letter-spacing: 1px;
+    }
+    /* Table styling */
+    table {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto 20px auto;
+      border-collapse: collapse;
+      background-color: #000;
+      border: 4px solid #00ff00;
+      box-shadow: 0 0 30px #00ff00;
+    }
+    th, td {
+      padding: 10px 15px;
+      border: 0.5px solid #00ff00;
+      text-align: left;
+      vertical-align: middle;
+    }
+    /* Styling for question text and checkbox cells */
+    .question-cell {
+      width: 80%;
+      color: #00ff00;
+    }
+    .checkbox-cell {
+      width: 20%;
+      text-align: center;
+    }
+    /* Result box styling */
+    .result-box {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 10px solid #00ff00;
+      background-color: #000;
+      box-shadow: 0 0 40px #00ff00;
+      color: #ffffff;
+      font-size: 1.2em;
+      line-height: 1.5;
+      text-align: center;
+    }
+    /* Submit button styling */
+    button {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      color: #00ff00;
+      background-color: #000;
+      border: 2px solid #00ff00;
+      cursor: pointer;
+      box-shadow: 0 0 20px #00ff00;
+    }
+    button:hover {
+      background-color: #001a00;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      h1 { font-size: 2em; }
+      th, td { font-size: 0.9em; }
+      .result-box { font-size: 1em; }
+      button { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Are you a code-viber? HMMMMM?</h1>
+  <table id="quizTable">
+    <!-- Quiz questions will be inserted here dynamically -->
+  </table>
+  <button id="submitBtn">Submit Answers</button>
+  <div class="result-box" id="resultBox">
+    <!-- Result will appear here after submission -->
+  </div>
+  
+  <script>
+    // Pool of 20 boolean questions about general coding understanding.
+    const questionPool = [
+      "I understand the basics of HTML.",
+      "I have written CSS code to style web pages.",
+      "I know how to use JavaScript for interactive web elements.",
+      "I can debug code effectively.",
+      "I am comfortable with version control systems like Git.",
+      "I understand how to structure a responsive webpage.",
+      "I am familiar with web security best practices.",
+      "I can write clean, modular code.",
+      "I have experience with front-end frameworks.",
+      "I can integrate APIs into web applications.",
+      "I understand server-side programming basics.",
+      "I know how to optimize web performance.",
+      "I have experience with database management.",
+      "I can work with RESTful services.",
+      "I understand object-oriented programming concepts.",
+      "I can write unit tests for my code.",
+      "I have experience with agile development methodologies.",
+      "I can deploy applications to the cloud.",
+      "I am familiar with responsive design principles.",
+      "I understand asynchronous programming in JavaScript."
+    ];
+    
+    // Function to shuffle an array (Fisher-Yates algorithm)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    
+    // Select 5 random questions from the pool.
+    const selectedQuestions = shuffleArray([...questionPool]).slice(0, 5);
+    
+    // Populate the quiz table with the selected questions.
+    const quizTable = document.getElementById("quizTable");
+    
+    selectedQuestions.forEach((question, index) => {
+      // Create table row for question
+      const row = document.createElement("tr");
+      
+      // Question cell
+      const questionCell = document.createElement("td");
+      questionCell.className = "question-cell";
+      questionCell.textContent = question;
+      row.appendChild(questionCell);
+      
+      // Checkbox cell
+      const checkboxCell = document.createElement("td");
+      checkboxCell.className = "checkbox-cell";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "q" + index;
+      checkboxCell.appendChild(checkbox);
+      row.appendChild(checkboxCell);
+      
+      quizTable.appendChild(row);
+    });
+    
+    // Function to evaluate the quiz results.
+    function evaluateQuiz() {
+      let score = 0;
+      // Count how many checkboxes are checked.
+      for (let i = 0; i < 5; i++) {
+        const checkbox = document.getElementById("q" + i);
+        if (checkbox && checkbox.checked) {
+          score++;
+        }
+      }
+      
+      // Determine status based on score.
+      let status = "";
+      if (score === 5) {
+        status = "Genuine Coder";
+      } else if (score === 0) {
+        status = "Indescript";
+      } else {
+        status = "Code-Viber";
+      }
+      
+      // Display the result.
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = "<strong>Your Score: " + score + " / 5</strong><br><br>" +
+                            "Status: " + status;
+    }
+    
+    // Add event listener to the submit button.
+    document.getElementById("submitBtn").addEventListener("click", evaluateQuiz);
+  </script>
+</body>
+</html>
