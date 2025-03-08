@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E2 Digital Portfolio - Services</title>
+  <link rel="icon" href="images/ic.webp" type="image/webp" />
+  <style>
+    /* Reset & Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Franklin Gothic Medium", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #ccc;
+      background: #000; /* Let the matrix background show */
+      padding: 20px;
+      position: relative;
+    }
+    /* Fullscreen Matrix Rain Background */
+    canvas#hwind-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    /* Small Hebrew text at top right */
+    .hebrew-modest {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+    /* Main container – no background, panels are separate */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: transparent;
+      padding: 0;
+    }
+    /* Header styles */
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Knockout headings  */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: Georgia, serif;
+      color: rgba(255, 255, 255, 0.2);
+      -webkit-text-stroke: 1px black;
+      text-stroke: 1px black;
+      text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
+      -webkit-font-smoothing: antialiased;
+      margin-bottom: 5px;
+    }
+    /* Increase heading sizes for a bolder look */
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    header p {
+      font-size: 1.2rem;
+      color: #000;
+      margin-bottom: 8px;
+    }
+    /* Specific style for the tagline in the header */
+    header p.light-gray {
+      color: #ccc;
+    }
+    /* Navigation */
+    nav {
+      text-align: center;
+      margin: 20px 0;
+    }
+    nav a {
+      text-decoration: none;
+      color: #ccc;  /* default color: light gray */
+      margin: 0 15px;
+      font-size: 1rem;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    nav a:hover {
+      transform: scale(1.2) rotate(5deg);
+      color: #000;  /* on hover: black */
+    }
+    /* Secondary Page Navigation Bar */
+    nav.page-nav {
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 40px;
+    }
+    nav.page-nav a {
+      color: #000;
+      margin: 0 10px;
+    }
+    /* Mini-canvas panels – each section now has a semitransparent white background */
+    .mini-canvas {
+      margin: 40px 0;
+      padding: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .mini-canvas p,
+    .mini-canvas li {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #000; /* text color adjusted for readability on white background */
+    }
+    .mini-canvas ul {
+      list-style: disc;
+      padding-left: 20px;
+      margin-bottom: 10px;
+      color: #000;
+    }
+    .mini-canvas ul li {
+      margin-bottom: 8px;
+    }
+    /* Contact Form Styles */
+    form.contact-form {
+      margin-top: 20px;
+    }
+    form.contact-form textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      resize: vertical;
+      font-size: 1rem;
+    }
+    form.contact-form input[type="submit"] {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #000;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    form.contact-form input[type="submit"]:hover {
+      background: #333;
+    }
+    /* On mobile, revert lists to a single column */
+    @media (max-width: 600px) {
+      .mini-canvas ul {
+        column-count: 1;
+      }
+      nav a {
+        display: block;
+        margin: 10px 0;
+      }
+    }
+    .portfolio-image {
+      max-width: 50%;
+      height: auto;
+      display: block;
+      margin: 20px auto;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: transform 0.3s ease;
+    }
+    .portfolio-image:hover {
+      transform: scale(1.2);
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #ccc;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Small Hebrew Text at Top Right -->
+  <div class="hebrew-modest">בס"ד</div>
+  <!-- Matrix Rain Background Canvas -->
+  <canvas id="hwind-bg"></canvas>
+  <div class="container">
+    <!-- Header and Main Navigation -->
+    <header>
+      <h1>E2's Digital Portfolio</h1>
+      <p class="light-gray">Applied Data Scientist & Tech Strategist</p>
+    </header>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="galleries.html">Galleries</a>
+      <a href="services.html">Services</a>
+      <a href="attributions.html">Attributions</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <!-- Secondary Page Navigation Bar -->
+    <nav class="page-nav">
+      <a href="#tech-expertise">Tech Expertise</a>
+      <a href="#additional-services">Additional Services</a>
+      <a href="#software-experience">Software Experience</a>
+      <a href="#file-extensions-experience">File Extensions Experience</a>
+      <a href="#skills">Skills</a>
+    </nav>
+    
+    <!-- New Sections Added at the Top -->
+    <div id="tech-expertise" class="mini-canvas">
+      <h2>Tech Expertise</h2>
+      <ul>
+        <li><strong>Data Science / Machine Learning</strong> - Certified Data Scientist with expertise in machine learning algorithms and predictive analytics to drive business decisions.</li>
+        <li><strong>Digital Media / Asset Creation</strong> - Skilled in crafting high-quality video content, designing graphics, animations, 3D models, and employing generative AI applications.</li>
+      </ul>
+    </div>
+    
+    <div id="additional-services" class="mini-canvas">
+      <h2>Additional Services</h2>
+      <ul>
+        <li><strong>Programming / Scripting Tasks</strong> - Proficient in Python and SQL, and familiarity with HTML, CSS, & JS.</li>
+        <li><strong>Written English Support</strong> - Peer-review, structure/flow/grammar analysis, and tailored content creation to meet professional standards.</li>
+        <li><strong>Spoken English</strong> - Native-level English conversation practice and training; discussing cultural insights, technology, or anything to help non-native speakers feel more comfortable entering a discourse in English.</li>
+      </ul>
+    </div>
+    
+    <!-- Updated Software Experience Section -->
+    <div id="software-experience" class="mini-canvas">
+      <h2>Software Experience</h2>
+      <ul>
+        <li><strong>Microsoft Suite</strong></li>
+        <li><strong>Google Docs</strong></li>
+        <li><strong>Google Sheets</strong></li>
+        <li><strong>Salesforce</strong></li>
+        <li><strong>Slack</strong></li>
+        <li><strong>GitHub</strong></li>
+        <li><strong>TeamViewer</strong></li>
+        <li><strong>AnyDesk</strong></li>
+        <li><strong>LogMeIn</strong></li>
+        <li><strong>Blender 3D</strong></li>
+        <li><strong>GIMP</strong></li>
+        <li><strong>Microsoft Clipchamp</strong></li>
+        <li><strong>VSDC Video Editing</strong></li>
+        <li><strong>Macromedia Suite</strong></li>
+        <li><strong>Anaconda</strong></li>
+        <li><strong>Docker</strong></li>
+        <li><strong>Jupyter Notebook</strong></li>
+        <li><strong>OpenAI's DallE3</strong></li>
+        <li><strong>OpenAI's SORA</strong></li>
+        <li><strong>OpenAI's various LLMs</strong></li>
+      </ul>
+    </div>
+    
+    <!-- Updated File Extensions Experience Section -->
+    <div id="file-extensions-experience" class="mini-canvas">
+      <h2>File Extensions Experience</h2>
+      <ul>
+        <li><strong>PNG</strong></li>
+        <li><strong>JPG</strong></li>
+        <li><strong>WEBP</strong></li>
+        <li><strong>GIF</strong></li>
+        <li><strong>XCF</strong></li>
+        <li><strong>OBJ</strong></li>
+        <li><strong>BLEND</strong></li>
+        <li><strong>AVI</strong></li>
+        <li><strong>MP4</strong></li>
+        <li><strong>MP3</strong></li>
+        <li><strong>HTML</strong></li>
+        <li><strong>CSS</strong></li>
+        <li><strong>JS</strong></li>
+        <li><strong>SQL</strong></li>
+        <li><strong>PY</strong></li>
+        <li><strong>CSV</strong></li>
+        <li><strong>PDF</strong></li>
+        <li><strong>DOCX</strong></li>
+        <li><strong>XLSX</strong></li>
+        <li><strong>IPYNB</strong></li>
+      </ul>
+    </div>
+    
+    <!-- Updated Skills Section -->
+    <div id="skills" class="mini-canvas">
+      <h2>Skills</h2>
+      <ul>
+        <li><strong>Advanced Statistical Analysis</strong></li>
+        <li><strong>Machine Learning Model Development</strong></li>
+        <li><strong>Python and SQL Programming</strong></li>
+        <li><strong>Data Visualization and Reporting</strong></li>
+        <li><strong>Cloud Infrastructure Management (Azure, AWS, GCP)</strong></li>
+        <li><strong>Project Management and Team Leadership</strong></li>
+        <li><strong>Technical Support and Customer Service</strong></li>
+        <li><strong>Biotechnological Processes (e.g., Microalgae Cultivation)</strong></li>
+        <li><strong>Construction and Material Processing (Metal, PVC)</strong></li>
+        <li><strong>Multilingual Communication (English, French, Hebrew)</strong></li>
+        <li><strong>Software Troubleshooting and Optimization</strong></li>
+        <li><strong>Web-design (HTML, CSS, JS)</strong></li>
+        <li><strong>Creative Problem Solving</strong></li>
+        <li><strong>Writing and Editing Technical Documents</strong></li>
+        <li><strong>Video Editing and Production</strong></li>
+        <li><strong>Organized Goal-setting</strong></li>
+        <li><strong>Tech Communication</strong></li>
+        <li><strong>Basic IT Security</strong></li>
+      </ul>
+    </div>
+    
+    <!-- Contact Section -->
+    <div id="contact" class="mini-canvas">
+      <h2>Contact</h2>
+      <p>
+        Feel free to reach out via email at 
+        <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
+      </p>
+      <img src="images/tfbc4.webp" loading="lazy" alt="Cat Football" class="portfolio-image">
+      <p>All the best!</p>
+    </div>
+    
+    <footer>
+      &copy; 2025 E2 Port. All rights reserved. | Contact: <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
+    </footer>
+  </div>
+  
+  <!-- Grayscale Matrix Rain Background Animation Script -->
+  <script>
+    const canvas = document.getElementById('hwind-bg');
+    const ctx = canvas.getContext('2d');
+    // Set fixed logical resolution
+    let scale = window.devicePixelRatio;
+    const baseWidth = 800;
+    const baseHeight = 600;
+    function setCanvasSize() {
+        scale = window.devicePixelRatio; // Update scale on resize
+        canvas.width = baseWidth * scale;
+        canvas.height = baseHeight * scale;
+        ctx.scale(scale, scale);
+    }
+    setCanvasSize(); // Set initial size
+    const characters = "0123";
+    const fontSize = 14; // Larger font size for fewer columns and less computation
+    const columns = Math.floor(baseWidth / fontSize); // Number of columns based on baseWidth
+    const drops = Array(columns).fill(0);
+    function draw() {
+        // Keep the original trailing/fading effect with a semi-transparent black background.
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Set the text style to a more muted gray with its shadow.
+        ctx.fillStyle = "rgba(120, 120, 120, 1)";
+        ctx.shadowColor = "rgba(120, 120, 120, 1)";
+        ctx.shadowBlur = 10;
+        ctx.font = "bold " + fontSize + "px monospace";
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters.charAt(Math.floor(Math.random() * characters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height / scale && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+    window.addEventListener('resize', setCanvasSize);
+  </script>
+</body>
+</html>
