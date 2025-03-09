@@ -174,9 +174,9 @@
   
     function updatePythonSnippet(paletteName, colors) {
     // Matplotlib snippet with fewer line breaks.
-    let mplCode = "import matplotlib.pyplot as plt; palette = " + JSON.stringify(colors) + "; plt.plot([1,2,3],[4,5,6], color=palette[0]); plt.title('Matplotlib Example'); plt.show();";
+    let mplCode = "import matplotlib.pyplot as plt; palette = " + JSON.stringify(colors) + "; plt.plot([1,2],[4,5], color=palette[0]);";
     // Seaborn snippet using the palette name.
-    let snsCode = "import seaborn as sns; sns.set_palette('" + paletteName + "'); sns.lineplot(x=[1,2,3], y=[4,5,6]); plt.title('Seaborn Example'); plt.show();";
+    let snsCode = "import seaborn as sns; sns.set_palette('" + paletteName + "'); sns.lineplot(x=[1,2], y=[4,5]);";
     let code = "### Matplotlib Example: " + mplCode + "\n### Seaborn Example: " + snsCode;
     document.getElementById("python-snippet").textContent = code;
   }
