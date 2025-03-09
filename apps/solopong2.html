@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neon Circle Pong</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      overflow: hidden;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+      background: #111;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    // Canvas and field setup
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    let center = { x: 0, y: 0 };
+    let fieldRadius = 0;
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      center.x = canvas.width / 2;
+      center.y = canvas.height / 2;
+      fieldRadius = Math.min(canvas.width, canvas.height) * 0.45;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // Game objects: ball and paddle parameters
+    const ball = {
+      x: center.x,
+      y: center.y,
+      radius: 10,
+      vx: 0,
+      vy: 0
+    };
+    let paddleAngle = 0; // paddle central angle (radians)
+    const paddleArcWidth = Math.PI / 4;  // 45° in radians
+    const paddleThickness = 15 * 2.5;      // 2.5× thicker than before
+
+    // Trailing effect setting: draw a semi-transparent overlay each frame.
+    const trailAlpha = 0.15; 
+
+    // Utility: compute smallest angular difference
+    function angleDifference(a, b) {
+      let diff = a - b;
+      while (diff < -Math.PI) diff += 2 * Math.PI;
+      while (diff > Math.PI) diff -= 2 * Math.PI;
+      return diff;
+    }
+
+    // Reset game: ball starts at center, with a random direction.
+    function resetGame() {
+      ball.x = center.x;
+      ball.y = center.y;
+      const angle = Math.random() * 2 * Math.PI;
+      const speed = 4; // pixels per frame
+      ball.vx = speed * Math.cos(angle);
+      ball.vy = speed * Math.sin(angle);
+    }
+    resetGame();
+
+    // Update paddle position from mouse or touch.
+    function updatePaddleAngle(clientX, clientY) {
+      paddleAngle = Math.atan2(clientY - center.y, clientX - center.x);
+    }
+    canvas.addEventListener("mousemove", (e) => {
+      updatePaddleAngle(e.clientX, e.clientY);
+    });
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      updatePaddleAngle(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    // Game loop: update ball position and handle collisions.
+    function gameLoop() {
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      const dx = ball.x - center.x;
+      const dy = ball.y - center.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance + ball.radius >= fieldRadius) {
+        // Collision with the circle's border.
+        const ballAngle = Math.atan2(dy, dx);
+        const diff = angleDifference(ballAngle, paddleAngle);
+        if (Math.abs(diff) <= paddleArcWidth / 2) {
+          // Ball hit the paddle.
+          const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+          // The base reflection: reverse the radial direction.
+          // Then adjust by an offset proportional to the impact position.
+          const maxDeflection = Math.PI / 6; // up to 30° variation.
+          const impactRatio = diff / (paddleArcWidth / 2); // normalized to [-1, 1]
+          const offset = impactRatio * maxDeflection;
+          const newAngle = ballAngle + Math.PI + offset;
+          ball.vx = speed * Math.cos(newAngle);
+          ball.vy = speed * Math.sin(newAngle);
+          // Reposition the ball just inside the field.
+          ball.x = center.x + (fieldRadius - ball.radius - 1) * Math.cos(ballAngle);
+          ball.y = center.y + (fieldRadius - ball.radius - 1) * Math.sin(ballAngle);
+        } else {
+          // Ball missed the paddle – reset game.
+          resetGame();
+        }
+      }
+      drawGame();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Draw the game with neon glow, shadows, and a trailing effect.
+    function drawGame() {
+      // Create a trailing effect.
+      ctx.fillStyle = `rgba(17, 17, 17, ${trailAlpha})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the circular playing field with neon glow.
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, fieldRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "#00ffff";
+      ctx.lineWidth = 3;
+      ctx.shadowColor = "#00ffff";
+      ctx.shadowBlur = 20;
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw the paddle along the inner edge with extra glow.
+      ctx.save();
+      ctx.beginPath();
+      const startAngle = paddleAngle - paddleArcWidth / 2;
+      const endAngle = paddleAngle + paddleArcWidth / 2;
+      ctx.arc(center.x, center.y, fieldRadius, startAngle, endAngle);
+      ctx.strokeStyle = "#ff00ff";
+      ctx.lineWidth = paddleThickness;
+      ctx.lineCap = "round";
+      ctx.shadowColor = "#ff00ff";
+      ctx.shadowBlur = 30;
+      ctx.stroke();
+      ctx.restore();
+
+      // Draw the ball with a blue neon glow.
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+      ctx.fillStyle = "#0000ff";
+      ctx.shadowColor = "#0000ff";
+      ctx.shadowBlur = 20;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
