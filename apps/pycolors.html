@@ -176,18 +176,10 @@
       // Matplotlib snippet uses the explicit color codes.
       let mplCode = "import matplotlib.pyplot as plt\n\n" +
                     "palette = " + JSON.stringify(colors) + "\n" +
-                    "plt.figure()\n" +
                     "plt.plot([1, 2, 3], [4, 5, 6], color=palette[0])\n" +
-                    "plt.title('Matplotlib Example')\n" +
-                    "plt.show()";
-      
-      // Seaborn snippet uses the palette name (if it matches a built-in Seaborn palette).
+    // Seaborn snippet uses the palette name (if it matches a built-in Seaborn palette).
       let snsCode = "import seaborn as sns\n\n" +
                     "sns.set_palette('" + paletteName + "')\n" +
-                    "sns.lineplot(x=[1, 2, 3], y=[4, 5, 6])\n" +
-                    "import matplotlib.pyplot as plt\n" +
-                    "plt.title('Seaborn Example')\n" +
-                    "plt.show()";
       
       let code = "### Matplotlib Example\n" + mplCode + "\n\n" +
                  "### Seaborn Example\n" + snsCode;
