@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Circle Pong</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      overflow: hidden;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+      background: #111;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    // Get the canvas and context
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    let center = { x: 0, y: 0 };
+    let fieldRadius = 0;
+    
+    // Set sizes based on window dimensions
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      center.x = canvas.width / 2;
+      center.y = canvas.height / 2;
+      // Field radius leaves a margin around the screen
+      fieldRadius = Math.min(canvas.width, canvas.height) * 0.45;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    
+    // Game objects
+    const ball = {
+      x: center.x,
+      y: center.y,
+      radius: 10,
+      vx: 0,
+      vy: 0
+    };
+    // The paddle is represented by an angle (in radians) that follows the pointer.
+    // Its width (arc length) is fixed.
+    let paddleAngle = 0;
+    const paddleArcWidth = Math.PI / 4;  // 45° wide paddle
+    const paddleThickness = 15;          // drawn as thick arc stroke
+
+    // Utility: smallest angular difference between two angles.
+    function angleDifference(a, b) {
+      let diff = a - b;
+      while (diff < -Math.PI) diff += 2 * Math.PI;
+      while (diff > Math.PI) diff -= 2 * Math.PI;
+      return diff;
+    }
+
+    // Reset game: place ball in center with random velocity.
+    function resetGame() {
+      ball.x = center.x;
+      ball.y = center.y;
+      const angle = Math.random() * 2 * Math.PI;
+      const speed = 4;  // pixels per frame
+      ball.vx = speed * Math.cos(angle);
+      ball.vy = speed * Math.sin(angle);
+    }
+    resetGame();
+
+    // Update paddle position based on mouse/touch.
+    function updatePaddleAngle(clientX, clientY) {
+      paddleAngle = Math.atan2(clientY - center.y, clientX - center.x);
+    }
+    canvas.addEventListener("mousemove", (e) => {
+      updatePaddleAngle(e.clientX, e.clientY);
+    });
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      updatePaddleAngle(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    // Game loop: update game state and draw.
+    function gameLoop() {
+      // Update ball position
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      
+      // Check collision with field border.
+      const dx = ball.x - center.x;
+      const dy = ball.y - center.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance + ball.radius >= fieldRadius) {
+        // Determine where the ball is hitting the circle.
+        const ballAngle = Math.atan2(dy, dx);
+        const diff = angleDifference(ballAngle, paddleAngle);
+        // If within paddle's arc (with a small tolerance), reflect.
+        if (Math.abs(diff) <= paddleArcWidth / 2) {
+          // Reflect the velocity vector about the normal (radial) vector.
+          const nx = dx / distance;
+          const ny = dy / distance;
+          const dot = ball.vx * nx + ball.vy * ny;
+          ball.vx = ball.vx - 2 * dot * nx;
+          ball.vy = ball.vy - 2 * dot * ny;
+          // Reposition ball just inside the field to avoid repeated collision.
+          ball.x = center.x + (fieldRadius - ball.radius - 1) * nx;
+          ball.y = center.y + (fieldRadius - ball.radius - 1) * ny;
+        } else {
+          // Ball missed the paddle – reset the game.
+          resetGame();
+        }
+      }
+      
+      drawGame();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Draw the playing field, paddle, and ball.
+    function drawGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw playing field circle.
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, fieldRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Draw paddle: a thick arc along the inner edge.
+      ctx.beginPath();
+      const startAngle = paddleAngle - paddleArcWidth / 2;
+      const endAngle = paddleAngle + paddleArcWidth / 2;
+      ctx.arc(center.x, center.y, fieldRadius, startAngle, endAngle);
+      ctx.strokeStyle = "#0f0"; // paddle is drawn in green
+      ctx.lineWidth = paddleThickness;
+      ctx.stroke();
+      
+      // Draw the ball.
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+      ctx.fillStyle = "blue";
+      ctx.fill();
+    }
+    
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
