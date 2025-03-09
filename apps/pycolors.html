@@ -174,15 +174,15 @@
     // Update the JS4PY snippet with separate Matplotlib and Seaborn examples.
     function updatePythonSnippet(paletteName, colors) {
       // Matplotlib snippet uses the explicit color codes.
-      let mplCode = "import matplotlib.pyplot as plt\n\n" +
+      let mplCode = "import matplotlib.pyplot as plt\n" +
                     "palette = " + JSON.stringify(colors) + "\n" +
                     "plt.plot([1, 2, 3], [4, 5, 6], color=palette[0])\n" +
     // Seaborn snippet uses the palette name (if it matches a built-in Seaborn palette).
-      let snsCode = "import seaborn as sns\n\n" +
-                    "sns.set_palette('" + paletteName + "')\n" +
+      let snsCode = "import seaborn as sns\n" +
+                    "sns.set_palette('" + paletteName + "')" +
       
-      let code = "### Matplotlib Example\n" + mplCode + "\n\n" +
-                 "### Seaborn Example\n" + snsCode;
+      let code = "### Matplotlib Example### " + mplCode + "\n" +
+                 "### Seaborn Example### " + snsCode;
       document.getElementById("python-snippet").textContent = code;
     }
 
