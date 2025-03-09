@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Enhanced Chess Game</title>
+  <style>
+    /* Reset and base styles */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #111; /* Dark background to enhance neon effects */
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
+    /* Container for game elements */
+    #game-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      position: relative;
+    }
+    #middle-container {
+      display: flex;
+      align-items: center;
+    }
+    /* Board container */
+    #board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 90vmin;
+      height: 90vmin;
+      border: 2px solid #555;
+      box-shadow: 0 0 10px #000;
+    }
+    /* Each square of the board */
+    .cell {
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      /* Ensure each cell fills its grid area */
+      width: 100%;
+      height: 100%;
+    }
+    /* Board colors: one set is opaque grey, the other transparent */
+    .light { background-color: transparent; }
+    .dark  { background-color: rgba(128, 128, 128, 1); }
+    /* Highlight selected cell */
+    .selected {
+      outline: 3px solid yellow;
+    }
+    /* Base style for game pieces */
+    .piece {
+      font-weight: bold;
+      font-size: 5vmin;
+      /* White outline for all pieces */
+      -webkit-text-stroke: 1px white;
+      text-shadow: 0 0 5px #fff, 0 0 10px #fff;
+      transition: transform 0.2s;
+    }
+    /* Neon colors per side */
+    .blue { color: #00f; }
+    .red  { color: #f00; }
+    /* Royal pieces get a more pronounced pulsating neon glow */
+    .royal {
+      animation: pulse 1.5s infinite alternate;
+    }
+    @keyframes pulse {
+      from {
+        text-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 0 45px currentColor;
+      }
+      to {
+        text-shadow: 0 0 25px currentColor, 0 0 35px currentColor, 0 0 50px currentColor;
+      }
+    }
+    /* Capture animation: shrink & fade-out */
+    @keyframes capture {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+    .capture-animation {
+      animation: capture 0.5s forwards;
+    }
+    /* Turn indicator styling */
+    #turn-indicator {
+      width: 50px;
+      height: 50px;
+      margin-left: 20px;
+      border: 2px solid #fff;
+    }
+    /* Check alert styling */
+    #check-alert {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #fff;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    /* Timer styling */
+    #timer {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="check-alert"></div>
+    <div id="middle-container">
+      <div id="board"></div>
+      <div id="turn-indicator"></div>
+    </div>
+    <div id="timer"></div>
+  </div>
+  <script>
+    // Map our piece names to symbols
+    const pieceSymbols = {
+      pawn: 'x',
+      rook: 'R',
+      bishop: 'B',
+      knight: 'K',
+      king: '0',
+      queen: '1'
+    };
+
+    // Global board (8x8 array) and turn tracking ("blue" or "red")
+    let board = [];
+    let currentTurn = "blue"; // blue (bottom) goes first
+    let selected = null;      // {row, col, piece}
+    let gameOver = false;
+
+    // Timer variables
+    let startTime = Date.now();
+    let timerInterval = setInterval(updateTimer, 1000);
+
+    function updateTimer() {
+      if (gameOver) return;
+      let elapsed = Date.now() - startTime;
+      let seconds = Math.floor(elapsed / 1000);
+      let minutes = Math.floor(seconds / 60);
+      seconds = seconds % 60;
+      document.getElementById("timer").textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Create an empty 8x8 board array
+    function createEmptyBoard() {
+      return Array.from({length: 8}, () => Array(8).fill(null));
+    }
+
+    // Initialize board with pieces in standard positions.
+    // Note: For castling, we add a "moved" flag (initially false) to kings and rooks.
+    function initBoard() {
+      board = createEmptyBoard();
+      // Top side: red pieces (rows 0 and 1)
+      board[0] = [
+        { type: 'rook', player: 'red', moved: false },
+        { type: 'knight', player: 'red' },
+        { type: 'bishop', player: 'red' },
+        { type: 'queen', player: 'red' },
+        { type: 'king', player: 'red', moved: false },
+        { type: 'bishop', player: 'red' },
+        { type: 'knight', player: 'red' },
+        { type: 'rook', player: 'red', moved: false }
+      ];
+      board[1] = Array(8).fill({ type: 'pawn', player: 'red' });
+      // Middle rows 2-5 are empty
+      for (let r = 2; r < 6; r++) {
+        board[r] = Array(8).fill(null);
+      }
+      // Bottom side: blue pieces (rows 6 and 7)
+      board[6] = Array(8).fill({ type: 'pawn', player: 'blue' });
+      board[7] = [
+        { type: 'rook', player: 'blue', moved: false },
+        { type: 'knight', player: 'blue' },
+        { type: 'bishop', player: 'blue' },
+        { type: 'queen', player: 'blue' },
+        { type: 'king', player: 'blue', moved: false },
+        { type: 'bishop', player: 'blue' },
+        { type: 'knight', player: 'blue' },
+        { type: 'rook', player: 'blue', moved: false }
+      ];
+    }
+
+    // Clone the board (deep copy) so we can simulate moves
+    function cloneBoard(src) {
+      return src.map(row => row.map(cell => cell ? { ...cell } : null));
+    }
+
+    // Check if given row, col are within board boundaries
+    function inBounds(r, c) {
+      return r >= 0 && r < 8 && c >= 0 && c < 8;
+    }
+
+    // Get “pseudo‐legal” moves for a piece at (row, col).
+    // Later these moves will be filtered to ensure they don’t leave the king in check.
+    function getCandidateMoves(piece, row, col) {
+      const moves = [];
+      const opponent = piece.player === "blue" ? "red" : "blue";
+      
+      if (piece.type === "pawn") {
+        const dir = piece.player === "blue" ? -1 : 1;
+        const startRow = piece.player === "blue" ? 6 : 1;
+        const forwardRow = row + dir;
+        // Forward move if square is empty
+        if (inBounds(forwardRow, col) && !board[forwardRow][col]) {
+          moves.push({ row: forwardRow, col: col });
+          // Double move from starting row if path is clear
+          if (row === startRow && inBounds(row + 2 * dir, col) && !board[row + 2 * dir][col]) {
+            moves.push({ row: row + 2 * dir, col: col });
+          }
+        }
+        // Diagonal captures
+        for (let dc of [-1, 1]) {
+          const newR = row + dir, newC = col + dc;
+          if (inBounds(newR, newC) && board[newR][newC] && board[newR][newC].player === opponent) {
+            moves.push({ row: newR, col: newC });
+          }
+        }
+      }
+      else if (piece.type === "rook") {
+        const directions = [[1,0],[-1,0],[0,1],[0,-1]];
+        for (const [dr, dc] of directions) {
+          let r2 = row + dr, c2 = col + dc;
+          while (inBounds(r2, c2)) {
+            if (!board[r2][c2]) {
+              moves.push({ row: r2, col: c2 });
+            } else {
+              if (board[r2][c2].player === opponent) moves.push({ row: r2, col: c2 });
+              break;
+            }
+            r2 += dr; c2 += dc;
+          }
+        }
+      }
+      else if (piece.type === "bishop") {
+        const directions = [[1,1],[1,-1],[-1,1],[-1,-1]];
+        for (const [dr, dc] of directions) {
+          let r2 = row + dr, c2 = col + dc;
+          while (inBounds(r2, c2)) {
+            if (!board[r2][c2]) {
+              moves.push({ row: r2, col: c2 });
+            } else {
+              if (board[r2][c2].player === opponent) moves.push({ row: r2, col: c2 });
+              break;
+            }
+            r2 += dr; c2 += dc;
+          }
+        }
+      }
+      else if (piece.type === "queen") {
+        const directions = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+        for (const [dr, dc] of directions) {
+          let r2 = row + dr, c2 = col + dc;
+          while (inBounds(r2, c2)) {
+            if (!board[r2][c2]) {
+              moves.push({ row: r2, col: c2 });
+            } else {
+              if (board[r2][c2].player === opponent) moves.push({ row: r2, col: c2 });
+              break;
+            }
+            r2 += dr; c2 += dc;
+          }
+        }
+      }
+      else if (piece.type === "knight") {
+        const knightMoves = [
+          [2, 1], [2, -1], [-2, 1], [-2, -1],
+          [1, 2], [1, -2], [-1, 2], [-1, -2]
+        ];
+        for (const [dr, dc] of knightMoves) {
+          const r2 = row + dr, c2 = col + dc;
+          if (inBounds(r2, c2)) {
+            if (!board[r2][c2] || board[r2][c2].player === opponent)
+              moves.push({ row: r2, col: c2 });
+          }
+        }
+      }
+      else if (piece.type === "king") {
+        // Normal king moves: one square in any direction
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const r2 = row + dr, c2 = col + dc;
+            if (inBounds(r2, c2)) {
+              if (!board[r2][c2] || board[r2][c2].player === opponent) {
+                moves.push({ row: r2, col: c2 });
+              }
+            }
+          }
+        }
+        // Castling moves (only if king is not in check and hasn't moved)
+        if (!piece.moved && !isKingInCheck(piece.player, board)) {
+          // Kingside castling
+          let rook = board[row][7];
+          if (rook && rook.type === "rook" && rook.player === piece.player && !rook.moved) {
+            if (!board[row][5] && !board[row][6]) {
+              if (!isSquareAttacked(row, 5, piece.player, board) &&
+                  !isSquareAttacked(row, 6, piece.player, board)) {
+                moves.push({ row: row, col: 6, castling: "kingside" });
+              }
+            }
+          }
+          // Queenside castling
+          rook = board[row][0];
+          if (rook && rook.type === "rook" && rook.player === piece.player && !rook.moved) {
+            if (!board[row][1] && !board[row][2] && !board[row][3]) {
+              if (!isSquareAttacked(row, 3, piece.player, board) &&
+                  !isSquareAttacked(row, 2, piece.player, board)) {
+                moves.push({ row: row, col: 2, castling: "queenside" });
+              }
+            }
+          }
+        }
+      }
+      return moves;
+    }
+
+    // Get only those moves that do not leave the moving side’s king in check.
+    function getValidMoves(piece, row, col) {
+      const candidates = getCandidateMoves(piece, row, col);
+      const valid = [];
+      for (const move of candidates) {
+        const tempBoard = cloneBoard(board);
+        // Simulate the move on tempBoard
+        tempBoard[move.row][move.col] = { ...piece, moved: true };
+        tempBoard[row][col] = null;
+        // If castling, move the rook as well
+        if (move.castling) {
+          if (move.castling === "kingside") {
+            tempBoard[row][5] = { ...tempBoard[row][7], moved: true };
+            tempBoard[row][7] = null;
+          } else if (move.castling === "queenside") {
+            tempBoard[row][3] = { ...tempBoard[row][0], moved: true };
+            tempBoard[row][0] = null;
+          }
+        }
+        if (!isKingInCheck(piece.player, tempBoard)) {
+          valid.push(move);
+        }
+      }
+      return valid;
+    }
+
+    // Return squares that a piece attacks (used for checking if a square is under threat)
+    function getAttacks(piece, row, col, b) {
+      const moves = [];
+      if (piece.type === "pawn") {
+        const dir = piece.player === "blue" ? -1 : 1;
+        for (let dc of [-1, 1]) {
+          let r2 = row + dir, c2 = col + dc;
+          if (inBounds(r2, c2)) moves.push({ row: r2, col: c2 });
+        }
+      } else if (piece.type === "rook") {
+        const directions = [[1,0],[-1,0],[0,1],[0,-1]];
+        for (const [dr, dc] of directions) {
+          let r2 = row + dr, c2 = col + dc;
+          while (inBounds(r2, c2)) {
+            moves.push({ row: r2, col: c2 });
+            if (b[r2][c2]) break;
+            r2 += dr; c2 += dc;
+          }
+        }
+      } else if (piece.type === "bishop") {
+        const directions = [[1,1],[1,-1],[-1,1],[-1,-1]];
+        for (const [dr, dc] of directions) {
+          let r2 = row + dr, c2 = col + dc;
+          while (inBounds(r2, c2)) {
+            moves.push({ row: r2, col: c2 });
+            if (b[r2][c2]) break;
+            r2 += dr; c2 += dc;
+          }
+        }
+      } else if (piece.type === "queen") {
+        const directions = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+        for (const [dr, dc] of directions) {
+          let r2 = row + dr, c2 = col + dc;
+          while (inBounds(r2, c2)) {
+            moves.push({ row: r2, col: c2 });
+            if (b[r2][c2]) break;
+            r2 += dr; c2 += dc;
+          }
+        }
+      } else if (piece.type === "knight") {
+        const knightMoves = [
+          [2, 1], [2, -1], [-2, 1], [-2, -1],
+          [1, 2], [1, -2], [-1, 2], [-1, -2]
+        ];
+        for (const [dr, dc] of knightMoves) {
+          let r2 = row + dr, c2 = col + dc;
+          if (inBounds(r2, c2)) moves.push({ row: r2, col: c2 });
+        }
+      } else if (piece.type === "king") {
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            let r2 = row + dr, c2 = col + dc;
+            if (inBounds(r2, c2)) moves.push({ row: r2, col: c2 });
+          }
+        }
+      }
+      return moves;
+    }
+
+    // Check if a given square (r, c) is attacked by any opponent piece.
+    function isSquareAttacked(r, c, player, b) {
+      const opponent = player === "blue" ? "red" : "blue";
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          const p = b[i][j];
+          if (p && p.player === opponent) {
+            const attacks = getAttacks(p, i, j, b);
+            if (attacks.some(m => m.row === r && m.col === c)) return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Determine if the king for a given player is in check on board b.
+    function isKingInCheck(player, b) {
+      let kingPos = null;
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = b[r][c];
+          if (p && p.player === player && p.type === "king") {
+            kingPos = { row: r, col: c };
+            break;
+          }
+        }
+        if (kingPos) break;
+      }
+      if (!kingPos) return false;
+      return isSquareAttacked(kingPos.row, kingPos.col, player, b);
+    }
+
+    // Check if current player has any valid moves
+    function hasValidMoves(player) {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = board[r][c];
+          if (p && p.player === player) {
+            if (getValidMoves(p, r, c).length > 0) return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Check game status: check alert and checkmate
+    function checkGameStatus() {
+      const alertDiv = document.getElementById("check-alert");
+      if (isKingInCheck(currentTurn, board)) {
+        if (!hasValidMoves(currentTurn)) {
+          // Checkmate: current player has no legal moves and is in check
+          alertDiv.textContent = `Checkmate! ${currentTurn === "blue" ? "Red" : "Blue"} wins!`;
+          gameOver = true;
+          clearInterval(timerInterval);
+          // Restart game after 5 seconds
+          setTimeout(() => location.reload(), 5000);
+        } else {
+          alertDiv.textContent = "CHECK!";
+        }
+      } else {
+        alertDiv.textContent = "";
+      }
+    }
+
+    // Draw the board and pieces
+    function drawBoard() {
+      const boardDiv = document.getElementById("board");
+      boardDiv.innerHTML = "";
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.classList.add((r + c) % 2 === 0 ? "light" : "dark");
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          if (selected && selected.row === r && selected.col === c) {
+            cell.classList.add("selected");
+          }
+          const piece = board[r][c];
+          if (piece) {
+            const span = document.createElement("span");
+            span.classList.add("piece", piece.player);
+            // For king & queen add extra “royal” pulsing effect
+            if (piece.type === "king" || piece.type === "queen") {
+              span.classList.add("royal");
+            }
+            span.textContent = pieceSymbols[piece.type];
+            cell.appendChild(span);
+          }
+          cell.addEventListener("click", () => handleCellClick(r, c));
+          boardDiv.appendChild(cell);
+        }
+      }
+      updateTurnIndicator();
+    }
+
+    // Update turn indicator
+    function updateTurnIndicator() {
+      document.getElementById("turn-indicator").style.backgroundColor = currentTurn;
+    }
+
+    // Execute the move: update board state (including handling castling) and switch turn.
+    function performMove(move, fromRow, fromCol, toRow, toCol) {
+      const piece = board[fromRow][fromCol];
+      // Move the piece and mark it as having moved.
+      board[toRow][toCol] = { ...piece, moved: true };
+      board[fromRow][fromCol] = null;
+      // If castling, move the corresponding rook.
+      if (move.castling) {
+        if (move.castling === "kingside") {
+          board[fromRow][5] = { ...board[fromRow][7], moved: true };
+          board[fromRow][7] = null;
+        } else if (move.castling === "queenside") {
+          board[fromRow][3] = { ...board[fromRow][0], moved: true };
+          board[fromRow][0] = null;
+        }
+      }
+      // Switch turn and clear selection.
+      currentTurn = currentTurn === "blue" ? "red" : "blue";
+      selected = null;
+      drawBoard();
+      checkGameStatus();
+    }
+
+    // Handle clicks on cells.
+    function handleCellClick(r, c) {
+      if (gameOver) return;
+      const clickedPiece = board[r][c];
+      // If a piece is already selected, try to move it.
+      if (selected) {
+        const validMoves = getValidMoves(selected.piece, selected.row, selected.col);
+        const move = validMoves.find(m => m.row === r && m.col === c);
+        if (move) {
+          // If the move is a capture (and not castling), animate it.
+          if (board[r][c] && board[r][c].player !== selected.piece.player && !move.castling) {
+            const cellElem = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+            if (cellElem) {
+              cellElem.firstChild.classList.add("capture-animation");
+              // Wait for animation to finish (0.5s) then perform the move.
+              setTimeout(() => {
+                performMove(move, selected.row, selected.col, r, c);
+              }, 500);
+              return;
+            }
+          }
+          // Otherwise, perform the move immediately.
+          performMove(move, selected.row, selected.col, r, c);
+          return;
+        }
+      }
+      // If no valid move was made, select a piece if it belongs to the current turn.
+      if (clickedPiece && clickedPiece.player === currentTurn) {
+        selected = { row: r, col: c, piece: clickedPiece };
+      } else {
+        selected = null;
+      }
+      drawBoard();
+    }
+
+    // Initialize and draw the board
+    initBoard();
+    drawBoard();
+  </script>
+</body>
+</html>
