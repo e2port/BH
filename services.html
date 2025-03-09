@@ -254,6 +254,7 @@
       </div>
       <!-- Simple View with Group Headings -->
       <div class="simple-view">
+        <h2>Software Experience</h2>
         <h3>Office Productivity</h3>
         <ul>
           <li>Microsoft Suite</li>
@@ -295,6 +296,7 @@
       </div>
       <!-- Detailed View -->
       <div class="detailed-view" style="display: none;">
+        <h2>Software Experience</h2>
         <h3>Office Productivity</h3>
         <ul>
           <li><strong>Microsoft Suite</strong> - Includes Word, Excel, PowerPoint, and Outlook for office productivity.</li>
@@ -343,6 +345,7 @@
       </div>
       <!-- Simple View with Group Headings -->
       <div class="simple-view">
+        <h2>File Extension Experience</h2>
         <h3>Image Files</h3>
         <ul>
           <li>PNG</li>
@@ -381,6 +384,7 @@
       </div>
       <!-- Detailed View -->
       <div class="detailed-view" style="display: none;">
+        <h2>File Extension Experience</h2>
         <h3>Image Files</h3>
         <ul>
           <li><strong>PNG</strong> - Portable Network Graphics, supports lossless compression.</li>
@@ -426,6 +430,7 @@
       </div>
       <!-- Simple View with Group Headings -->
       <div class="simple-view">
+        <h2>Skills</h2>
         <h3>Data Science and Analysis</h3>
         <ul>
           <li>Advanced Statistical Analysis</li>
@@ -459,6 +464,7 @@
       </div>
       <!-- Detailed View -->
       <div class="detailed-view" style="display: none;">
+        <h2>Skills/h2>
         <h3>Data Science and Analysis</h3>
         <ul>
           <li><strong>Advanced Statistical Analysis</strong> - Analyzing complex data to uncover patterns and insights.</li>
@@ -557,11 +563,11 @@
       if (simpleView.style.display === "none") {
         simpleView.style.display = "block";
         detailedView.style.display = "none";
-        btn.textContent = "Show Details";
+        btn.textContent = "With Descriptions";
       } else {
         simpleView.style.display = "none";
         detailedView.style.display = "block";
-        btn.textContent = "Show Simple";
+        btn.textContent = "Simplified";
       }
     }
   </script>
