@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palette Chooser</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      color: white;
+    }
+    /* Container covers the full viewport */
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    /* The central circle with a conic-gradient and subtle glow */
+    #circle {
+      position: absolute;
+      width: 60vmin;
+      height: 60vmin;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: conic-gradient(red, orange, yellow, green, blue, indigo, violet);
+      box-shadow: 0 0 30px 10px rgba(255,255,255,0.3);
+      animation: spin 20s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    /* Styling for the 7 palette tags */
+    .tag {
+      position: absolute;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      font-size: 1.2em;
+      text-shadow: 0 0 5px #fff;
+    }
+    .tag:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.2);
+    }
+    /* Position each tag around the circle */
+    /* Top center */
+    .tag[data-palette="Viridis"] {
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    /* Top right */
+    .tag[data-palette="Plasma"] {
+      top: 20%;
+      right: 10%;
+    }
+    /* Right center */
+    .tag[data-palette="Inferno"] {
+      top: 50%;
+      right: 5%;
+      transform: translateY(-50%);
+    }
+    /* Bottom right */
+    .tag[data-palette="Magma"] {
+      bottom: 20%;
+      right: 20%;
+    }
+    /* Bottom center */
+    .tag[data-palette="Cividis"] {
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    /* Bottom left */
+    .tag[data-palette="Pastel"] {
+      bottom: 20%;
+      left: 10%;
+    }
+    /* Left center */
+    .tag[data-palette="Deep"] {
+      top: 50%;
+      left: 5%;
+      transform: translateY(-50%);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="circle"></div>
+    <div class="tag" data-palette="Viridis">Viridis</div>
+    <div class="tag" data-palette="Plasma">Plasma</div>
+    <div class="tag" data-palette="Inferno">Inferno</div>
+    <div class="tag" data-palette="Magma">Magma</div>
+    <div class="tag" data-palette="Cividis">Cividis</div>
+    <div class="tag" data-palette="Pastel">Pastel</div>
+    <div class="tag" data-palette="Deep">Deep</div>
+  </div>
+  <script>
+    // Define our palette color sets.
+    // The "default" palette is a rainbow.
+    const palettes = {
+      "default": ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3"],
+      "Viridis": ["#440154", "#31688e", "#35b779", "#fde725"],
+      "Plasma": ["#0d0887", "#9a179b", "#fca636", "#f0f921"],
+      "Inferno": ["#000004", "#6a00a8", "#dd513a", "#fcffa4"],
+      "Magma": ["#000004", "#b63679", "#fe9f6d", "#fcfdbf"],
+      "Cividis": ["#00224e", "#0073a8", "#0099c6", "#8fc0a9"],
+      "Pastel": ["#ffb3ba", "#ffdfba", "#ffffba", "#baffc9", "#bae1ff"],
+      "Deep": ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"]
+    };
+
+    // Generate a conic-gradient string from an array of colors.
+    function generateConicGradient(colors) {
+      const n = colors.length;
+      let stops = [];
+      for (let i = 0; i < n; i++) {
+        let percent = (i * 100 / n).toFixed(2);
+        stops.push(`${colors[i]} ${percent}%`);
+      }
+      // To ensure smooth transition, end with the first color at 100%.
+      stops.push(`${colors[0]} 100%`);
+      return `conic-gradient(${stops.join(', ')})`;
+    }
+
+    // Reference to the circle element.
+    const circle = document.getElementById("circle");
+
+    // Update the circle's background based on a given palette.
+    function updateCircleBackground(paletteName) {
+      let colors = palettes[paletteName] || palettes["default"];
+      circle.style.background = generateConicGradient(colors);
+    }
+
+    // Set up event listeners on each tag.
+    const tags = document.querySelectorAll(".tag");
+    tags.forEach(tag => {
+      tag.addEventListener("mouseenter", (e) => {
+        const palette = e.target.getAttribute("data-palette");
+        updateCircleBackground(palette);
+      });
+      tag.addEventListener("mouseleave", () => {
+        updateCircleBackground("default");
+      });
+      tag.addEventListener("touchstart", (e) => {
+        const palette = e.target.getAttribute("data-palette");
+        updateCircleBackground(palette);
+      });
+      tag.addEventListener("touchend", () => {
+        updateCircleBackground("default");
+      });
+    });
+  </script>
+</body>
+</html>
