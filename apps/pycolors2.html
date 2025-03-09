@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palette Chooser</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+    }
+    /* Header containing the JS4PY snippet */
+    #header {
+      width: 100%;
+      padding: 2px;
+      background: #222;
+    }
+    #js4py {
+      max-width: 1000px;
+      height: 18%;
+      margin: 2px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #444;
+      border-radius: 2px;
+      padding: 2px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      line-height: 1.2;
+    }
+    #js4py h2 {
+      font-size: 1.5em;
+      margin: 0; /* Remove extra top/bottom margins */
+      margin-bottom: 2px;
+      color: #ffd700;
+      line-height: 1.2;
+    }
+    /* Main content layout */
+    #main {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 3px;
+    }
+    /* Preview container for the animated circle */
+    #preview {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+    }
+    /* Animated circle styling */
+    #circle {
+      width: 60vmin;
+      height: 60vmin;
+      border-radius: 50%;
+      background: conic-gradient(red, orange, yellow, green, blue, indigo, violet);
+      box-shadow: 0 0 30px 10px rgba(255,255,255,0.3);
+      animation: spin 20s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    /* Container for palette options */
+    #palettes {
+      flex: 0 0 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-left: 20px;
+    }
+    .tag {
+      padding: 10px 15px;
+      margin: 5px 0;
+      background: rgba(0,0,0,0.7);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      font-size: 1.1em;
+    }
+    .tag:hover {
+      transform: scale(1.05);
+      background: rgba(255,255,255,0.2);
+    }
+    .tag.selected {
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.05);
+    }
+    /* Responsive adjustments for portrait/mobile screens */
+    @media (max-width: 768px) {
+      #main {
+        flex-direction: column;
+      }
+      #palettes {
+        margin-left: 0;
+        margin-top: 20px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .tag {
+        margin: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with JS4PY snippet -->
+  <div id="header">
+    <div id="js4py">
+      <h2>JS4PY</h2>
+      <div id="python-snippet"></div>
+    </div>
+  </div>
+  <!-- Main content area -->
+  <div id="main">
+    <!-- Preview area with the animated circle -->
+    <div id="preview">
+      <div id="circle"></div>
+    </div>
+    <!-- Palette options -->
+    <div id="palettes">
+      <div class="tag" data-palette="default">Default</div>
+      <div class="tag" data-palette="Viridis">Viridis</div>
+      <div class="tag" data-palette="Plasma">Plasma</div>
+      <div class="tag" data-palette="Inferno">Inferno</div>
+      <div class="tag" data-palette="Magma">Magma</div>
+      <div class="tag" data-palette="Cividis">Cividis</div>
+      <div class="tag" data-palette="Pastel">Pastel</div>
+      <div class="tag" data-palette="Deep">Deep</div>
+      <div class="tag" data-palette="Cool">Cool</div>
+      <div class="tag" data-palette="Warm">Warm</div>
+    </div>
+  </div>
+  <script>
+    // Define the palette color sets.
+    const palettes = {
+      "default": ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3"],
+      "Viridis": ["#440154", "#31688e", "#35b779", "#fde725"],
+      "Plasma": ["#0d0887", "#9a179b", "#fca636", "#f0f921"],
+      "Inferno": ["#000004", "#6a00a8", "#dd513a", "#fcffa4"],
+      "Magma": ["#000004", "#b63679", "#fe9f6d", "#fcfdbf"],
+      "Cividis": ["#00224e", "#0073a8", "#0099c6", "#8fc0a9"],
+      "Pastel": ["#ffb3ba", "#ffdfba", "#ffffba", "#baffc9", "#bae1ff"],
+      "Deep": ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"],
+      "Cool": ["#00BFFF", "#1E90FF", "#4169E1", "#6495ED"],
+      "Warm": ["#FF4500", "#FF8C00", "#FFD700", "#FFA500"]
+    };
+
+    // Generate a conic-gradient string from an array of colors.
+    function generateConicGradient(colors) {
+      const n = colors.length;
+      let stops = [];
+      for (let i = 0; i < n; i++) {
+        let percent = (i * 100 / n).toFixed(2);
+        stops.push(`${colors[i]} ${percent}%`);
+      }
+      stops.push(`${colors[0]} 100%`);
+      return `conic-gradient(${stops.join(', ')})`;
+    }
+
+    // Reference to the circle element.
+    const circle = document.getElementById("circle");
+
+    // Update the circle's background and the Python snippet based on the selected palette.
+    function updateCircleBackground(paletteName) {
+      let colors = palettes[paletteName] || palettes["default"];
+      circle.style.background = generateConicGradient(colors);
+      updatePythonSnippet(paletteName, colors);
+    }
+
+    // Update the JS4PY snippet with separate Matplotlib and Seaborn examples.
+    function updatePythonSnippet(paletteName, colors) {
+      let mplCode = "import matplotlib.pyplot as plt; palette = " + JSON.stringify(colors) + "; plt.plot([1,2],[4,5], color=palette[0]); plt.title('Matplotlib Example'); plt.show();";
+      let snsCode = "import seaborn as sns; sns.set_palette('" + paletteName + "'); sns.lineplot(x=[1,2], y=[4,5]); import matplotlib.pyplot as plt; plt.title('Seaborn Example'); plt.show();";
+      let code = "### Matplotlib Example: " + mplCode + "\n### Seaborn Example: " + snsCode;
+      document.getElementById("python-snippet").textContent = code;
+    }
+
+    // Clear the selected class from all palette buttons.
+    function clearSelection() {
+      document.querySelectorAll('.tag').forEach(tag => tag.classList.remove('selected'));
+    }
+
+    // Set up click event listeners on each palette option.
+    const tags = document.querySelectorAll(".tag");
+    tags.forEach(tag => {
+      tag.addEventListener("click", (e) => {
+        clearSelection();
+        const palette = e.target.getAttribute("data-palette");
+        e.target.classList.add('selected');
+        updateCircleBackground(palette);
+      });
+    });
+
+    // Initialize with the default palette and select the default tag.
+    clearSelection();
+    const defaultTag = document.querySelector('.tag[data-palette="default"]');
+    if (defaultTag) {
+      defaultTag.classList.add('selected');
+    }
+    updateCircleBackground("default");
+  </script>
+</body>
+</html>
