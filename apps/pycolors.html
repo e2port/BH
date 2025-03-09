@@ -5,22 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Palette Chooser</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #111;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: sans-serif;
-      color: white;
-    }
-    
-    
-    
-    
-    
-    
     * {
       box-sizing: border-box;
       margin: 0;
@@ -187,20 +171,15 @@
     }
 
     // Update the JS4PY snippet with separate Matplotlib and Seaborn examples.
+  
     function updatePythonSnippet(paletteName, colors) {
-      // Matplotlib snippet uses the explicit color codes.
-      let mplCode = "import matplotlib.pyplot as plt\n" +
-                    "palette = " + JSON.stringify(colors) + "\n" +
-                    "plt.plot([1, 2, 3], [4, 5, 6], color=palette[0])\n" +
-    // Seaborn snippet uses the palette name (if it matches a built-in Seaborn palette).
-      let snsCode = "import seaborn as sns\n" +
-                    "sns.set_palette('" + paletteName + "')" +
-      
-      let code = "### Matplotlib Example### " + mplCode + "\n" +
-                 "### Seaborn Example### " + snsCode;
-      document.getElementById("python-snippet").textContent = code;
-    }
-
+    // Matplotlib snippet with fewer line breaks.
+    let mplCode = "import matplotlib.pyplot as plt; palette = " + JSON.stringify(colors) + "; plt.plot([1,2,3],[4,5,6], color=palette[0]); plt.title('Matplotlib Example'); plt.show();";
+    // Seaborn snippet using the palette name.
+    let snsCode = "import seaborn as sns; sns.set_palette('" + paletteName + "'); sns.lineplot(x=[1,2,3], y=[4,5,6]); plt.title('Seaborn Example'); plt.show();";
+    let code = "### Matplotlib Example: " + mplCode + "\n### Seaborn Example: " + snsCode;
+    document.getElementById("python-snippet").textContent = code;
+  }
     // Set up event listeners on each palette option.
     const tags = document.querySelectorAll(".tag");
     tags.forEach(tag => {
