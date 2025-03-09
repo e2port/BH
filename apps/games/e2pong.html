@@ -88,7 +88,7 @@
     }
 
     // Base speed for the ball.
-    let baseSpeed = 4;
+    let baseSpeed = 5;
 
     // Reset game: ball starts at center, with a random direction.
     function resetGame() {
@@ -207,15 +207,15 @@
       ctx.restore();
     }
 
-    // Every 10 seconds, change background color and increase ball speed.
+    // Every 5 seconds, change background color and increase ball speed.
     setInterval(() => {
       // Change to a new random dark background color.
       bgColor = getRandomDarkColor();
-      // Increase ball speed by 1.4×.
+      // Increase ball speed by 1.1×.
       baseSpeed *= 1.4;
       ball.vx *= 1.4;
       ball.vy *= 1.4;
-    }, 10000);
+    }, 5000);
 
     requestAnimationFrame(gameLoop);
   </script>
