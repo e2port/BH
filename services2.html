@@ -38,7 +38,7 @@
       font-size: 1rem;
       color: #ccc;
     }
-    /* Main container – no background, panels are separate */
+    /* Main container */
     .container {
       max-width: 900px;
       margin: 0 auto;
@@ -50,7 +50,7 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    /* Knockout headings  */
+    /* Knockout headings */
     h1, h2, h3, h4, h5, h6 {
       font-family: Georgia, serif;
       color: rgba(255, 255, 255, 0.2);
@@ -60,7 +60,6 @@
       -webkit-font-smoothing: antialiased;
       margin-bottom: 5px;
     }
-    /* Increase heading sizes for a bolder look */
     h1 { font-size: 2.5rem; }
     h2 { font-size: 2rem; }
     header p {
@@ -68,11 +67,10 @@
       color: #000;
       margin-bottom: 8px;
     }
-    /* Specific style for the tagline in the header */
     header p.light-gray {
       color: #ccc;
     }
-    /* Navigation */
+    /* Main Navigation */
     nav {
       text-align: center;
       margin: 20px 0;
@@ -86,7 +84,7 @@
     }
     nav a:hover {
       transform: scale(1.2) rotate(5deg);
-      color: #000;  /* on hover: black */
+      color: #000;
     }
     /* Secondary Page Navigation Bar */
     nav.page-nav {
@@ -94,12 +92,18 @@
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 40px;
+      text-align: center;
     }
     nav.page-nav a {
       color: #000;
       margin: 0 10px;
+      text-decoration: none;
+      font-size: 0.9rem;
     }
-    /* Mini-canvas panels – each section now has a semitransparent white background */
+    nav.page-nav a:hover {
+      text-decoration: underline;
+    }
+    /* Mini-canvas panels */
     .mini-canvas {
       margin: 40px 0;
       padding: 20px;
@@ -111,7 +115,7 @@
     .mini-canvas li {
       font-size: 1.1rem;
       margin-bottom: 10px;
-      color: #000; /* text color adjusted for readability on white background */
+      color: #000;
     }
     .mini-canvas ul {
       list-style: disc;
@@ -121,6 +125,24 @@
     }
     .mini-canvas ul li {
       margin-bottom: 8px;
+    }
+    /* Toggle header (moved inline styles into class) */
+    .toggle-header {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+    .toggle-header button {
+      padding: 5px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background: #333;
+      color: #fff;
+      transition: background 0.3s ease;
+    }
+    .toggle-header button:hover {
+      background: #555;
     }
     /* Contact Form Styles */
     form.contact-form {
@@ -149,7 +171,7 @@
     form.contact-form input[type="submit"]:hover {
       background: #333;
     }
-    /* On mobile, revert lists to a single column */
+    /* Responsive adjustments */
     @media (max-width: 600px) {
       .mini-canvas ul {
         column-count: 1;
@@ -189,7 +211,7 @@
     <!-- Header and Main Navigation -->
     <header>
       <h1>E2's Digital Portfolio</h1>
-      <p class="light-gray">Applied Data Scientist & Tech Strategist</p>
+      <p class="light-gray">Applied Data Scientist &amp; Tech Strategist</p>
     </header>
     <nav>
       <a href="index.html">Home</a>
@@ -207,7 +229,7 @@
       <a href="#skills">Skills</a>
     </nav>
     
-    <!-- New Sections Added at the Top -->
+    <!-- New Sections at the Top -->
     <div id="tech-expertise" class="mini-canvas">
       <h2>Tech Expertise</h2>
       <ul>
@@ -219,89 +241,255 @@
     <div id="additional-services" class="mini-canvas">
       <h2>Additional Services</h2>
       <ul>
-        <li><strong>Programming / Scripting Tasks</strong> - Proficient in Python and SQL, and familiarity with HTML, CSS, & JS.</li>
+        <li><strong>Programming / Scripting Tasks</strong> - Proficient in Python and SQL, and familiarity with HTML, CSS, &amp; JS.</li>
         <li><strong>Written English Support</strong> - Peer-review, structure/flow/grammar analysis, and tailored content creation to meet professional standards.</li>
         <li><strong>Spoken English</strong> - Native-level English conversation practice and training; discussing cultural insights, technology, or anything to help non-native speakers feel more comfortable entering a discourse in English.</li>
       </ul>
     </div>
     
-    <!-- Updated Software Experience Section -->
+    <!-- Software Experience Section with Toggle -->
     <div id="software-experience" class="mini-canvas">
-      <h2>Software Experience</h2>
-      <ul>
-        <li><strong>Microsoft Suite</strong></li>
-        <li><strong>Google Docs</strong></li>
-        <li><strong>Google Sheets</strong></li>
-        <li><strong>Salesforce</strong></li>
-        <li><strong>Slack</strong></li>
-        <li><strong>GitHub</strong></li>
-        <li><strong>TeamViewer</strong></li>
-        <li><strong>AnyDesk</strong></li>
-        <li><strong>LogMeIn</strong></li>
-        <li><strong>Blender 3D</strong></li>
-        <li><strong>GIMP</strong></li>
-        <li><strong>Microsoft Clipchamp</strong></li>
-        <li><strong>VSDC Video Editing</strong></li>
-        <li><strong>Macromedia Suite</strong></li>
-        <li><strong>Anaconda</strong></li>
-        <li><strong>Docker</strong></li>
-        <li><strong>Jupyter Notebook</strong></li>
-        <li><strong>OpenAI's DallE3</strong></li>
-        <li><strong>OpenAI's SORA</strong></li>
-        <li><strong>OpenAI's various LLMs</strong></li>
-      </ul>
+      <div class="toggle-header">
+        <button onclick="toggleSection('software-experience')">Show Details</button>
+      </div>
+      <!-- Simple View with Group Headings -->
+      <div class="simple-view">
+        <h3>Office Productivity</h3>
+        <ul>
+          <li>Microsoft Suite</li>
+          <li>Google Docs</li>
+          <li>Google Sheets</li>
+        </ul>
+        <h3>Customer Relationship and Project Management</h3>
+        <ul>
+          <li>Salesforce</li>
+          <li>Slack</li>
+          <li>GitHub</li>
+        </ul>
+        <h3>Remote Desktop and Collaboration Tools</h3>
+        <ul>
+          <li>TeamViewer</li>
+          <li>AnyDesk</li>
+          <li>LogMeIn</li>
+        </ul>
+        <h3>Graphic Design and Video Editing</h3>
+        <ul>
+          <li>Macromedia Suite</li>
+          <li>Blender 3D</li>
+          <li>GIMP</li>
+          <li>Microsoft Clipchamp</li>
+          <li>VSDC Video Editing</li>
+        </ul>
+        <h3>Database, Data Management and Notebooks</h3>
+        <ul>
+          <li>Docker</li>
+          <li>Anaconda</li>
+          <li>Jupyter Notebook</li>
+        </ul>
+        <h3>Advanced AI and Machine Learning Tools</h3>
+        <ul>
+          <li>OpenAI's DallE3</li>
+          <li>OpenAI's SORA</li>
+          <li>OpenAI's various LLMs</li>
+        </ul>
+      </div>
+      <!-- Detailed View -->
+      <div class="detailed-view" style="display: none;">
+        <h3>Office Productivity</h3>
+        <ul>
+          <li><strong>Microsoft Suite</strong> - Includes Word, Excel, PowerPoint, and Outlook for office productivity.</li>
+          <li><strong>Google Docs</strong> - Web-based word processor for creating and editing documents online.</li>
+          <li><strong>Google Sheets</strong> - Online spreadsheet application for data analysis and sharing.</li>
+        </ul>
+        <h3>Customer Relationship and Project Management</h3>
+        <ul>
+          <li><strong>Salesforce</strong> - CRM software focusing on sales and customer service.</li>
+          <li><strong>Slack</strong> - Collaboration hub for messaging and archiving.</li>
+          <li><strong>GitHub</strong> - Platform for hosting code and managing projects.</li>
+        </ul>
+        <h3>Remote Desktop and Collaboration Tools</h3>
+        <ul>
+          <li><strong>TeamViewer</strong> - Remote control, desktop sharing, and file transfer.</li>
+          <li><strong>AnyDesk</strong> - Remote desktop access over the internet.</li>
+          <li><strong>LogMeIn</strong> - Software enabling secure remote connections.</li>
+        </ul>
+        <h3>Graphic Design and Video Editing</h3>
+        <ul>
+          <li><strong>Macromedia Suite</strong> - Legacy multimedia suite including Flash and Dreamweaver.</li>
+          <li><strong>Blender 3D</strong> - Open-source 3D modeling, animation, and rendering.</li>
+          <li><strong>GIMP</strong> - Image editor for photo retouching and composition.</li>
+          <li><strong>Microsoft Clipchamp</strong> - Video editing tool (recently no longer updated).</li>
+          <li><strong>VSDC</strong> - Capable open-source video editing software.</li>
+        </ul>
+        <h3>Database, Data Management and Notebooks</h3>
+        <ul>
+          <li><strong>Docker</strong> - Container platform for application development.</li>
+          <li><strong>Anaconda</strong> - Platform for Python and R in scientific computing.</li>
+          <li><strong>Jupyter Notebook</strong> - Interactive environment for data analysis and visualization.</li>
+        </ul>
+        <h3>Advanced AI and Machine Learning Tools</h3>
+        <ul>
+          <li><strong>OpenAI's DallE3</strong> - AI model for generating digital images from text.</li>
+          <li><strong>OpenAI's SORA</strong> - Framework for robust, safe AI applications.</li>
+          <li><strong>OpenAI's various LLMs</strong> - Large language models for text generation and processing.</li>
+        </ul>
+      </div>
     </div>
     
-    <!-- Updated File Extensions Experience Section -->
+    <!-- File Extensions Experience Section with Toggle -->
     <div id="file-extensions-experience" class="mini-canvas">
-      <h2>File Extensions Experience</h2>
-      <ul>
-        <li><strong>PNG</strong></li>
-        <li><strong>JPG</strong></li>
-        <li><strong>WEBP</strong></li>
-        <li><strong>GIF</strong></li>
-        <li><strong>XCF</strong></li>
-        <li><strong>OBJ</strong></li>
-        <li><strong>BLEND</strong></li>
-        <li><strong>AVI</strong></li>
-        <li><strong>MP4</strong></li>
-        <li><strong>MP3</strong></li>
-        <li><strong>HTML</strong></li>
-        <li><strong>CSS</strong></li>
-        <li><strong>JS</strong></li>
-        <li><strong>SQL</strong></li>
-        <li><strong>PY</strong></li>
-        <li><strong>CSV</strong></li>
-        <li><strong>PDF</strong></li>
-        <li><strong>DOCX</strong></li>
-        <li><strong>XLSX</strong></li>
-        <li><strong>IPYNB</strong></li>
-      </ul>
+      <div class="toggle-header">
+        <button onclick="toggleSection('file-extensions-experience')">Show Details</button>
+      </div>
+      <!-- Simple View with Group Headings -->
+      <div class="simple-view">
+        <h3>Image Files</h3>
+        <ul>
+          <li>PNG</li>
+          <li>JPG</li>
+          <li>WEBP</li>
+          <li>GIF</li>
+          <li>XCF</li>
+        </ul>
+        <h3>3D and Other Graphic Files</h3>
+        <ul>
+          <li>OBJ</li>
+          <li>BLEND</li>
+        </ul>
+        <h3>Video Files</h3>
+        <ul>
+          <li>AVI</li>
+          <li>MP4</li>
+        </ul>
+        <h3>Audio Files</h3>
+        <ul>
+          <li>MP3</li>
+        </ul>
+        <h3>Web and Code Files</h3>
+        <ul>
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>JS</li>
+          <li>SQL</li>
+          <li>PY</li>
+          <li>CSV</li>
+          <li>PDF</li>
+          <li>DOCX</li>
+          <li>XLSX</li>
+          <li>IPYNB</li>
+        </ul>
+      </div>
+      <!-- Detailed View -->
+      <div class="detailed-view" style="display: none;">
+        <h3>Image Files</h3>
+        <ul>
+          <li><strong>PNG</strong> - Portable Network Graphics, supports lossless compression.</li>
+          <li><strong>JPG</strong> - Common digital image format with lossy compression.</li>
+          <li><strong>WEBP</strong> - Superior compression for web images.</li>
+          <li><strong>GIF</strong> - Supports static and animated images.</li>
+          <li><strong>XCF</strong> - Native format for GIMP.</li>
+        </ul>
+        <h3>3D and Other Graphic Files</h3>
+        <ul>
+          <li><strong>OBJ</strong> - Standard 3D model format.</li>
+          <li><strong>BLEND</strong> - Native format for Blender 3D.</li>
+        </ul>
+        <h3>Video Files</h3>
+        <ul>
+          <li><strong>AVI</strong> - Microsoft's container for audio and video.</li>
+          <li><strong>MP4</strong> - Common digital video format.</li>
+        </ul>
+        <h3>Audio Files</h3>
+        <ul>
+          <li><strong>MP3</strong> - Widely used audio compression format.</li>
+        </ul>
+        <h3>Web and Code Files</h3>
+        <ul>
+          <li><strong>HTML</strong> - Standard language for creating web pages.</li>
+          <li><strong>CSS</strong> - Style sheet language for presentation of web pages.</li>
+          <li><strong>JS</strong> - JavaScript for interactive effects.</li>
+          <li><strong>SQL</strong> - Used for managing database information.</li>
+          <li><strong>PY</strong> - Python file format for scripts and programs.</li>
+          <li><strong>CSV</strong> - Represents tabular data.</li>
+          <li><strong>PDF</strong> - Standard for document exchange.</li>
+          <li><strong>DOCX</strong> - Microsoft Word document format.</li>
+          <li><strong>XLSX</strong> - Microsoft Excel spreadsheet format.</li>
+          <li><strong>IPYNB</strong> - Jupyter Notebook file format.</li>
+        </ul>
+      </div>
     </div>
     
-    <!-- Updated Skills Section -->
+    <!-- Skills Section with Toggle -->
     <div id="skills" class="mini-canvas">
-      <h2>Skills</h2>
-      <ul>
-        <li><strong>Advanced Statistical Analysis</strong></li>
-        <li><strong>Machine Learning Model Development</strong></li>
-        <li><strong>Python and SQL Programming</strong></li>
-        <li><strong>Data Visualization and Reporting</strong></li>
-        <li><strong>Cloud Infrastructure Management (Azure, AWS, GCP)</strong></li>
-        <li><strong>Project Management and Team Leadership</strong></li>
-        <li><strong>Technical Support and Customer Service</strong></li>
-        <li><strong>Biotechnological Processes (e.g., Microalgae Cultivation)</strong></li>
-        <li><strong>Construction and Material Processing (Metal, PVC)</strong></li>
-        <li><strong>Multilingual Communication (English, French, Hebrew)</strong></li>
-        <li><strong>Software Troubleshooting and Optimization</strong></li>
-        <li><strong>Web-design (HTML, CSS, JS)</strong></li>
-        <li><strong>Creative Problem Solving</strong></li>
-        <li><strong>Writing and Editing Technical Documents</strong></li>
-        <li><strong>Video Editing and Production</strong></li>
-        <li><strong>Organized Goal-setting</strong></li>
-        <li><strong>Tech Communication</strong></li>
-        <li><strong>Basic IT Security</strong></li>
-      </ul>
+      <div class="toggle-header">
+        <button onclick="toggleSection('skills')">Show Details</button>
+      </div>
+      <!-- Simple View with Group Headings -->
+      <div class="simple-view">
+        <h3>Data Science and Analysis</h3>
+        <ul>
+          <li>Advanced Statistical Analysis</li>
+          <li>Machine Learning Model Development</li>
+          <li>Python and SQL Programming</li>
+          <li>Data Visualization and Reporting</li>
+          <li>Cloud Infrastructure Management (Azure, AWS, GCP)</li>
+        </ul>
+        <h3>Technical and Project Management</h3>
+        <ul>
+          <li>Project Management and Team Leadership</li>
+          <li>Technical Support and Customer Service</li>
+          <li>Software Troubleshooting and Optimization</li>
+        </ul>
+        <h3>Design and Multimedia</h3>
+        <ul>
+          <li>Web-design (HTML, CSS, JS)</li>
+          <li>Video Editing and Production</li>
+          <li>Writing and Editing Technical Documents</li>
+        </ul>
+        <h3>Practical and Creative Skills</h3>
+        <ul>
+          <li>Biotechnological Processes (e.g., Microalgae Cultivation)</li>
+          <li>Construction and Material Processing (Metal, PVC)</li>
+          <li>Creative Problem Solving</li>
+          <li>Multilingual Communication (English, French, Hebrew)</li>
+          <li>Organized Goal-setting</li>
+          <li>Tech Communication</li>
+          <li>Basic IT Security</li>
+        </ul>
+      </div>
+      <!-- Detailed View -->
+      <div class="detailed-view" style="display: none;">
+        <h3>Data Science and Analysis</h3>
+        <ul>
+          <li><strong>Advanced Statistical Analysis</strong> - Analyzing complex data to uncover patterns and insights.</li>
+          <li><strong>Machine Learning Model Development</strong> - Creating automated data-driven models.</li>
+          <li><strong>Python and SQL Programming</strong> - Scripting and database management.</li>
+          <li><strong>Data Visualization and Reporting</strong> - Turning data into visual and reportable formats.</li>
+          <li><strong>Cloud Infrastructure Management (Azure, AWS, GCP)</strong> - Managing online data storage and processing.</li>
+        </ul>
+        <h3>Technical and Project Management</h3>
+        <ul>
+          <li><strong>Project Management and Team Leadership</strong> - Overseeing projects and leading teams.</li>
+          <li><strong>Technical Support and Customer Service</strong> - Providing user support and maintaining customer relationships.</li>
+          <li><strong>Software Troubleshooting and Optimization</strong> - Enhancing software performance and resolving issues.</li>
+        </ul>
+        <h3>Design and Multimedia</h3>
+        <ul>
+          <li><strong>Web-design (HTML, CSS, JS)</strong> - Designing and coding websites.</li>
+          <li><strong>Video Editing and Production</strong> - Creating and editing video content.</li>
+          <li><strong>Writing and Editing Technical Documents</strong> - Producing precise technical content.</li>
+        </ul>
+        <h3>Practical and Creative Skills</h3>
+        <ul>
+          <li><strong>Biotechnological Processes (e.g., Microalgae Cultivation)</strong> - Managing biological systems for production.</li>
+          <li><strong>Construction and Material Processing (Metal, PVC)</strong> - Fabricating and constructing with various materials.</li>
+          <li><strong>Creative Problem Solving</strong> - Innovating to resolve complex challenges.</li>
+          <li><strong>Multilingual Communication (English, French, Hebrew)</strong> - Communicating effectively in multiple languages.</li>
+          <li><strong>Organized Goal-setting</strong> - Systematically setting and achieving objectives.</li>
+          <li><strong>Tech Communication</strong> - Conveying complex technical information clearly.</li>
+          <li><strong>Basic IT Security</strong> - Implementing fundamental security measures.</li>
+        </ul>
+      </div>
     </div>
     
     <!-- Contact Section -->
@@ -324,42 +512,58 @@
   <script>
     const canvas = document.getElementById('hwind-bg');
     const ctx = canvas.getContext('2d');
-    // Set fixed logical resolution
     let scale = window.devicePixelRatio;
     const baseWidth = 800;
     const baseHeight = 600;
     function setCanvasSize() {
-        scale = window.devicePixelRatio; // Update scale on resize
-        canvas.width = baseWidth * scale;
-        canvas.height = baseHeight * scale;
-        ctx.scale(scale, scale);
+      scale = window.devicePixelRatio;
+      canvas.width = baseWidth * scale;
+      canvas.height = baseHeight * scale;
+      ctx.scale(scale, scale);
     }
-    setCanvasSize(); // Set initial size
+    setCanvasSize();
     const characters = "0123";
-    const fontSize = 14; // Larger font size for fewer columns and less computation
-    const columns = Math.floor(baseWidth / fontSize); // Number of columns based on baseWidth
+    const fontSize = 14;
+    const columns = Math.floor(baseWidth / fontSize);
     const drops = Array(columns).fill(0);
     function draw() {
-        // Keep the original trailing/fading effect with a semi-transparent black background.
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // Set the text style to a more muted gray with its shadow.
-        ctx.fillStyle = "rgba(120, 120, 120, 1)";
-        ctx.shadowColor = "rgba(120, 120, 120, 1)";
-        ctx.shadowBlur = 10;
-        ctx.font = "bold " + fontSize + "px monospace";
-        for (let i = 0; i < drops.length; i++) {
-            const text = characters.charAt(Math.floor(Math.random() * characters.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height / scale && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(120, 120, 120, 1)";
+      ctx.shadowColor = "rgba(120, 120, 120, 1)";
+      ctx.shadowBlur = 10;
+      ctx.font = "bold " + fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height / scale && Math.random() > 0.975) {
+          drops[i] = 0;
         }
-        requestAnimationFrame(draw);
+        drops[i]++;
+      }
+      requestAnimationFrame(draw);
     }
     draw();
     window.addEventListener('resize', setCanvasSize);
+  </script>
+  
+  <!-- Toggle Section Script -->
+  <script>
+    function toggleSection(sectionId) {
+      var section = document.getElementById(sectionId);
+      var simpleView = section.querySelector('.simple-view');
+      var detailedView = section.querySelector('.detailed-view');
+      var btn = section.querySelector('.toggle-header button');
+      if (simpleView.style.display === "none") {
+        simpleView.style.display = "block";
+        detailedView.style.display = "none";
+        btn.textContent = "Show Details";
+      } else {
+        simpleView.style.display = "none";
+        detailedView.style.display = "block";
+        btn.textContent = "Show Simple";
+      }
+    }
   </script>
 </body>
 </html>
