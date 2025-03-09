@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E2 Digital Portfolio - Attributions</title>
+  <link rel="icon" href="images/ic.webp" type="image/webp" />
+  <style>
+    /* Reset & Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Franklin Gothic Medium", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #ccc;
+      background: #000; /* Let the matrix background show */
+      padding: 20px;
+      position: relative;
+    }
+    /* Fullscreen Matrix Rain Background */
+    canvas#hwind-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+    }
+    /* Small Hebrew text at top right */
+    .hebrew-modest {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: transparent;
+      padding: 0;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Knockout headings similar to galleries.html */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: Georgia, serif;
+      color: rgba(255, 255, 255, 0.2);
+      -webkit-text-stroke: 1px black;
+      text-stroke: 1px black;
+      text-shadow: 0px 0px 3px rgba(255, 255, 255, 0.8);
+      -webkit-font-smoothing: antialiased;
+      margin-bottom: 5px;
+    }
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    h3 { font-size: 1.75rem; }
+    
+    header p {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-bottom: 8px;
+    }
+    
+    /* Navigation styles */
+    nav {
+      text-align: center;
+      margin: 20px 0;
+    }
+    nav a {
+      text-decoration: none;
+      color: #ccc;
+      margin: 0 15px;
+      font-size: 1rem;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    nav a:hover {
+      transform: scale(1.2) rotate(5deg);
+      color: #000;
+    }
+    
+    /* Mini-canvas panels for visible sections */
+    .mini-canvas {
+      margin: 40px 0;
+      padding: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .mini-canvas p, .mini-canvas ul {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #000;
+    }
+    .mini-canvas ul {
+      list-style: disc;
+      padding-left: 20px;
+    }
+    
+    /* Collapsible sections using details/summary */
+    details {
+      margin: 20px 0;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+    }
+    details summary {
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      outline: none;
+    }
+    
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #ccc;
+      border-top: 1px solid rgba(255,255,255,0.3);
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+    a {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <!-- Small Hebrew Text at Top Right -->
+  <div class="hebrew-modest">בס"ד</div>
+  <!-- Matrix Rain Background Canvas -->
+  <canvas id="hwind-bg"></canvas>
+  <div class="container">
+    <!-- Header and Navigation -->
+    <header>
+      <h1>E2's Digital Portfolio</h1>
+      <p class="light-gray">Applied Data Scientist &amp; Tech Strategist</p>
+    </header>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="galleries.html">Galleries</a>
+      <a href="attributions.html">Attributions</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    
+    <!-- Mission Statement Section (Always Visible) -->
+    <div class="mini-canvas" id="mission-statement">
+      <h2>Mission Statement</h2>
+      <p>
+        This digital portfolio serves as a live CV showcasing my work as an Applied Data Scientist &amp; Tech Strategist.
+        It is designed to reflect my creative process, technical expertise, and commitment to innovative problem-solving in technology.
+        Every project is a testament to my dedication to merging data science with cutting-edge tech strategy.
+      </p>
+    </div>
+    
+    <!-- MIT License Section (Hidden by Default) -->
+    <details id="mit-license">
+      <summary>MIT License</summary>
+      <p>
+        This project is released under the MIT License. The license permits reuse, distribution, and modification of the work provided proper attribution is given.
+        The MIT License fosters open collaboration and innovation by allowing ideas to be shared and built upon freely.
+      </p>
+    </details>
+    
+    <!-- Main Attributions Overview -->
+    <div class="mini-canvas" id="attributions-overview">
+      <h2>Main Attributions Overview</h2>
+      <p>
+        This digital portfolio is built with thanks to the following tools:
+      </p>
+      <ul>
+        <li><strong>Pixabay Libraries</strong>: <em>freesound_community</em> and <em>music_for_video</em> were used for sound effects and background music.</li>
+        <li><strong>Microsoft Clipchamp</strong>: Video editing and production (recently lost continuing software support).</li>
+        <li><strong>VSDC</strong>: Open-source video editing and production at its finest.</li>
+        <li><strong>GIMP</strong>: Open-source image editing and conversions at its finest.</li>
+        <li><strong>Elevenlabs</strong>: Go-to site for creating voice-overs.</li>
+        <li><strong>Google Docs, Drive, Sheets &amp; Mail</strong>: Keeping things organized and managed properly.</li>
+        <li><strong>VLC Player</strong>: Media playback and other nifty tools.</li>
+        <li><strong>GitHub</strong>: Version control and project hosting.</li>
+        <li><strong>OpenAI</strong>: Assistance with content creation and general guidance.</li>
+        <li><strong>Snipping Tool</strong>: Classic app for capturing screenshots.</li>
+      </ul>
+      <p>
+        Additional thanks to <strong>YouTube</strong> and <strong>Perplexity.ai</strong> for their guidance, tutorials, and support throughout the creative process.
+      </p>
+    </div>
+    
+    <!-- Collapsible Gallery Tools &amp; Tips Section -->
+    <details id="gallery-tools-tips">
+      <summary>Gallery Tools &amp; Tips</summary>
+      <p>
+        This section outlines the tools and techniques used in each gallery, along with practical tips and insights for anyone using similar resources.
+      </p>
+      <h3>PDF Documents</h3>
+      <ul>
+        <li><strong>Tip 1:</strong> Google Docs is an amazing way to create professional PDFs for free.</li>
+        <li><strong>Tip 2:</strong> Keeping Google Drive organized with folders and well-documented projects saves time.</li>
+        <li><strong>Tip 3:</strong> Including file sizes next to file descriptions helps with easy comparisons.</li>
+      </ul>
+      <h3>JS-based Apps</h3>
+      <ul>
+        <li><strong>Tip 1:</strong> Implement lazy loading for app thumbnails to boost page performance.</li>
+        <li><strong>Tip 2:</strong> Convert images to WEBP using tools like GIMP for superior compression.</li>
+        <li><strong>Tip 3:</strong> Use OpenAI's ChatGPT for coding assistance and review.</li>
+        <li><strong>Tip 4:</strong> Begin with mini-projects to grasp coding fundamentals and structure.</li>
+      </ul>
+      <h3>Images Gallery</h3>
+      <ul>
+        <li><strong>Tip 1:</strong> GIMP is a powerful tool for modifying images and creating transparent backgrounds.</li>
+        <li><strong>Tip 2:</strong> Blender 3D is free and open-source, with plenty of tutorials available online.</li>
+        <li><strong>Tip 3:</strong> Once mastered, Blender can be used with Unreal Engine to produce stunning visual art.</li>
+      </ul>
+      <h3>Animations</h3>
+      <ul>
+        <li><strong>Tip 1:</strong> Use canvas animations for immersive visual effects without heavy resource usage.</li>
+        <li><strong>Tip 2:</strong> Optimize performance by managing the number of active elements and frame rate.</li>
+        <li><strong>Tip 3:</strong> Keep animations simple yet engaging.</li>
+      </ul>
+      <h3>Videos</h3>
+      <ul>
+        <li><strong>Tip 1:</strong> Use responsive iframes for video embeds to ensure cross-device compatibility.</li>
+        <li><strong>Tip 2:</strong> Host videos on YouTube to avoid high MP4 storage costs.</li>
+        <li><strong>Tip 3:</strong> Microsoft Clipchamp was a great free tool; VSDC now serves a similar purpose effectively.</li>
+      </ul>
+    </details>
+    
+    <!-- Contact Section -->
+    <div id="contact" class="mini-canvas">
+      <h2>Contact</h2>
+      <p>
+        Feel free to reach out via email at <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>.<br /><br />
+        All the best!
+      </p>
+      <img src="images/tfbc4.webp" loading="lazy" alt="Cat Football" class="portfolio-image">
+    </div>
+    
+    <footer>
+      &copy; 2025 E2 Port. All rights reserved. | Contact: <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
+    </footer>
+  </div>
+
+  <!-- Grayscale Matrix Rain Background Animation Script -->
+  <script>
+    const canvas = document.getElementById('hwind-bg');
+    const ctx = canvas.getContext('2d');
+    let scale = window.devicePixelRatio;
+    const baseWidth = 800;
+    const baseHeight = 600;
+
+    function setCanvasSize() {
+      scale = window.devicePixelRatio;
+      canvas.width = baseWidth * scale;
+      canvas.height = baseHeight * scale;
+      ctx.scale(scale, scale);
+    }
+    setCanvasSize();
+
+    const characters = "0123";
+    const fontSize = 14;
+    const columns = Math.floor(baseWidth / fontSize);
+    const drops = Array(columns).fill(0);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(120, 120, 120, 1)";
+      ctx.shadowColor = "rgba(120, 120, 120, 1)";
+      ctx.shadowBlur = 10;
+      ctx.font = "bold " + fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height / scale && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+    window.addEventListener('resize', setCanvasSize);
+  </script>
+</body>
+</html>
