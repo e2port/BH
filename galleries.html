@@ -186,6 +186,40 @@
       .mini-canvas ul { column-count: 1; }
       nav a { display: block; margin: 10px 0; }
     }
+
+
+
+    #video-modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#video-modal.active {
+  display: flex; /* Show the modal when active */
+}
+
+#video-modal-content {
+  position: relative;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+#video-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
   </style>
 </head>
 <body>
@@ -632,13 +666,15 @@
     draw();
     window.addEventListener('resize', setCanvasSize);
   </script>
-  
-  <!-- Video Modal Script -->
-  <script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
     const videoLinks = document.querySelectorAll(".video-link");
     const videoModal = document.getElementById("video-modal");
     const videoIframe = document.querySelector("#video-modal iframe");
     const videoModalClose = document.getElementById("video-modal-close");
+    
     videoLinks.forEach(link => {
       link.addEventListener("click", e => {
         e.preventDefault();
@@ -647,17 +683,21 @@
         videoModal.classList.add("active");
       });
     });
+    
     videoModalClose.addEventListener("click", () => {
       videoModal.classList.remove("active");
       videoIframe.src = "";
     });
+    
     videoModal.addEventListener("click", e => {
       if (e.target === videoModal) {
         videoModal.classList.remove("active");
         videoIframe.src = "";
       }
     });
-  </script>
+  });
+</script>
+  
   <!-- Video Modal Markup -->
   <div id="video-modal">
     <div id="video-modal-content">
