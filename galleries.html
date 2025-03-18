@@ -89,29 +89,7 @@
       transform: scale(1.2) rotate(5deg);
       color: #000;
     }
-    /* Secondary Navigation */
-    nav.page-nav {
-      background: rgba(255,255,255,0.7);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 40px;
-      text-align: center;
-    }
-    nav.page-nav a {
-      color: #000;
-      margin: 0 10px;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    nav.page-nav a:hover { text-decoration: underline; }
-    /* Mini-canvas panels */
-    .mini-canvas {
-      margin: 40px 0;
-      padding: 20px;
-      border: 3px solid rgba(255,255,255,0.9);
-      border-radius: 8px;
-      background: rgba(255,255,255,0.7);
-    }
+   
     .mini-canvas h2 { margin-bottom: 5px; }
     .section-desc {
       font-size: 1rem;
@@ -289,19 +267,7 @@
       <a href="attributions.html">Attributions</a>
       <a href="index.html#contact">Contact</a>
     </nav>
-    <!-- Secondary Navigation -->
-    <nav class="page-nav">
-      <a href="#featured">Featured Works</a>
-      <a href="#tools">Tools</a>
-      <a href="#pdf-files">PDF Files</a>
-      <a href="#mini-js-apps">Mini‑JS Apps</a>
-      <a href="#js-clocks">JS Clocks</a>
-      <a href="#mini-js-game-mechanics">Mini‑JS Game Mechanics</a>
-      <a href="#visual-animations">Simple Visual Animations</a>
-      <a href="#images">Images</a>
-      <a href="#videos">Videos</a>
-    </nav>
-    
+   
     <!-- Section 1: Featured Works -->
     <div id="featured" class="mini-canvas">
       <h2>Featured Works</h2>
@@ -361,8 +327,8 @@
     </details>
     
     <!-- Section 3: PDF Files -->
-    <div id="pdf-files" class="mini-canvas">
-      <h2>PDF Documents</h2>
+    <details id="pdf-files" class="mini-canvas">
+      <summary>Documents</summary>
       <p class="section-desc">A collection of detailed reports, cheat sheets, and documentation in PDF format.</p>
       <table style="width:100%; border-collapse:collapse;">
         <thead>
@@ -394,7 +360,7 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </details>
     
     <!-- Section 4: Mini‑JS Apps -->
     <details id="mini-js-apps" class="mini-canvas">
@@ -559,9 +525,6 @@
         </div>
       </div>
     </details>
-
-  
-    
       
     <!-- Section 7: Simple Visual Animations -->
     <details id="visual-animations" class="mini-canvas">
@@ -620,7 +583,7 @@
       </div>
     </details>
 
-    <!-- Hidden Section Test for Images  (Hidden by Default) -->
+    <!-- Section for Images  (Hidden by Default) -->
     <details id="mit-license" class="mini-canvas">
       <summary>Images</summary>
        <p class="section-desc">Currently just showing images rendered from the 3D Donut Models built in Blender.</p>
@@ -653,8 +616,8 @@
      </details>
         
     <!-- Section 9: Videos -->
-    <div id="videos" class="mini-canvas">
-      <h2>Videos</h2>
+    <details id="videos" class="mini-canvas">
+      <summary>Videos</summary>
       <p class="section-desc">Check out some of the video production skills.</p>
       <div class="gallery-grid">
         <div class="gallery-item">
@@ -676,17 +639,17 @@
           <div class="desc-box">Coming Soon...</div>
         </div>
       </div>
-    </div>
+    </details>
     
     <!-- Contact Section -->
-    <div id="contact" class="mini-canvas">
-      <h2>Contact</h2>
+    <details id="contact" class="mini-canvas">
+      <summary>Contact</summary>
       <p>
         Feel free to reach out via email at <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>.<br /><br />
         All the best!
       </p>
       <img src="images/tfbc4.webp" loading="lazy" alt="Cat Football" class="portfolio-image">
-    </div>
+    </details>
     
     <footer>
       &copy; 2025 E2 Port. All rights reserved. | Contact: <a href="mailto:e2port18@gmail.com">e2port18@gmail.com</a>
