@@ -186,7 +186,23 @@
       .mini-canvas ul { column-count: 1; }
       nav a { display: block; margin: 10px 0; }
     }
-
+    /* Collapsible sections using details/summary */
+    details {
+      margin: 40px 0;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      color: #000;
+    }
+    details summary {
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      outline: none;
+      color: #000;
+    }
+    
     /* Modal Overlay for Videos */
     #video-modal {
       display: none;
