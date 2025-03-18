@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yahtz Ques BS"D</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+    .reminder {
+      font-size: 0.9em;
+      color: #555;
+    }
+    #gameContainer {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0px 0px 10px #aaa;
+    }
+    /* Team name input styling */
+    #teamNames {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #teamNames input {
+      padding: 5px;
+      margin: 5px;
+      width: 150px;
+      font-size: 1em;
+    }
+    #teamNames button {
+      padding: 5px 10px;
+      font-size: 1em;
+    }
+    /* Scorecard table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #999;
+      text-align: center;
+      padding: 8px;
+    }
+    th {
+      background: #ddd;
+    }
+    .score-cell {
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .score-cell:hover {
+      background: #eee;
+    }
+    .total-cell {
+      font-weight: bold;
+      background: #f9f9f9;
+    }
+    /* Highlight the current team column header and cells */
+    .current {
+      background: #ffc;
+    }
+    .current-cell {
+      background: #fffbcc !important;
+    }
+    /* Modal styling */
+    .modal {
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      width: 300px;
+      border-radius: 5px;
+      position: relative;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .modal-content input, .modal-content select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+    .modal-content button {
+      padding: 8px 12px;
+      font-size: 1em;
+    }
+    .close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    /* Result section styling */
+    #result {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #result button {
+      padding: 8px 12px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Yahtz Ques BS"D</h1>
+    <p class="reminder">Reminder: You need 5 dice to play this game.</p>
+  </header>
+  <div id="gameContainer">
+    <!-- Team names input -->
+    <div id="teamNames">
+      <input type="text" id="team1Name" placeholder="Team 1 Name">
+      <input type="text" id="team2Name" placeholder="Team 2 Name">
+      <input type="text" id="team3Name" placeholder="Team 3 Name">
+      <button id="startGameBtn">Start Game</button>
+    </div>
+    <!-- Scorecard canvas -->
+    <div id="scorecard" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th id="teamCol1"></th>
+            <th id="teamCol2"></th>
+            <th id="teamCol3"></th>
+          </tr>
+        </thead>
+        <tbody id="upperSection">
+          <!-- Upper section rows will be inserted here -->
+        </tbody>
+        <tbody id="lowerSection">
+          <!-- Lower section rows will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+    <!-- Modal for dice input and bonus selection -->
+    <div id="diceModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Enter Dice Values</h2>
+        <p>Please enter 5 dice values (1-6) separated by commas:</p>
+        <input type="text" id="diceInput" placeholder="e.g., 1,3,4,5,6">
+        <p>Select bonus for this round:</p>
+        <select id="bonusSelect">
+          <option value="0">None</option>
+          <option value="3">Natty (3 points)</option>
+          <option value="2">FTO (2 points)</option>
+          <option value="1">Book (1 point)</option>
+        </select>
+        <button id="submitDiceBtn">OK</button>
+      </div>
+    </div>
+    <!-- Final result display -->
+    <div id="result" style="display:none;">
+      <h2>Game Over</h2>
+      <p id="winnerAnnouncement"></p>
+      <button id="restartBtn">Restart Game</button>
+    </div>
+  </div>
+
+  <script>
+    // Get elements
+    const teamNamesSection = document.getElementById('teamNames');
+    const startGameBtn = document.getElementById('startGameBtn');
+    const scorecard = document.getElementById('scorecard');
+    const teamCol1 = document.getElementById('teamCol1');
+    const teamCol2 = document.getElementById('teamCol2');
+    const teamCol3 = document.getElementById('teamCol3');
+    const upperSection = document.getElementById('upperSection');
+    const lowerSection = document.getElementById('lowerSection');
+    const diceModal = document.getElementById('diceModal');
+    const diceInput = document.getElementById('diceInput');
+    const bonusSelect = document.getElementById('bonusSelect');
+    const submitDiceBtn = document.getElementById('submitDiceBtn');
+    const modalClose = document.querySelector('.close');
+    const resultDiv = document.getElementById('result');
+    const winnerAnnouncement = document.getElementById('winnerAnnouncement');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // Global game state
+    let currentTeam = 0; // 0: team in Column #2, 1: Column #3, 2: Column #4
+    const totalRounds = 14; // total rounds per team (upper 6 + lower 8)
+    // For each team, we could track more data; here we simply use team names.
+    const teams = [{name:""}, {name:""}, {name:""}];
+
+    // Define categories for each section
+    const upperCategories = ["Aces","Twos","Threes","Fours","Fives","Sixes"];
+    const lowerCategories = ["Chance", "3K", "4K", "Boat", "Scum", "Large", "Yahtzee", "Goat"];
+
+    // We'll use these functions to build the scorecard grid
+    function initScorecard(){
+      upperSection.innerHTML = "";
+      lowerSection.innerHTML = "";
+      // Upper section rows – one for each of the 6 categories
+      upperCategories.forEach(category => {
+        let tr = document.createElement('tr');
+        let tdIndex = document.createElement('td');
+        tdIndex.textContent = category;
+        tr.appendChild(tdIndex);
+        for(let team=0; team<3; team++){
+          let td = document.createElement('td');
+          td.textContent = "";
+          td.classList.add('score-cell');
+          td.dataset.section = "upper";
+          td.dataset.category = category;
+          td.dataset.team = team;
+          td.addEventListener('click', scoreCellClicked);
+          tr.appendChild(td);
+        }
+        upperSection.appendChild(tr);
+      });
+      // Total row (shows the sum and bonus if applicable)
+      let trTotal = document.createElement('tr');
+      let tdTotalLabel = document.createElement('td');
+      tdTotalLabel.textContent = "Total (Bonus)";
+      trTotal.appendChild(tdTotalLabel);
+      for(let team=0; team<3; team++){
+        let td = document.createElement('td');
+        td.textContent = "0";
+        td.classList.add('total-cell');
+        td.dataset.team = team;
+        trTotal.appendChild(td);
+      }
+      upperSection.appendChild(trTotal);
+
+      // Lower section rows – one for each of the 8 categories
+      lowerCategories.forEach(category => {
+        let tr = document.createElement('tr');
+        let tdIndex = document.createElement('td');
+        tdIndex.textContent = category;
+        tr.appendChild(tdIndex);
+        for(let team=0; team<3; team++){
+          let td = document.createElement('td');
+          td.textContent = "";
+          td.classList.add('score-cell');
+          td.dataset.section = "lower";
+          td.dataset.category = category;
+          td.dataset.team = team;
+          td.addEventListener('click', scoreCellClicked);
+          tr.appendChild(td);
+        }
+        lowerSection.appendChild(tr);
+      });
+    }
+
+    // Called when a score cell is clicked
+    function scoreCellClicked(e){
+      const cell = e.target;
+      // Prevent overwriting if already filled
+      if(cell.textContent !== "") return;
+      // Only allow the cell of the current team (0, 1, 2)
+      if(parseInt(cell.dataset.team) !== currentTeam){
+        alert("It is not your turn!");
+        return;
+      }
+      // Open the modal to input dice values and bonus
+      diceModal.style.display = "block";
+      // Save the current cell for later update
+      currentCell = cell;
+    }
+
+    let currentCell = null;
+
+    // Close modal when clicking the X or outside the modal
+    modalClose.onclick = function(){
+      diceModal.style.display = "none";
+    }
+    window.onclick = function(event){
+      if(event.target == diceModal){
+        diceModal.style.display = "none";
+      }
+    }
+
+    // Scoring functions for the upper section
+    function calculateUpperScore(category, dice, bonus) {
+      // For example, "Aces" is for dice showing 1.
+      const number = upperCategories.indexOf(category) + 1;
+      const sum = dice.filter(d => d === number).reduce((acc, curr) => acc + curr, 0);
+      return sum + bonus;
+    }
+
+    // Scoring functions for the lower section
+    function calculateLowerScore(category, dice, bonus) {
+      let score = 0;
+      const diceSum = dice.reduce((a, b) => a + b, 0);
+      // Count occurrences
+      const counts = {};
+      dice.forEach(d => { counts[d] = (counts[d] || 0) + 1; });
+      switch(category) {
+        case "Chance":
+          score = diceSum;
+          break;
+        case "3K":
+          if(Object.values(counts).some(c => c >= 3)) {
+            score = diceSum;
+          }
+          break;
+        case "4K":
+          if(Object.values(counts).some(c => c >= 4)) {
+            score = diceSum;
+          }
+          break;
+        case "Boat":
+          // Full house: one number appears 3 times and another 2 times
+          if(Object.values(counts).includes(3) && Object.values(counts).includes(2)) {
+            score = 25;
+          }
+          break;
+        case "Scum":
+          // Small straight: any sequence of 4 consecutive numbers
+          if(
+            (dice.includes(1) && dice.includes(2) && dice.includes(3) && dice.includes(4)) ||
+            (dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5)) ||
+            (dice.includes(3) && dice.includes(4) && dice.includes(5) && dice.includes(6))
+          ){
+            score = 30;
+          }
+          break;
+        case "Large":
+          // Large straight: 5 consecutive numbers
+          if(
+            (dice.includes(1) && dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5)) ||
+            (dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5) && dice.includes(6))
+          ){
+            score = 40;
+          }
+          break;
+        case "Yahtzee":
+          if(Object.values(counts).some(c => c === 5)){
+            score = 50;
+          }
+          break;
+        case "Goat":
+          if(diceSum < 10){
+            score = 35;
+          }
+          break;
+        default:
+          score = 0;
+      }
+      // If score is 0 (i.e. dice do not match the category requirement), mark as "Crap"
+      if(score === 0) {
+        return "Crap";
+      }
+      return score + bonus;
+    }
+
+    // Update the upper total for each team (including bonus if eligible)
+    function updateTotals(){
+      for(let team=0; team<3; team++){
+        let upperTotal = 0;
+        const upperCells = document.querySelectorAll('td.score-cell[data-section="upper"][data-team="'+team+'"]');
+        upperCells.forEach(cell => {
+          const value = parseInt(cell.textContent);
+          if(!isNaN(value)) { upperTotal += value; }
+        });
+        // Bonus: if a player scores 63 or more, add 35 (but display the base total with bonus in parentheses)
+        let bonus = (upperTotal >= 63) ? 35 : 0;
+        const totalCell = document.querySelector('td.total-cell[data-team="'+team+'"]');
+        totalCell.textContent = upperTotal + " (" + bonus + ")";
+      }
+    }
+
+    // Modal submission handler: process dice input and update score cell
+    submitDiceBtn.addEventListener('click', () => {
+      const inputValues = diceInput.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+      if(inputValues.length !== 5 || inputValues.some(d => d < 1 || d > 6)){
+        alert("Please enter exactly 5 dice values (numbers 1-6).");
+        return;
+      }
+      const bonus = parseInt(bonusSelect.value);
+      const section = currentCell.dataset.section;
+      const category = currentCell.dataset.category;
+      let score;
+      if(section === "upper"){
+        score = calculateUpperScore(category, inputValues, bonus);
+      } else {
+        score = calculateLowerScore(category, inputValues, bonus);
+      }
+      currentCell.textContent = score;
+      // Reset modal
+      diceInput.value = "";
+      bonusSelect.value = "0";
+      diceModal.style.display = "none";
+      // Advance turn to next team (cycling 0→1→2→0…)
+      currentTeam = (currentTeam + 1) % 3;
+      highlightCurrentTeam();
+      updateTotals();
+      // Check if game is over (all upper and lower cells filled)
+      if(isGameOver()){
+        endGame();
+      }
+    });
+
+    // Highlight the column for the current team in both the header and cells
+    function highlightCurrentTeam(){
+      teamCol1.classList.remove('current');
+      teamCol2.classList.remove('current');
+      teamCol3.classList.remove('current');
+      if(currentTeam === 0){
+        teamCol1.classList.add('current');
+      } else if(currentTeam === 1){
+        teamCol2.classList.add('current');
+      } else if(currentTeam === 2){
+        teamCol3.classList.add('current');
+      }
+      // Also update the cell highlights
+      const allCells = document.querySelectorAll('td.score-cell');
+      allCells.forEach(cell => {
+        if(parseInt(cell.dataset.team) === currentTeam){
+          cell.classList.add('current-cell');
+        } else {
+          cell.classList.remove('current-cell');
+        }
+      });
+    }
+
+    // Check if every cell (6 upper + 8 lower per team) has been filled
+    function isGameOver(){
+      const upperCells = document.querySelectorAll('td.score-cell[data-section="upper"]');
+      const lowerCells = document.querySelectorAll('td.score-cell[data-section="lower"]');
+      let filled = 0;
+      upperCells.forEach(cell => { if(cell.textContent !== "") filled++; });
+      lowerCells.forEach(cell => { if(cell.textContent !== "") filled++; });
+      return filled === ((upperCategories.length + lowerCategories.length) * 3);
+    }
+
+    // End game: calculate final scores, add upper bonus and announce winner
+    function endGame(){
+      let finalScores = [];
+      for(let team=0; team<3; team++){
+        let upperTotal = 0, lowerTotal = 0;
+        const upperCells = document.querySelectorAll('td.score-cell[data-section="upper"][data-team="'+team+'"]');
+        upperCells.forEach(cell => {
+          const val = parseInt(cell.textContent);
+          if(!isNaN(val)) upperTotal += val;
+        });
+        let bonus = (upperTotal >= 63) ? 35 : 0;
+        const lowerCells = document.querySelectorAll('td.score-cell[data-section="lower"][data-team="'+team+'"]');
+        lowerCells.forEach(cell => {
+          const val = parseInt(cell.textContent);
+          if(!isNaN(val)) lowerTotal += val;
+        });
+        finalScores.push(upperTotal + bonus + lowerTotal);
+      }
+      // Determine the winning team (highest score)
+      const maxScore = Math.max(...finalScores);
+      const winnerIndex = finalScores.indexOf(maxScore);
+      winnerAnnouncement.textContent = "Winner: " + teams[winnerIndex].name + " with " + maxScore + " points!";
+      resultDiv.style.display = "block";
+      scorecard.style.display = "none";
+    }
+
+    // Start game: set team names and build scorecard
+    startGameBtn.addEventListener('click', () => {
+      teams[0].name = document.getElementById('team1Name').value || "Team 1";
+      teams[1].name = document.getElementById('team2Name').value || "Team 2";
+      teams[2].name = document.getElementById('team3Name').value || "Team 3";
+      teamCol1.textContent = teams[0].name;
+      teamCol2.textContent = teams[1].name;
+      teamCol3.textContent = teams[2].name;
+      teamNamesSection.style.display = "none";
+      scorecard.style.display = "block";
+      initScorecard();
+      highlightCurrentTeam();
+    });
+
+    // Restart game simply reloads the page
+    restartBtn.addEventListener('click', () => {
+      location.reload();
+    });
+  </script>
+</body>
+</html>
