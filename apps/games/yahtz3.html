@@ -277,7 +277,7 @@
     const teams = [{name:""}, {name:""}, {name:""}];
     const totalRounds = 14; // total rounds per team (upper 6 + lower 8)
     const upperCategories = ["Aces","Twos","Threes","Fours","Fives","Sixes"];
-    const lowerCategories = ["Chance", "3K", "4K", "Boat", "Scum", "Large", "Yahtzee", "Goat"];
+    const lowerCategories = ["Chance", "3K", "4K", "Boat", "Scum", "Large", "Yahtz", "Goat"];
     
     // Explanations for each category
     const categoryExplanations = {
@@ -290,10 +290,10 @@
       "Chance": "Any combination of dice. Score: Sum of all dice.",
       "3K": "At least three dice the same. Score: Sum of all dice.",
       "4K": "At least four dice the same. Score: Sum of all dice.",
-      "Boat": "Full House: Three of one number and two of another. Score: 25 points.",
-      "Scum": "Small Straight: Four sequential dice. Score: 30 points.",
-      "Large": "Large Straight: Five sequential dice. Score: 40 points.",
-      "Yahtzee": "All five dice the same. Score: 50 points.",
+      "Boat": "Full House: Three of one number and two of another. Score: 35 points.",
+      "Scum": "Small Straight: Four sequential dice. Score: 20 points.",
+      "Large": "Large Straight: Five sequential dice. Score: 50 points.",
+      "Yahtz": "All five dice the same. Score: 55 points.",
       "Goat": "All dice add up to under 10. Score: 35 points."
     };
     
@@ -427,7 +427,7 @@
           break;
         case "Boat":
           if(Object.values(counts).includes(3) && Object.values(counts).includes(2)) {
-            score = 25;
+            score = 35;
           }
           break;
         case "Scum":
@@ -436,7 +436,7 @@
             (dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5)) ||
             (dice.includes(3) && dice.includes(4) && dice.includes(5) && dice.includes(6))
           ){
-            score = 30;
+            score = 20;
           }
           break;
         case "Large":
@@ -444,12 +444,12 @@
             (dice.includes(1) && dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5)) ||
             (dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5) && dice.includes(6))
           ){
-            score = 40;
+            score = 50;
           }
           break;
-        case "Yahtzee":
+        case "Yahtz":
           if(Object.values(counts).some(c => c === 5)){
-            score = 50;
+            score = 55;
           }
           break;
         case "Goat":
