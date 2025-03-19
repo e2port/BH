@@ -147,16 +147,22 @@
     animate();
 
     // Handle click events: check if a square was clicked and update game state accordingly
+
+     // For easier selection, check within an expanded square region.
+        const hitRadius = squareSize;
+        if (Math.abs(clickX - x) < hitRadius/2 && Math.abs(clickY - y) < hitRadius/2) {
+
+          
     canvas.addEventListener('click', function(event) {
       const rect = canvas.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
       const clickY = event.clientY - rect.top;
-      
+      const hitRadius = squareSize;
       for (let sq of squares) {
         let x = centerX + orbitRadius * Math.cos(sq.angle);
         let y = centerY + orbitRadius * Math.sin(sq.angle);
         // Simple bounding box collision detection for squares
-        if (clickX > x - squareSize/2 && clickX < x + squareSize/2 && clickY > y - squareSize/2 && clickY < y + squareSize/2) {
+        if (Math.abs(clickX - x) < hitRadius/2 && Math.abs(clickY - y) < hitRadius/2) {
           if (sq.loaded) {
             score += roundPoints(round);
             round = 1;
