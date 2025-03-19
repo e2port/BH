@@ -76,11 +76,11 @@
 
     // Variables for ball positions and movement
     let balls = [];
-    const ballRadius = 20;
+    const ballRadius = 40;
     let circleRadius = Math.min(width, height) * 0.3; // radius on which balls spin
     let centerX = width / 2;
     let centerY = height / 2;
-    let rotationSpeed = 0.02; // radians per frame
+    let rotationSpeed = 0.01; // radians per frame
 
     // Setup a round: randomly assign one ball as "loaded" among the total balls
     function setupRound() {
