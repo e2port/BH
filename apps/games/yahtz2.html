@@ -376,7 +376,7 @@
           break;
         case "Boat":
           if(Object.values(counts).includes(3) && Object.values(counts).includes(2)) {
-            score = 25;
+            score = 35;
           }
           break;
         case "Scum":
@@ -385,7 +385,7 @@
             (dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5)) ||
             (dice.includes(3) && dice.includes(4) && dice.includes(5) && dice.includes(6))
           ){
-            score = 30;
+            score = 20;
           }
           break;
         case "Large":
@@ -393,12 +393,12 @@
             (dice.includes(1) && dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5)) ||
             (dice.includes(2) && dice.includes(3) && dice.includes(4) && dice.includes(5) && dice.includes(6))
           ){
-            score = 40;
+            score = 50;
           }
           break;
         case "Yahtz":
           if(Object.values(counts).some(c => c === 5)){
-            score = 50;
+            score = 55;
           }
           break;
         case "Goat":
