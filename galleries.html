@@ -90,13 +90,13 @@
       color: #000;
     }
     /* Mini-canvas panels */
-     .mini-canvas {
-       margin: 40px 0;
-       padding: 20px;
-       border: 3px solid rgba(255,255,255,0.9);
-       border-radius: 8px;
-       background: rgba(255,255,255,0.7);
-     }
+    .mini-canvas {
+      margin: 40px 0;
+      padding: 20px;
+      border: 3px solid rgba(255,255,255,0.9);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.7);
+    }
     .mini-canvas h2 { margin-bottom: 5px; }
     .section-desc {
       font-size: 1rem;
@@ -171,7 +171,7 @@
       .mini-canvas ul { column-count: 1; }
       nav a { display: block; margin: 10px 0; }
     }
- /* Collapsible sections using details/summary */
+    /* Collapsible sections using details/summary */
     details {
       margin: 40px 0;
       border: 3px solid rgba(255, 255, 255, 0.9);
@@ -191,7 +191,6 @@
       text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.8);
       -webkit-font-smoothing: antialiased;
     }
-    
     /* Modal Overlay for Videos */
     #video-modal {
       display: none;
@@ -253,6 +252,10 @@
         width: 90%;
         height: 50%;
       }
+    }
+    /* Extra spacing for Roulette description */
+    .roulette-description {
+      margin-top: 40px;
     }
   </style>
 </head>
@@ -337,7 +340,7 @@
             <td style="border:1px solid rgba(0,0,0,0.7); padding:8px;">72 KB</td>
             <td style="border:1px solid rgba(0,0,0,0.7); padding:8px;">Cheat sheet for CNC G-code provided by ChatGPT4o.</td>
           </tr>
-          <tr style="background: rgba(255,255,255,0.5);">
+          <tr style="background: rgba(255,255,255,0.3);">
             <td style="border:1px solid rgba(0,0,0,0.3); padding:8px;"><a href="docs/Goog+his.pdf" target="_blank">Google+ Tumultuous History</a></td>
             <td style="border:1px solid rgba(0,0,0,0.3); padding:8px;">2025-03-18</td>
             <td style="border:1px solid rgba(0,0,0,0.3); padding:8px;">56.1 KB</td>
@@ -376,7 +379,7 @@
       </div>
     </details>
         
-    <!-- Section 4: Mini‑JS Apps -->
+    <!-- Section 4: JS Mini‑Apps -->
     <details id="mini-js-apps" class="mini-canvas">
       <summary>JS Mini-Apps</summary>
       <p class="section-desc">Explore small JavaScript utilities offering quick interactive experiences.</p>
@@ -426,7 +429,7 @@
       </div>
     </details>
          
-    <!-- Section 6: Mini‑JS Games -->
+    <!-- Section 6: JS Mini‑Games -->
     <details id="mini-js-game-mechanics" class="mini-canvas">
       <summary>JS Mini-Games</summary>
       <p class="section-desc">Interactive games exploring unique mechanics using JavaScript.</p>
@@ -496,53 +499,55 @@
         </div>
       </div>
       
-      <p class="section-desc"> </p>
-      <p class="section-desc"> "Roulette Americano" - A mix between Russian Roulette and 3 Card Monte with a positive twist. The five versions are the pretty much the same with just differences in visual style. Rules and Guide book can be found here.</p>
+      <!-- Roulette Americano Section with extra spacing -->
+      <p class="section-desc roulette-description">
+        "Roulette Americano" - A mix between Russian Roulette and 3 Card Monte with a positive twist. The five versions are pretty much the same with just differences in visual style. Rules and Guide book can be found here.
+      </p>
       <div class="gallery-grid">
-        <!-- RA -->
+        <!-- RA 1 -->
         <div class="gallery-item">
           <a href="apps/games/ra1.html" target="_blank">
-            <img src="thumbs/rathumb1.webp" loading="lazy" alt="ra1">
+            <img src="thumbs/rathumb1.webp" loading="lazy" alt="RA 1">
           </a>
           <div class="desc-box">RA 1 (5.21 KB) – See how consistent your luck is, the first and most basic version.</div>
         </div>
-        <!-- RA -->
+        <!-- RA 2 -->
         <div class="gallery-item">
           <a href="apps/games/ra2.html" target="_blank">
-            <img src="thumbs/rathumb2.webp" loading="lazy" alt="ra2">
+            <img src="thumbs/rathumb2.webp" loading="lazy" alt="RA 2">
           </a>
           <div class="desc-box">RA 2 (5.65 KB) – More visually appealing version.</div>
         </div>
-        <!-- RA -->
+        <!-- RA 3 -->
         <div class="gallery-item">
           <a href="apps/games/ra3.html" target="_blank">
-            <img src="thumbs/rathumb3.webp" loading="lazy" alt="ra3">
+            <img src="thumbs/rathumb3.webp" loading="lazy" alt="RA 3">
           </a>
           <div class="desc-box">RA 3 (8.45 KB) – This one has a green/red indicator if you chose correctly.</div>
         </div>
-        <!-- RA -->
+        <!-- RA 4 -->
         <div class="gallery-item">
           <a href="apps/games/ra4.html" target="_blank">
-            <img src="thumbs/rathumb4.webp" loading="lazy" alt="ra4">
+            <img src="thumbs/rathumb4.webp" loading="lazy" alt="RA 4">
           </a>
           <div class="desc-box">RA 4 (6.21 KB) – Style change-up.</div>
         </div>
-        <!-- RA -->
+        <!-- RA 5 -->
         <div class="gallery-item">
           <a href="apps/games/ra5.html" target="_blank">
-            <img src="thumbs/rathumb5.webp" loading="lazy" alt="ra5">
+            <img src="thumbs/rathumb5.webp" loading="lazy" alt="RA 5">
           </a>
           <div class="desc-box">RA 5 (7.47 KB) – Style Change.</div>
         </div>
       </div> 
     </details>
-
-
-<!-- Visuals Section -->
+    
+    <!-- Section: Visual Candy (JS Clocks, Animations, Images, Videos) -->
     <details id="visuals" class="mini-canvas">
       <summary>Visual Candy</summary>
       <p class="section-desc">All the sections below are simply for objective observation and have no interactivity.</p>
       
+      <!-- JS Analog Clocks -->
       <h3>JS Analog Clocks</h3>
       <p class="section-desc">A dynamic collection of JavaScript clocks with creative, futuristic designs.</p>
       <div class="gallery-grid">
@@ -602,13 +607,10 @@
           </a>
           <div class="desc-box">Papyrus Clock (4.38 KB) – Clean, calm clock design.</div>
         </div>
-        
       </div>
-    </div>
-    
-    <!-- Section 7: Simple Visual Animations -->
-    <div id="visual-animations" class="mini-canvas">
-      <h3> Visual Animations</h3>
+      
+      <!-- Visual Animations -->
+      <h3>Visual Animations</h3>
       <p class="section-desc">Visual animations reimagining classic effects with a modern twist.</p>
       <div class="gallery-grid">
         <!-- Java DNA -->
@@ -661,14 +663,12 @@
           <div class="desc-box">Golden Hebrew Wind (3.42 KB) – A serene golden Matrix effect.</div>
         </div>
       </div>
-    </div>
-
-    <!-- Section for Images  (Hidden by Default) -->
-    <div id="mit-license" class="mini-canvas">
+      
+      <!-- Images -->
       <h3>Images</h3>
-       <p class="section-desc">Currently just showing images rendered from the 3D Donut Models built in Blender.</p>
-       <div class="gallery-grid"> 
-         <div class="gallery-item">
+      <p class="section-desc">Currently just showing images rendered from the 3D Donut Models built in Blender.</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
           <a href="images/hdon.webp" target="_blank">
             <img src="images/hdon.webp" loading="lazy" alt="Hover Donuts">
           </a>
@@ -679,24 +679,22 @@
             <img src="images/cdon.webp" loading="lazy" alt="Donuts Closeup">
           </a>
           <div class="desc-box">Donuts Closeup (103 kb) – Made with Blender 3D.</div>
-         </div>
-         <div class="gallery-item">
+        </div>
+        <div class="gallery-item">
           <a href="images/cdont.webp" target="_blank">
             <img src="images/cdont.webp" loading="lazy" alt="Transparent Closeup">
           </a>
           <div class="desc-box">Transparent Closeup (110 kb).</div>
-         </div>
-         <div class="gallery-item">
+        </div>
+        <div class="gallery-item">
           <a href="images/pdon.webp" target="_blank">
             <img src="images/pdon.webp" loading="lazy" alt="Plated Donuts">
           </a>
           <div class="desc-box">Plated Donuts (170 kb).</div>
-         </div>  
-        </div>  
-     </div>
-        
-    <!-- Section 9: Videos -->
-    <div id="videos" class="mini-canvas">
+        </div>
+      </div>
+      
+      <!-- Videos -->
       <h3>Videos</h3>
       <p class="section-desc">Check out some of the video production skills.</p>
       <div class="gallery-grid">
@@ -719,7 +717,6 @@
           <div class="desc-box">Coming Soon...</div>
         </div>
       </div>
-    </div>
     </details>
     
     <!-- Contact Section -->
