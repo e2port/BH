@@ -257,7 +257,7 @@
 
     // Define categories for each section
     const upperCategories = ["Aces","Twos","Threes","Fours","Fives","Sixes"];
-    const lowerCategories = ["Chance", "3K", "4K", "Boat", "Scum", "Large", "Yahtzee", "Goat"];
+    const lowerCategories = ["Chance", "3K", "4K", "Boat", "Scum", "Large", "Yahtz", "Goat"];
 
     // Array to hold dice selection for modal
     let selectedDice = [];
@@ -396,7 +396,7 @@
             score = 40;
           }
           break;
-        case "Yahtzee":
+        case "Yahtz":
           if(Object.values(counts).some(c => c === 5)){
             score = 50;
           }
