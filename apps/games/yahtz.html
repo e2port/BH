@@ -210,7 +210,7 @@
 
     // Define categories for each section
     const upperCategories = ["Aces","Twos","Threes","Fours","Fives","Sixes"];
-    const lowerCategories = ["Chance", "3K", "4K", "Boat", "Scum", "Large", "Yahtzee", "Goat"];
+    const lowerCategories = ["Chance", "3K", "4K", "Boat", "Scum", "Large", "Yahtz", "Goat"];
 
     // We'll use these functions to build the scorecard grid
     function initScorecard(){
@@ -350,7 +350,7 @@
             score = 40;
           }
           break;
-        case "Yahtzee":
+        case "Yahtz":
           if(Object.values(counts).some(c => c === 5)){
             score = 50;
           }
