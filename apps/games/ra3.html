@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Roulette Americano - Badass Triangles</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      background: transparent;
+    }
+    /* Scoreboard with expanded metrics and digital neon glow */
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border: 2px solid #00ff00;
+      border-radius: 10px;
+      box-shadow: 0 0 20px 4px #00ff00;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreboard">
+    Score: <span id="score">0</span><br>
+    Time: <span id="time">0.0</span>s<br>
+    Round: <span id="roundMetric">1</span><br>
+    Triangles: <span id="trianglesMetric">3</span><br>
+    Countdown: <span id="countdownMetric">0.0</span>s
+  </div>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let centerX = width / 2, centerY = height / 2;
+    let orbitRadius = Math.min(width, height) * 0.3;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      centerX = width / 2;
+      centerY = height / 2;
+      orbitRadius = Math.min(width, height) * 0.3;
+    });
+
+    // Scoreboard variables
+    let score = 0;
+    let round = 1;
+    const maxRound = 6;
+    // Round scoring: 1, 10, 100, etc.
+    function roundPoints(r) { return Math.pow(10, r - 1); }
+    // Number of triangles in play: primary round has 3, then 4, 5, ... up to 8.
+    function numTriangles(r) { return r + 2; }
+
+    // Game objects (triangles)
+    let triangles = [];
+    let triangleSize = 60; // side length of the equilateral triangle
+    let rotationSpeed = 0.01; // slower orbit speed
+    let roundActive = true;
+    let roundDelayEnd = 0; // timestamp for round delay
+    // Flash effect object to show feedback on selection (green for loaded, red for blank)
+    let flashEffect = null;
+
+    // Scoreboard elements
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const roundEl = document.getElementById('roundMetric');
+    const trianglesEl = document.getElementById('trianglesMetric');
+    const countdownEl = document.getElementById('countdownMetric');
+    const startTime = Date.now();
+
+    // Initialize round with triangles around the orbit.
+    function setupRound() {
+      triangles = [];
+      const total = numTriangles(round);
+      const loadedIndex = Math.floor(Math.random() * total);
+      for (let i = 0; i < total; i++) {
+        const angle = (2 * Math.PI / total) * i;
+        triangles.push({
+          angle: angle,
+          loaded: (i === loadedIndex),
+          offsetRotation: Math.random() * Math.PI * 2
+        });
+      }
+      trianglesEl.textContent = total;
+      roundEl.textContent = round;
+    }
+    setupRound();
+
+    // Draw the digital wireframe circle along which triangles orbit.
+    function drawWireframeCircle() {
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([10, 5]);
+      ctx.arc(centerX, centerY, orbitRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#00ffff';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#00ffff';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Draw an equilateral triangle centered at (x, y) with a given rotation.
+    function drawTriangle(x, y, rotation, size) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      // Calculate the circumradius for an equilateral triangle.
+      const r = size / Math.sqrt(3);
+      ctx.beginPath();
+      for (let i = 0; i < 3; i++) {
+        const angle = -Math.PI/2 + i * (2 * Math.PI / 3);
+        const vx = r * Math.cos(angle);
+        const vy = r * Math.sin(angle);
+        i === 0 ? ctx.moveTo(vx, vy) : ctx.lineTo(vx, vy);
+      }
+      ctx.closePath();
+      // Create a digital gradient fill effect.
+      const gradient = ctx.createLinearGradient(-size/2, -size/2, size/2, size/2);
+      gradient.addColorStop(0, 'hsla(200, 100%, 50%, 0.8)');
+      gradient.addColorStop(1, 'hsla(260, 100%, 50%, 0.8)');
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = '#00ffff';
+      ctx.shadowBlur = 20;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Draw the flash effect on the selected triangle.
+    function drawFlashEffect() {
+      if (flashEffect) {
+        const progress = flashEffect.timer / flashEffect.duration;
+        const alpha = progress; // fade out effect
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(flashEffect.x, flashEffect.y, triangleSize, 0, 2 * Math.PI);
+        // Replace ALPHA placeholder with computed alpha
+        ctx.fillStyle = flashEffect.color.replace('ALPHA', alpha);
+        ctx.fill();
+        ctx.restore();
+        // Decrease timer (assuming ~60fps, subtracting roughly 16.67ms per frame)
+        flashEffect.timer -= 16.67;
+        if (flashEffect.timer <= 0) flashEffect = null;
+      }
+    }
+
+    // Main animation loop.
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw the digital wireframe circle.
+      drawWireframeCircle();
+
+      // Update the position of each triangle (they continue rotating even during countdown).
+      for (let tri of triangles) {
+        tri.angle += rotationSpeed;
+      }
+      
+      // Draw each triangle along the orbit.
+      for (let tri of triangles) {
+        const x = centerX + orbitRadius * Math.cos(tri.angle);
+        const y = centerY + orbitRadius * Math.sin(tri.angle);
+        // Combine a fixed offset rotation with a slow time-based rotation for a trippy effect.
+        const rotation = tri.offsetRotation + performance.now() / 2000;
+        drawTriangle(x, y, rotation, triangleSize);
+      }
+
+      // Draw flash effect if one is active.
+      drawFlashEffect();
+
+      // Update scoreboard time.
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      timeEl.textContent = elapsed;
+      
+      // If the round is paused, update the countdown display.
+      if (!roundActive) {
+        let remaining = (roundDelayEnd - Date.now()) / 1000;
+        if (remaining < 0) remaining = 0;
+        countdownEl.textContent = remaining.toFixed(1);
+      } else {
+        countdownEl.textContent = "0.0";
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Process click events. During a round, if a triangle is clicked within an expanded area, handle selection.
+    canvas.addEventListener('click', function(event) {
+      if (!roundActive) return; // Ignore clicks during countdown
+      const rect = canvas.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+
+      // Check each triangle.
+      for (let tri of triangles) {
+        const x = centerX + orbitRadius * Math.cos(tri.angle);
+        const y = centerY + orbitRadius * Math.sin(tri.angle);
+        // For easier selection, check within an expanded square region.
+        const hitRadius = triangleSize;
+        if (Math.abs(clickX - x) < hitRadius/2 && Math.abs(clickY - y) < hitRadius/2) {
+          // Disable further input and start the 2-second round delay.
+          roundActive = false;
+          roundDelayEnd = Date.now() + 2000; // 2000ms delay
+
+          // Set flash effect: green flash for loaded triangle, red for blank.
+          let flashColor;
+          if (tri.loaded) {
+            score += roundPoints(round);
+            flashColor = 'rgba(0,255,0,ALPHA)'; // green flash
+            round = 1; // reset to primary round
+          } else {
+            flashColor = 'rgba(255,0,0,ALPHA)'; // red flash
+            round = (round < maxRound) ? round + 1 : 1;
+          }
+          scoreEl.textContent = score;
+          // Record the flash effect at the triangle's position.
+          flashEffect = {
+            x: x,
+            y: y,
+            color: flashColor,
+            duration: 500,
+            timer: 500
+          };
+
+          // After 2 seconds, restart the round.
+          setTimeout(() => {
+            setupRound();
+            roundActive = true;
+          }, 2000);
+          break;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
