@@ -65,7 +65,7 @@
 
     // Game mechanics: rounds & scoring
     let round = 1;
-    const maxRound = 6;
+    const maxRound = 7;
     // Primary round: 3 squares, secondary: 4, etc.
     function roundPoints(r) {
       return Math.pow(10, r - 1);
@@ -80,7 +80,7 @@
     let orbitRadius = Math.min(width, height) * 0.3; // orbit radius
     let centerX = width / 2;
     let centerY = height / 2;
-    let rotationSpeed = 0.03; // radians per frame
+    let rotationSpeed = 0.01; // radians per frame
 
     function setupRound() {
       squares = [];
