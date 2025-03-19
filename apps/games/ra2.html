@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Roulette Americano - Trippy Squares</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      background: transparent;
+    }
+    /* Scoreboard with expanded metrics and cyberpunk neon glow */
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #ff00ff;
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border: 2px solid #ff00ff;
+      border-radius: 10px;
+      box-shadow: 0 0 20px 4px #ff00ff;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreboard">
+    Score: <span id="score">0</span><br>
+    Time: <span id="time">0.0</span>s<br>
+    Round: <span id="roundMetric">1</span><br>
+    Squares: <span id="squaresMetric">3</span>
+  </div>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      centerX = width / 2;
+      centerY = height / 2;
+      orbitRadius = Math.min(width, height) * 0.3;
+    });
+
+    // Scoreboard elements
+    let score = 0;
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const roundEl = document.getElementById('roundMetric');
+    const squaresEl = document.getElementById('squaresMetric');
+    const startTime = Date.now();
+
+    // Game mechanics: rounds & scoring
+    let round = 1;
+    const maxRound = 6;
+    // Primary round: 3 squares, secondary: 4, etc.
+    function roundPoints(r) {
+      return Math.pow(10, r - 1);
+    }
+    function numSquares(r) {
+      return r + 2;
+    }
+
+    // Setup game objects (squares) for the current round.
+    let squares = [];
+    const squareSize = 40; // side length of square in px
+    let orbitRadius = Math.min(width, height) * 0.3; // orbit radius
+    let centerX = width / 2;
+    let centerY = height / 2;
+    let rotationSpeed = 0.03; // radians per frame
+
+    function setupRound() {
+      squares = [];
+      const total = numSquares(round);
+      const loadedIndex = Math.floor(Math.random() * total);
+      for (let i = 0; i < total; i++) {
+        const angle = (2 * Math.PI / total) * i;
+        squares.push({
+          angle: angle,
+          loaded: i === loadedIndex,
+          offsetRotation: Math.random() * Math.PI * 2 // for individual spin effect
+        });
+      }
+      squaresEl.textContent = total;
+      roundEl.textContent = round;
+    }
+    setupRound();
+
+    // Main animation loop with trippy, shifting background and rotating squares
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      
+      // Create a dynamic trippy background gradient
+      const timeHue = (performance.now() / 50) % 360;
+      let bgGradient = ctx.createRadialGradient(centerX, centerY, orbitRadius * 0.1, centerX, centerY, orbitRadius * 1.5);
+      bgGradient.addColorStop(0, `hsla(${timeHue}, 100%, 30%, 0.3)`);
+      bgGradient.addColorStop(0.5, `hsla(${(timeHue+60)%360}, 100%, 40%, 0.2)`);
+      bgGradient.addColorStop(1, 'rgba(0,0,0,0.8)');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, width, height);
+
+      // Update each square's angle so they orbit around the center
+      for (let sq of squares) {
+        sq.angle += rotationSpeed;
+      }
+      
+      // Draw squares on the orbit with additional rotation for a trippy effect
+      for (let sq of squares) {
+        let x = centerX + orbitRadius * Math.cos(sq.angle);
+        let y = centerY + orbitRadius * Math.sin(sq.angle);
+        
+        ctx.save();
+        ctx.translate(x, y);
+        // Rotate square using a combination of an offset and a time factor.
+        let totalRotation = sq.offsetRotation + performance.now() / 1000;
+        ctx.rotate(totalRotation);
+        // Create a colorful gradient fill for each square
+        let squareGradient = ctx.createLinearGradient(-squareSize/2, -squareSize/2, squareSize/2, squareSize/2);
+        squareGradient.addColorStop(0, `hsla(${(timeHue+120)%360}, 100%, 50%, 0.8)`);
+        squareGradient.addColorStop(1, `hsla(${(timeHue+240)%360}, 100%, 50%, 0.8)`);
+        ctx.fillStyle = squareGradient;
+        ctx.shadowColor = `hsla(${(timeHue+180)%360}, 100%, 70%, 1)`;
+        ctx.shadowBlur = 20;
+        ctx.fillRect(-squareSize/2, -squareSize/2, squareSize, squareSize);
+        ctx.restore();
+      }
+      
+      // Update timer display
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      timeEl.textContent = elapsed;
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Handle click events: check if a square was clicked and update game state accordingly
+    canvas.addEventListener('click', function(event) {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+      
+      for (let sq of squares) {
+        let x = centerX + orbitRadius * Math.cos(sq.angle);
+        let y = centerY + orbitRadius * Math.sin(sq.angle);
+        // Simple bounding box collision detection for squares
+        if (clickX > x - squareSize/2 && clickX < x + squareSize/2 && clickY > y - squareSize/2 && clickY < y + squareSize/2) {
+          if (sq.loaded) {
+            score += roundPoints(round);
+            round = 1;
+          } else {
+            round = (round < maxRound) ? round + 1 : 1;
+          }
+          scoreEl.textContent = score;
+          setupRound();
+          break;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
