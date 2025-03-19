@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Roulette Americano - Super Trippy Balls</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    canvas {
+      display: block;
+      background: transparent;
+    }
+    /* Scoreboard with digital neon style */
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #ff00ff;
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border: 2px solid #ff00ff;
+      border-radius: 10px;
+      box-shadow: 0 0 20px 4px #ff00ff;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreboard">
+    Score: <span id="score">0</span><br>
+    Time: <span id="time">0.0</span>s<br>
+    Round: <span id="roundMetric">1</span><br>
+    Balls: <span id="ballsMetric">3</span><br>
+    Selection: <span id="selectionIndicator">None</span>
+  </div>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    // Canvas & context setup
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let centerX = width / 2, centerY = height / 2;
+    let orbitRadius = Math.min(width, height) * 0.3;
+    
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      centerX = width / 2;
+      centerY = height / 2;
+      orbitRadius = Math.min(width, height) * 0.3;
+    });
+    
+    // Scoreboard elements
+    let score = 0;
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const roundEl = document.getElementById('roundMetric');
+    const ballsEl = document.getElementById('ballsMetric');
+    const selectionEl = document.getElementById('selectionIndicator');
+    const startTime = Date.now();
+    
+    // Game mechanics: rounds, scoring, and ball count.
+    let round = 1;
+    const maxRound = 6;
+    function roundPoints(r) { return Math.pow(10, r - 1); }
+    function numBalls(r) { return r + 2; }
+    
+    // Game objects: glowing, pulsating balls.
+    let balls = [];
+    const ballRadius = 20; // base radius
+    // Slower orbit for a more deliberate, trippy pace.
+    let rotationSpeed = 0.005;
+    
+    // Selection indicator object that shows floating text.
+    let selectionIndicator = null; // { text, x, y, color, timer, duration }
+    
+    function setupRound() {
+      balls = [];
+      const total = numBalls(round);
+      const loadedIndex = Math.floor(Math.random() * total);
+      for (let i = 0; i < total; i++) {
+        const angle = (2 * Math.PI / total) * i;
+        balls.push({
+          angle: angle,
+          loaded: (i === loadedIndex),
+          offset: Math.random() * 1000  // For pulsation phase variation.
+        });
+      }
+      ballsEl.textContent = total;
+      roundEl.textContent = round;
+      selectionIndicator = null;
+      selectionEl.textContent = "None";
+    }
+    setupRound();
+    
+    function animate() {
+      // Create a fading trail effect by drawing a semi-transparent black rectangle.
+      ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
+      ctx.fillRect(0, 0, width, height);
+      
+      // Base hue cycles over time for vibrant, shifting colors.
+      const baseHue = (performance.now() / 30) % 360;
+      
+      // Draw a digital wireframe orbit for extra flair.
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([8, 4]);
+      ctx.arc(centerX, centerY, orbitRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = `hsla(${(baseHue+180)%360}, 100%, 50%, 0.5)`;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = `hsla(${(baseHue+180)%360}, 100%, 50%, 0.8)`;
+      ctx.shadowBlur = 15;
+      ctx.stroke();
+      ctx.restore();
+      
+      // Update and draw each ball.
+      for (let ball of balls) {
+        ball.angle += rotationSpeed;
+        const x = centerX + orbitRadius * Math.cos(ball.angle);
+        const y = centerY + orbitRadius * Math.sin(ball.angle);
+        // Pulsating scale effect based on a sine function.
+        const scale = 1 + 0.3 * Math.sin((performance.now() + ball.offset) / 500);
+        const currentRadius = ballRadius * scale;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        // Create a radial gradient that shifts hues dynamically.
+        const grad = ctx.createRadialGradient(0, 0, currentRadius*0.2, 0, 0, currentRadius);
+        grad.addColorStop(0, `hsla(${baseHue}, 100%, 70%, 1)`);
+        grad.addColorStop(0.7, `hsla(${(baseHue+60)%360}, 100%, 50%, 0.8)`);
+        grad.addColorStop(1, `hsla(${(baseHue+120)%360}, 100%, 40%, 0.3)`);
+        ctx.fillStyle = grad;
+        // Apply a heavy, dynamic shadow for a glowing effect.
+        ctx.shadowColor = `hsla(${(baseHue+180)%360}, 100%, 60%, 1)`;
+        ctx.shadowBlur = 40;
+        ctx.beginPath();
+        ctx.arc(0, 0, currentRadius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+      
+      // If a selection indicator exists, draw it (with fading opacity).
+      if (selectionIndicator) {
+        selectionIndicator.timer -= 16.67; // approx frame duration (in ms)
+        let alpha = Math.max(selectionIndicator.timer / selectionIndicator.duration, 0);
+        ctx.save();
+        ctx.font = "bold 30px Courier New";
+        ctx.fillStyle = selectionIndicator.color.replace("ALPHA", alpha);
+        ctx.textAlign = "center";
+        ctx.fillText(selectionIndicator.text, selectionIndicator.x, selectionIndicator.y - ballRadius*2);
+        ctx.restore();
+        if (selectionIndicator.timer <= 0) {
+          selectionIndicator = null;
+          selectionEl.textContent = "None";
+        }
+      }
+      
+      // Update elapsed time on the scoreboard.
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      timeEl.textContent = elapsed;
+      
+      requestAnimationFrame(animate);
+    }
+    animate();
+    
+    // Handle click events with an expanded collision area.
+    canvas.addEventListener('click', function(event) {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+      // Increase collision area (1.5 times the base ball radius).
+      const hitRadius = ballRadius * 1.5;
+      for (let ball of balls) {
+        const x = centerX + orbitRadius * Math.cos(ball.angle);
+        const y = centerY + orbitRadius * Math.sin(ball.angle);
+        if (Math.abs(clickX - x) < hitRadius && Math.abs(clickY - y) < hitRadius) {
+          // Set selection indicator based on whether the ball is loaded.
+          if (ball.loaded) {
+            score += roundPoints(round);
+            round = 1;
+            selectionIndicator = {
+              text: "LOADED!",
+              x: x,
+              y: y,
+              color: "rgba(0,255,0,ALPHA)",
+              duration: 1000,
+              timer: 1000
+            };
+            selectionEl.textContent = "LOADED!";
+          } else {
+            round = (round < maxRound) ? round + 1 : 1;
+            selectionIndicator = {
+              text: "BLANK",
+              x: x,
+              y: y,
+              color: "rgba(255,0,0,ALPHA)",
+              duration: 1000,
+              timer: 1000
+            };
+            selectionEl.textContent = "BLANK";
+          }
+          scoreEl.textContent = score;
+          setupRound();
+          break;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
