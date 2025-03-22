@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speed Test Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    /* Game board: a 2x2 grid of boxes */
+    #gameContainer {
+      display: grid;
+      grid-template-columns: repeat(2, 150px);
+      grid-template-rows: repeat(2, 150px);
+      gap: 20px;
+      margin: 20px auto;
+      width: 340px; /* 2*150 + gap */
+    }
+    .box {
+      background-color: #ccc; /* default grey */
+      position: relative;
+      border: 2px solid #999;
+    }
+    /* The ball inside each box */
+    .ball {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    /* Countdown overlay */
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255,255,255,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      z-index: 10;
+    }
+    #result {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+    #restartBtn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Speed Test Game</h1>
+  <!-- The gameWrapper positions the overlay on top of the game board -->
+  <div id="gameWrapper" style="position: relative; display: inline-block;">
+    <div id="gameContainer">
+      <div class="box" data-index="0"></div>
+      <div class="box" data-index="1"></div>
+      <div class="box" data-index="2"></div>
+      <div class="box" data-index="3"></div>
+    </div>
+    <div id="overlay">3</div>
+  </div>
+  <div id="result"></div>
+  <button id="restartBtn" style="display: none;">Restart Game</button>
+
+  <script>
+    // Game configuration and state
+    const totalTurns = 12;
+    let currentTurn = 0;
+    let gameStarted = false;
+    let startTime, endTime;
+    let bluePositions = [];
+
+    const gameContainer = document.getElementById('gameContainer');
+    const boxes = document.querySelectorAll('.box');
+    const overlay = document.getElementById('overlay');
+    const resultDiv = document.getElementById('result');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // Generate an array of 12 random blue ball positions (indices 0 to 3)
+    function generateBluePositions() {
+      bluePositions = [];
+      for (let i = 0; i < totalTurns; i++) {
+        bluePositions.push(Math.floor(Math.random() * 4));
+      }
+    }
+
+    // Update the board for the current turn by placing balls in each box.
+    // The blue ball is placed according to the current turn's bluePositions.
+    function updateBoard() {
+      boxes.forEach((box, index) => {
+        // Clear any previous ball
+        box.innerHTML = '';
+        // Create a new ball element
+        const ball = document.createElement('div');
+        ball.classList.add('ball');
+        // Set ball color: blue for the target, red for others
+        if (index === bluePositions[currentTurn]) {
+          ball.style.backgroundColor = 'blue';
+        } else {
+          ball.style.backgroundColor = 'red';
+        }
+        box.appendChild(ball);
+      });
+    }
+
+    // Clear the board (remove any ball elements)
+    function clearBoard() {
+      boxes.forEach(box => box.innerHTML = '');
+    }
+
+    // Handle click or touch events on a box.
+    function handleClick(e) {
+      if (!gameStarted) return;
+
+      let box;
+      // Determine if the event target is a ball or the box itself.
+      if (e.target.classList.contains('ball')) {
+        box = e.target.parentElement;
+      } else if (e.target.classList.contains('box')) {
+        box = e.target;
+      } else {
+        return;
+      }
+
+      // Prevent duplicate events (especially on touch devices)
+      e.preventDefault();
+
+      const index = parseInt(box.getAttribute('data-index'));
+      // Only proceed if the correct (blue) ball was clicked
+      if (index === bluePositions[currentTurn]) {
+        currentTurn++;
+        if (currentTurn < totalTurns) {
+          updateBoard();
+        } else {
+          endGame();
+        }
+      }
+      // Optionally, you could add feedback for an incorrect click.
+    }
+
+    // Attach both click and touch event listeners to each box.
+    boxes.forEach(box => {
+      box.addEventListener('click', handleClick);
+      box.addEventListener('touchstart', handleClick);
+    });
+
+    // Start the game: record start time, hide the overlay, and display the first board.
+    function startGame() {
+      gameStarted = true;
+      startTime = new Date();
+      overlay.style.display = 'none';
+      updateBoard();
+    }
+
+    // Countdown before game starts
+    function startCountdown() {
+      let count = 3;
+      overlay.textContent = count;
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          overlay.textContent = count;
+        } else {
+          clearInterval(countdownInterval);
+          overlay.textContent = 'Go!';
+          setTimeout(() => {
+            startGame();
+          }, 500);
+        }
+      }, 1000);
+    }
+
+    // End the game, compute elapsed time, display the score and rating.
+    function endGame() {
+      gameStarted = false;
+      endTime = new Date();
+      const elapsed = (endTime - startTime) / 1000; // seconds
+
+      let rating = '';
+      // These thresholds are arbitrary and can be adjusted.
+      if (elapsed < 4) {
+        rating = 'Speedster!';
+      } else if (elapsed < 8) {
+        rating = 'Quite average.';
+      } else {
+        rating = 'Take your time.';
+      }
+      resultDiv.textContent = `Your time: ${elapsed.toFixed(2)} seconds. ${rating}`;
+      restartBtn.style.display = 'inline-block';
+    }
+
+    // Reset the game state and restart the countdown.
+    function resetGame() {
+      currentTurn = 0;
+      resultDiv.textContent = '';
+      restartBtn.style.display = 'none';
+      overlay.style.display = 'flex';
+      overlay.textContent = '3';
+      generateBluePositions();
+      clearBoard();
+      startCountdown();
+    }
+
+    restartBtn.addEventListener('click', resetGame);
+
+    // Initialize game on page load.
+    window.onload = () => {
+      generateBluePositions();
+      startCountdown();
+    }
+  </script>
+</body>
+</html>
