@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Murica Speed Test</title>
+  <style>
+    /* Patriotic 'Murica vibe with red, white, and blue stripes */
+    body {
+      margin: 0;
+      padding: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        #B22234,
+        #B22234 10px,
+        #FFFFFF 10px,
+        #FFFFFF 20px,
+        #3C3B6E 20px,
+        #3C3B6E 30px
+      );
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5em;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 10px #000;
+    }
+    /* Responsive game container: 2x2 grid */
+    #gameContainer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 2%;
+      width: 80vw;
+      height: 80vw;
+      max-width: 600px;
+      max-height: 600px;
+      margin: 20px auto;
+      background-color: rgba(0, 0, 0, 0.7);
+      border: 3px solid #fff;
+      box-shadow: 0 0 20px #fff;
+    }
+    .box {
+      background-color: rgba(255, 255, 255, 0.1);
+      position: relative;
+      border: 2px solid #fff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    /* The ball, sized relative to its container with a subtle glow */
+    .ball {
+      width: 40%;
+      height: 40%;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+      transition: outline 0.15s ease;
+    }
+    /* Countdown overlay with bold patriotic style */
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4em;
+      z-index: 10;
+      color: #fff;
+      text-shadow: 2px 2px 8px #000;
+    }
+    /* Turn indicator and ongoing metrics */
+    #turnIndicator {
+      font-size: 1.5em;
+      margin-top: 10px;
+      text-shadow: 1px 1px 5px #000;
+    }
+    #ongoingMetrics {
+      font-size: 1.2em;
+      margin-top: 5px;
+      text-shadow: 1px 1px 5px #000;
+    }
+    /* Final results styling */
+    #result {
+      font-size: 1.5em;
+      margin-top: 20px;
+      text-shadow: 1px 1px 5px #000;
+    }
+    #restartBtn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      background-color: #001f3f;
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #restartBtn:hover {
+      background-color: #fff;
+      color: #001f3f;
+    }
+  </style>
+</head>
+<body>
+  <h1>Murica Speed Test</h1>
+  <!-- Game wrapper positions the overlay -->
+  <div id="gameWrapper" style="position: relative; display: inline-block;">
+    <div id="gameContainer">
+      <div class="box" data-index="0"></div>
+      <div class="box" data-index="1"></div>
+      <div class="box" data-index="2"></div>
+      <div class="box" data-index="3"></div>
+    </div>
+    <div id="overlay">3</div>
+  </div>
+  <!-- Turn indicator and ongoing metrics -->
+  <div id="turnIndicator"></div>
+  <div id="ongoingMetrics"></div>
+  <div id="result"></div>
+  <button id="restartBtn" style="display: none;">Restart Game</button>
+
+  <script>
+    // Game state and configuration
+    const totalTurns = 26;
+    let currentTurn = 0;
+    let gameStarted = false;
+    let startTime, endTime;
+    let bluePositions = [];
+    let reactionTimes = [];
+    let currentTurnStartTime = 0;
+    let ongoingInterval = null;
+
+    const boxes = document.querySelectorAll('.box');
+    const overlay = document.getElementById('overlay');
+    const resultDiv = document.getElementById('result');
+    const turnIndicator = document.getElementById('turnIndicator');
+    const ongoingMetricsDiv = document.getElementById('ongoingMetrics');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // Generate an array of 26 random blue ball positions (0–3)
+    function generateBluePositions() {
+      bluePositions = [];
+      for (let i = 0; i < totalTurns; i++) {
+        bluePositions.push(Math.floor(Math.random() * 4));
+      }
+    }
+
+    // Update the turn indicator
+    function updateTurnIndicator() {
+      turnIndicator.textContent = `Turn: ${currentTurn + 1} / ${totalTurns}`;
+    }
+
+    // Update the ongoing metrics: current reaction time and average reaction time so far
+    function updateOngoingMetrics() {
+      if (!gameStarted) {
+        ongoingMetricsDiv.textContent = '';
+        return;
+      }
+      const currentReaction = Date.now() - currentTurnStartTime;
+      let avgReaction = 0;
+      if (reactionTimes.length > 0) {
+        avgReaction = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+      }
+      ongoingMetricsDiv.innerHTML = `Current Reaction: ${currentReaction} ms<br>Average Reaction So Far: ${reactionTimes.length ? avgReaction.toFixed(2) : 0} ms`;
+    }
+
+    // Update board for the current turn by placing balls in each box.
+    // The blue ball is determined by bluePositions[currentTurn].
+    function updateBoard() {
+      boxes.forEach((box, index) => {
+        box.innerHTML = '';
+        const ball = document.createElement('div');
+        ball.classList.add('ball');
+        ball.style.backgroundColor = (index === bluePositions[currentTurn]) ? 'blue' : 'red';
+        box.appendChild(ball);
+      });
+      updateTurnIndicator();
+      currentTurnStartTime = Date.now();
+    }
+
+    // Clear the board
+    function clearBoard() {
+      boxes.forEach(box => box.innerHTML = '');
+    }
+
+    // Get event coordinates (supports mouse and touch)
+    function getEventCoords(e) {
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+      } else {
+        return { x: e.clientX, y: e.clientY };
+      }
+    }
+
+    // Handle click/touch events with collision detection on the ball
+    function handleClick(e) {
+      if (!gameStarted) return;
+      e.preventDefault();
+
+      const { x, y } = getEventCoords(e);
+      let boxElement;
+      if (e.target.classList.contains('ball')) {
+        boxElement = e.target.parentElement;
+      } else if (e.target.classList.contains('box')) {
+        boxElement = e.target;
+      } else {
+        return;
+      }
+
+      const index = parseInt(boxElement.getAttribute('data-index'));
+      // Only process if this box is the one with the blue ball
