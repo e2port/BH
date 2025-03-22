@@ -218,3 +218,127 @@
 
       const index = parseInt(boxElement.getAttribute('data-index'));
       // Only process if this box is the one with the blue ball
+      if (index !== bluePositions[currentTurn]) return;
+
+      const ballElement = boxElement.querySelector('.ball');
+      if (!ballElement) return;
+
+      const rect = ballElement.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+        // Valid hit: record reaction time for the turn
+        const reactionTime = Date.now() - currentTurnStartTime;
+        reactionTimes.push(reactionTime);
+
+        // Flash yellow outline as visual feedback
+        ballElement.style.outline = '5px solid yellow';
+        setTimeout(() => {
+          ballElement.style.outline = '';
+        }, 150);
+
+        currentTurn++;
+        if (currentTurn < totalTurns) {
+          updateBoard();
+        } else {
+          endGame();
+        }
+      }
+    }
+
+    // Attach event listeners for both mouse and touch events
+    boxes.forEach(box => {
+      box.addEventListener('click', handleClick);
+      box.addEventListener('touchstart', handleClick);
+    });
+
+    // Start the game: record start time, hide overlay, display the board, and start ongoing metrics
+    function startGame() {
+      gameStarted = true;
+      startTime = Date.now();
+      overlay.style.display = 'none';
+      updateBoard();
+      ongoingInterval = setInterval(updateOngoingMetrics, 50);
+    }
+
+    // 3-second countdown before game starts
+    function startCountdown() {
+      let count = 3;
+      overlay.textContent = count;
+      overlay.style.display = 'flex';
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          overlay.textContent = count;
+        } else {
+          clearInterval(countdownInterval);
+          overlay.textContent = 'Go!';
+          setTimeout(() => {
+            startGame();
+          }, 500);
+        }
+      }, 1000);
+    }
+
+    // Utility function to compute standard deviation
+    function getStandardDeviation(arr) {
+      const n = arr.length;
+      if (n === 0) return 0;
+      const mean = arr.reduce((a, b) => a + b, 0) / n;
+      const variance = arr.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / n;
+      return Math.sqrt(variance);
+    }
+
+    // End the game, compute metrics, and display the score screen with five professional metrics
+    function endGame() {
+      gameStarted = false;
+      endTime = Date.now();
+      clearInterval(ongoingInterval);
+      const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+      const avgReaction = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+      const bestReaction = Math.min(...reactionTimes);
+      const worstReaction = Math.max(...reactionTimes);
+      const consistency = getStandardDeviation(reactionTimes);
+
+      let rating = '';
+      if (totalTime < 20) {
+        rating = 'Speedster!';
+      } else if (totalTime < 40) {
+        rating = 'Quite average.';
+      } else {
+        rating = 'Take your time.';
+      }
+
+      resultDiv.innerHTML = `<p>Your time: ${totalTime} seconds. ${rating}</p>
+        <ul style="list-style: none; padding: 0;">
+          <li>Total Time: ${totalTime} s</li>
+          <li>Average Reaction Time: ${avgReaction.toFixed(2)} ms</li>
+          <li>Best Reaction Time: ${bestReaction} ms</li>
+          <li>Worst Reaction Time: ${worstReaction} ms</li>
+          <li>Reaction Time Consistency: ${consistency.toFixed(2)} ms</li>
+        </ul>`;
+      turnIndicator.textContent = '';
+      ongoingMetricsDiv.textContent = '';
+      restartBtn.style.display = 'inline-block';
+    }
+
+    // Reset the game state and restart the countdown
+    function resetGame() {
+      currentTurn = 0;
+      reactionTimes = [];
+      resultDiv.textContent = '';
+      restartBtn.style.display = 'none';
+      overlay.style.display = 'flex';
+      overlay.textContent = '3';
+      generateBluePositions();
+      clearBoard();
+      startCountdown();
+    }
+
+    restartBtn.addEventListener('click', resetGame);
+
+    window.onload = () => {
+      generateBluePositions();
+      startCountdown();
+    }
+  </script>
+</body>
+</html>
