@@ -4,19 +4,15 @@
   <meta charset="UTF-8">
   <title>Murica Speed Test</title>
   <style>
-    /* Patriotic 'Murica vibe with red, white, and blue stripes */
+    /* Background: a transcendent blend of red, blue, and soft whitish waves */
     body {
       margin: 0;
       padding: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        #B22234,
-        #B22234 10px,
-        #FFFFFF 10px,
-        #FFFFFF 20px,
-        #3C3B6E 20px,
-        #3C3B6E 30px
-      );
+      background: 
+        radial-gradient(circle at top left, rgba(255,255,255,0.2), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.15), transparent 70%),
+        linear-gradient(135deg, #a60000, #001f3f);
+      background-blend-mode: overlay;
       color: #fff;
       font-family: Arial, sans-serif;
       text-align: center;
@@ -25,30 +21,35 @@
       margin-top: 20px;
       font-size: 2.5em;
       letter-spacing: 2px;
-      text-shadow: 2px 2px 10px #000;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
     }
-    /* Responsive game container: 2x2 grid */
+    /* Game wrapper holds the canvas and overlays; its relative positioning lets overlays sit on top */
+    #gameWrapper {
+      position: relative;
+      display: inline-block;
+    }
+    /* Game container (2x2 grid) – on PC the max-width/max-height are set to 500px;
+       change these values to slightly minimize the canvas size if needed */
     #gameContainer {
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-gap: 2%;
-      width: 70vw;
-      height: 70vw;
-      max-width: 600px;
-      max-height: 600px;
+      width: 80vw;
+      height: 80vw;
+      max-width: 500px;
+      max-height: 500px;
       margin: 20px auto;
       background-color: rgba(0, 0, 0, 0.7);
       border: 3px solid #fff;
-      box-shadow: 0 0 20px #fff;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
     .box {
       background-color: rgba(255, 255, 255, 0.1);
       position: relative;
-      border: 2px solid #fff;
+      border: 2px solid rgba(255,255,255,0.5);
       border-radius: 10px;
       overflow: hidden;
     }
-    /* The ball, sized relative to its container with a subtle glow */
     .ball {
       width: 40%;
       height: 40%;
@@ -60,7 +61,7 @@
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
       transition: outline 0.15s ease;
     }
-    /* Countdown overlay with bold patriotic style */
+    /* Countdown overlay */
     #overlay {
       position: absolute;
       top: 0;
@@ -74,24 +75,43 @@
       font-size: 4em;
       z-index: 10;
       color: #fff;
-      text-shadow: 2px 2px 8px #000;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
     }
-    /* Turn indicator and ongoing metrics */
-    #turnIndicator {
+    /* Ongoing indicators */
+    #turnIndicator, #ongoingMetrics {
       font-size: 1.5em;
       margin-top: 10px;
-      text-shadow: 1px 1px 5px #000;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
     }
     #ongoingMetrics {
       font-size: 1.2em;
       margin-top: 5px;
-      text-shadow: 1px 1px 5px #000;
     }
-    /* Final results styling */
-    #result {
-      font-size: 1.5em;
-      margin-top: 20px;
-      text-shadow: 1px 1px 5px #000;
+    /* Final result overlay: pops over the game canvas when complete */
+    #resultModal {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 20;
+      justify-content: center;
+      align-items: center;
+    }
+    #resultContent {
+      background-color: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: left;
+      width: 80%;
+      max-width: 400px;
+    }
+    #resultContent ul {
+      list-style: none;
+      padding: 0;
     }
     #restartBtn {
       margin-top: 10px;
@@ -99,7 +119,7 @@
       font-size: 1.2em;
       background-color: #001f3f;
       color: #fff;
-      border: 2px solid #fff;
+      border: 2px solid #001f3f;
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
@@ -112,8 +132,8 @@
 </head>
 <body>
   <h1>Murica Speed Test</h1>
-  <!-- Game wrapper positions the overlay -->
-  <div id="gameWrapper" style="position: relative; display: inline-block;">
+  <!-- Game wrapper positions the canvas, countdown overlay, and final result modal -->
+  <div id="gameWrapper">
     <div id="gameContainer">
       <div class="box" data-index="0"></div>
       <div class="box" data-index="1"></div>
@@ -121,15 +141,20 @@
       <div class="box" data-index="3"></div>
     </div>
     <div id="overlay">3</div>
+    <!-- Final result modal that overlays the game container when the game is complete -->
+    <div id="resultModal">
+      <div id="resultContent">
+        <div id="resultText"></div>
+        <button id="restartBtn">Restart Game</button>
+      </div>
+    </div>
   </div>
-  <!-- Turn indicator and ongoing metrics -->
+  <!-- Ongoing metrics and turn indicator displayed below the game wrapper -->
   <div id="turnIndicator"></div>
   <div id="ongoingMetrics"></div>
-  <div id="result"></div>
-  <button id="restartBtn" style="display: none;">Restart Game</button>
 
   <script>
-    // Game state and configuration
+    // Game configuration and state variables
     const totalTurns = 26;
     let currentTurn = 0;
     let gameStarted = false;
@@ -141,12 +166,13 @@
 
     const boxes = document.querySelectorAll('.box');
     const overlay = document.getElementById('overlay');
-    const resultDiv = document.getElementById('result');
     const turnIndicator = document.getElementById('turnIndicator');
     const ongoingMetricsDiv = document.getElementById('ongoingMetrics');
+    const resultModal = document.getElementById('resultModal');
+    const resultText = document.getElementById('resultText');
     const restartBtn = document.getElementById('restartBtn');
 
-    // Generate an array of 26 random blue ball positions (0–3)
+    // Generate an array of random blue ball positions (0–3) for each turn
     function generateBluePositions() {
       bluePositions = [];
       for (let i = 0; i < totalTurns; i++) {
@@ -154,27 +180,23 @@
       }
     }
 
-    // Update the turn indicator
+    // Update the turn indicator text
     function updateTurnIndicator() {
       turnIndicator.textContent = `Turn: ${currentTurn + 1} / ${totalTurns}`;
     }
 
-    // Update the ongoing metrics: current reaction time and average reaction time so far
+    // Update ongoing metrics: current reaction time and average reaction time so far
     function updateOngoingMetrics() {
       if (!gameStarted) {
         ongoingMetricsDiv.textContent = '';
         return;
       }
       const currentReaction = Date.now() - currentTurnStartTime;
-      let avgReaction = 0;
-      if (reactionTimes.length > 0) {
-        avgReaction = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
-      }
-      ongoingMetricsDiv.innerHTML = `Current Reaction: ${currentReaction} ms<br>Average Reaction So Far: ${reactionTimes.length ? avgReaction.toFixed(2) : 0} ms`;
+      let avgReaction = reactionTimes.length ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length : 0;
+      ongoingMetricsDiv.innerHTML = `Current Reaction: ${currentReaction} ms<br>Average Reaction: ${reactionTimes.length ? avgReaction.toFixed(2) : 0} ms`;
     }
 
-    // Update board for the current turn by placing balls in each box.
-    // The blue ball is determined by bluePositions[currentTurn].
+    // Update the game board for the current turn
     function updateBoard() {
       boxes.forEach((box, index) => {
         box.innerHTML = '';
@@ -192,7 +214,7 @@
       boxes.forEach(box => box.innerHTML = '');
     }
 
-    // Get event coordinates (supports mouse and touch)
+    // Helper to get event coordinates (supporting mouse and touch)
     function getEventCoords(e) {
       if (e.changedTouches && e.changedTouches.length > 0) {
         return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
@@ -217,7 +239,7 @@
       }
 
       const index = parseInt(boxElement.getAttribute('data-index'));
-      // Only process if this box is the one with the blue ball
+      // Only process if this box contains the blue ball for the current turn
       if (index !== bluePositions[currentTurn]) return;
 
       const ballElement = boxElement.querySelector('.ball');
@@ -225,11 +247,11 @@
 
       const rect = ballElement.getBoundingClientRect();
       if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-        // Valid hit: record reaction time for the turn
+        // Valid hit: record reaction time
         const reactionTime = Date.now() - currentTurnStartTime;
         reactionTimes.push(reactionTime);
 
-        // Flash yellow outline as visual feedback
+        // Flash a yellow outline as visual feedback
         ballElement.style.outline = '5px solid yellow';
         setTimeout(() => {
           ballElement.style.outline = '';
@@ -244,13 +266,13 @@
       }
     }
 
-    // Attach event listeners for both mouse and touch events
+    // Attach event listeners for mouse and touch on each box
     boxes.forEach(box => {
       box.addEventListener('click', handleClick);
       box.addEventListener('touchstart', handleClick);
     });
 
-    // Start the game: record start time, hide overlay, display the board, and start ongoing metrics
+    // Start the game: hide countdown overlay, show board, and start ongoing metrics
     function startGame() {
       gameStarted = true;
       startTime = Date.now();
@@ -259,7 +281,7 @@
       ongoingInterval = setInterval(updateOngoingMetrics, 50);
     }
 
-    // 3-second countdown before game starts
+    // 3-second countdown before starting the game
     function startCountdown() {
       let count = 3;
       overlay.textContent = count;
@@ -278,7 +300,7 @@
       }, 1000);
     }
 
-    // Utility function to compute standard deviation
+    // Utility: Compute standard deviation for reaction times
     function getStandardDeviation(arr) {
       const n = arr.length;
       if (n === 0) return 0;
@@ -287,7 +309,7 @@
       return Math.sqrt(variance);
     }
 
-    // End the game, compute metrics, and display the score screen with five professional metrics
+    // End the game: compute professional metrics and display final result overlay
     function endGame() {
       gameStarted = false;
       endTime = Date.now();
@@ -297,7 +319,7 @@
       const bestReaction = Math.min(...reactionTimes);
       const worstReaction = Math.max(...reactionTimes);
       const consistency = getStandardDeviation(reactionTimes);
-
+      
       let rating = '';
       if (totalTime < 20) {
         rating = 'Speedster!';
@@ -307,25 +329,24 @@
         rating = 'Take your time.';
       }
 
-      resultDiv.innerHTML = `<p>Your time: ${totalTime} seconds. ${rating}</p>
-        <ul style="list-style: none; padding: 0;">
-          <li>Total Time: ${totalTime} s</li>
-          <li>Average Reaction Time: ${avgReaction.toFixed(2)} ms</li>
-          <li>Best Reaction Time: ${bestReaction} ms</li>
-          <li>Worst Reaction Time: ${worstReaction} ms</li>
-          <li>Reaction Time Consistency: ${consistency.toFixed(2)} ms</li>
-        </ul>`;
+      resultText.innerHTML = `<p>Your time: ${totalTime} seconds. ${rating}</p>
+      <ul>
+        <li>Total Time: ${totalTime} s</li>
+        <li>Average Reaction Time: ${avgReaction.toFixed(2)} ms</li>
+        <li>Best Reaction Time: ${bestReaction} ms</li>
+        <li>Worst Reaction Time: ${worstReaction} ms</li>
+        <li>Reaction Time Consistency: ${consistency.toFixed(2)} ms</li>
+      </ul>`;
+      resultModal.style.display = 'flex';
       turnIndicator.textContent = '';
       ongoingMetricsDiv.textContent = '';
-      restartBtn.style.display = 'inline-block';
     }
 
-    // Reset the game state and restart the countdown
+    // Reset the game state and hide the result modal to restart the countdown
     function resetGame() {
       currentTurn = 0;
       reactionTimes = [];
-      resultDiv.textContent = '';
-      restartBtn.style.display = 'none';
+      resultModal.style.display = 'none';
       overlay.style.display = 'flex';
       overlay.textContent = '3';
       generateBluePositions();
