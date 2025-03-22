@@ -256,6 +256,53 @@
     const touchY = touch.clientY - rect.top;
     handleInteraction(touchX, touchY);
   });
+  canvas.addEventListener('touchstart', function(event) {
+  if (!roundActive) return; // Ignore touches during countdown
+  event.preventDefault(); // Prevent default touch behaviors (scrolling, etc.)
+  const rect = canvas.getBoundingClientRect();
+  const touch = event.touches[0];
+  const touchX = touch.clientX - rect.left;
+  const touchY = touch.clientY - rect.top;
+
+  // Check each triangle (using the same collision logic as in the click handler)
+  for (let tri of triangles) {
+    const x = centerX + orbitRadius * Math.cos(tri.angle);
+    const y = centerY + orbitRadius * Math.sin(tri.angle);
+    const hitRadius = triangleSize;
+    if (Math.abs(touchX - x) < hitRadius / 2 && Math.abs(touchY - y) < hitRadius / 2) {
+      // Disable further input and start the 2-second round delay.
+      roundActive = false;
+      roundDelayEnd = Date.now() + 2000; // 2000ms delay
+
+      // Set flash effect: green for loaded, red for blank.
+      let flashColor;
+      if (tri.loaded) {
+        score += roundPoints(round);
+        flashColor = 'rgba(0,255,0,ALPHA)'; // green flash
+        round = 1; // reset to primary round
+      } else {
+        flashColor = 'rgba(255,0,0,ALPHA)'; // red flash
+        round = (round < maxRound) ? round + 1 : 1;
+      }
+      scoreEl.textContent = score;
+      // Record the flash effect at the triangle's position.
+      flashEffect = {
+        x: x,
+        y: y,
+        color: flashColor,
+        duration: 500,
+        timer: 500
+      };
+
+      // After 2 seconds, restart the round.
+      setTimeout(() => {
+        setupRound();
+        roundActive = true;
+      }, 2000);
+      break;
+    }
+  }
+});
 
     // Process click events. During a round, if a triangle is clicked within an expanded area, handle selection.
     canvas.addEventListener('click', function(event) {
