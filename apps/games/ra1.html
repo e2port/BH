@@ -135,6 +135,61 @@
       requestAnimationFrame(animate);
     }
     animate();
+  // Function to handle both mouse and touch interactions.
+  function handleInteraction(x, y) {
+    const hitRadius = ballRadius * 1.5;  // Expanded collision area.
+    for (let ball of balls) {
+      const ballX = centerX + orbitRadius * Math.cos(ball.angle);
+      const ballY = centerY + orbitRadius * Math.sin(ball.angle);
+      if (Math.abs(x - ballX) < hitRadius && Math.abs(y - ballY) < hitRadius) {
+        if (ball.loaded) {
+          score += roundPoints(round);
+          round = 1;
+          selectionIndicator = {
+            text: "LOADED!",
+            x: ballX,
+            y: ballY,
+            color: "rgba(0,255,0,ALPHA)",
+            duration: 1000,
+            timer: 1000
+          };
+          selectionEl.textContent = "LOADED!";
+        } else {
+          round = (round < maxRound) ? round + 1 : 1;
+          selectionIndicator = {
+            text: "BLANK",
+            x: ballX,
+            y: ballY,
+            color: "rgba(255,0,0,ALPHA)",
+            duration: 1000,
+            timer: 1000
+          };
+          selectionEl.textContent = "BLANK";
+        }
+        scoreEl.textContent = score;
+        setupRound();
+        break;
+      }
+    }
+  }
+
+  // Existing event listener for mouse clicks.
+  canvas.addEventListener('click', function(event) {
+    const rect = canvas.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+    handleInteraction(clickX, clickY);
+  });
+
+  // New event listener for touch events.
+  canvas.addEventListener('touchstart', function(event) {
+    event.preventDefault();  // Prevents default touch behaviors.
+    const touch = event.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    handleInteraction(touchX, touchY);
+  });
 
     // Handle clicks: detect if a ball was clicked and update score/round accordingly
     canvas.addEventListener('click', function(event) {
