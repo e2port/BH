@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wu Speed Test</title>
+  <!-- Import a futuristic font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <style>
+    /* Base styling for a techy, neon look */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #0f0;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 10px #0f0;
+    }
+    /* Scalable game container: 2x2 grid */
+    #gameContainer {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 2%;
+      width: 80vw;
+      height: 80vw;
+      max-width: 600px;
+      max-height: 600px;
+      margin: 20px auto;
+      background-color: #222;
+      border: 3px solid #0f0;
+      box-shadow: 0 0 20px #0f0;
+    }
+    .box {
+      background-color: #333;
+      position: relative;
+      border: 2px solid #555;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    /* Ball sized relative to its container */
+    .ball {
+      width: 40%;
+      height: 40%;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: outline 0.15s ease;
+    }
+    /* Overlay for the countdown with neon style */
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4em;
+      z-index: 10;
+      color: #0f0;
+      text-shadow: 2px 2px 8px #0f0;
+    }
+    #turnIndicator {
+      font-size: 1.5em;
+      margin-top: 10px;
+      text-shadow: 1px 1px 5px #0f0;
+    }
+    #result {
+      font-size: 1.5em;
+      margin-top: 20px;
+      text-shadow: 1px 1px 5px #0f0;
+    }
+    #restartBtn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      background-color: #111;
+      color: #0f0;
+      border: 2px solid #0f0;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #restartBtn:hover {
+      background-color: #0f0;
+      color: #000;
+    }
+    /* Subtle Wu vibe background texture */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://i.imgur.com/H0w6exS.png') repeat;
+      opacity: 0.05;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wu Speed Test</h1>
+  <!-- Game wrapper positions the overlay -->
+  <div id="gameWrapper" style="position: relative; display: inline-block;">
+    <div id="gameContainer">
+      <div class="box" data-index="0"></div>
+      <div class="box" data-index="1"></div>
+      <div class="box" data-index="2"></div>
+      <div class="box" data-index="3"></div>
+    </div>
+    <div id="overlay">3</div>
+  </div>
+  <!-- Turn indicator -->
+  <div id="turnIndicator"></div>
+  <div id="result"></div>
+  <button id="restartBtn" style="display: none;">Restart Game</button>
+
+  <script>
+    // Game state and configuration
+    const totalTurns = 12;
+    let currentTurn = 0;
+    let gameStarted = false;
+    let startTime, endTime;
+    let bluePositions = [];
+
+    const boxes = document.querySelectorAll('.box');
+    const overlay = document.getElementById('overlay');
+    const resultDiv = document.getElementById('result');
+    const turnIndicator = document.getElementById('turnIndicator');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // Generate an array of 12 random blue ball positions (each between 0 and 3)
+    function generateBluePositions() {
+      bluePositions = [];
+      for (let i = 0; i < totalTurns; i++) {
+        bluePositions.push(Math.floor(Math.random() * 4));
+      }
+    }
+
+    // Update the turn indicator (display current turn / total)
+    function updateTurnIndicator() {
+      turnIndicator.textContent = `Turn: ${currentTurn + 1} / ${totalTurns}`;
+    }
+
+    // Update board for the current turn by placing balls in each box.
+    // The blue ball is placed according to the current turn's bluePositions.
+    function updateBoard() {
+      boxes.forEach((box, index) => {
+        // Clear previous ball
+        box.innerHTML = '';
+        // Create ball element
+        const ball = document.createElement('div');
+        ball.classList.add('ball');
+        // Set ball color: blue for target, red for others
+        ball.style.backgroundColor = (index === bluePositions[currentTurn]) ? 'blue' : 'red';
+        box.appendChild(ball);
+      });
+      updateTurnIndicator();
+    }
+
+    // Clear the board (remove any ball elements)
+    function clearBoard() {
+      boxes.forEach(box => box.innerHTML = '');
+    }
+
+    // Get event coordinates (supporting both mouse and touch)
+    function getEventCoords(e) {
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+      } else {
+        return { x: e.clientX, y: e.clientY };
+      }
+    }
+
+    // Handle click/touch events on a box.
+    // Collision detection checks if the event is within the ball's bounding rectangle.
+    function handleClick(e) {
+      if (!gameStarted) return;
+      e.preventDefault();
+      
+      const { x, y } = getEventCoords(e);
+      let boxElement;
+      if (e.target.classList.contains('ball')) {
+        boxElement = e.target.parentElement;
+      } else if (e.target.classList.contains('box')) {
+        boxElement = e.target;
+      } else {
+        return;
+      }
+      
+      const index = parseInt(boxElement.getAttribute('data-index'));
+      // Only process if this box is the one with the blue ball for this turn
+      if (index !== bluePositions[currentTurn]) return;
+
+      const ballElement = boxElement.querySelector('.ball');
+      if (!ballElement) return;
+      
+      const rect = ballElement.getBoundingClientRect();
+      // Check if click/touch is within the ball's visible area
+      if (x >= rect.left && x <= rect.right &&
+          y >= rect.top && y <= rect.bottom) {
+        // Flash a yellow outline to indicate a valid hit
+        ballElement.style.outline = '5px solid yellow';
+        setTimeout(() => {
+          ballElement.style.outline = '';
+        }, 150);
+        
+        currentTurn++;
+        if (currentTurn < totalTurns) {
+          updateBoard();
+        } else {
+          endGame();
+        }
+      }
+    }
+
+    // Attach event listeners to each box (for both mouse and touch)
+    boxes.forEach(box => {
+      box.addEventListener('click', handleClick);
+      box.addEventListener('touchstart', handleClick);
+    });
+
+    // Start the game: record start time, hide overlay, and show the first board.
+    function startGame() {
+      gameStarted = true;
+      startTime = new Date();
+      overlay.style.display = 'none';
+      updateBoard();
+    }
+
+    // 3-second countdown before game starts
+    function startCountdown() {
+      let count = 3;
+      overlay.textContent = count;
+      overlay.style.display = 'flex';
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          overlay.textContent = count;
+        } else {
+          clearInterval(countdownInterval);
+          overlay.textContent = 'Go!';
+          setTimeout(() => {
+            startGame();
+          }, 500);
+        }
+      }, 1000);
+    }
+
+    // End the game, compute elapsed time, display score and rating.
+    function endGame() {
+      gameStarted = false;
+      endTime = new Date();
+      const elapsed = (endTime - startTime) / 1000; // seconds
+      let rating = '';
+      if (elapsed < 4) {
+        rating = 'Speedster!';
+      } else if (elapsed < 8) {
+        rating = 'Quite average.';
+      } else {
+        rating = 'Take your time.';
+      }
+      resultDiv.textContent = `Your time: ${elapsed.toFixed(2)} seconds. ${rating}`;
+      restartBtn.style.display = 'inline-block';
+      turnIndicator.textContent = '';
+    }
+
+    // Reset game state and restart the countdown.
+    function resetGame() {
+      currentTurn = 0;
+      resultDiv.textContent = '';
+      restartBtn.style.display = 'none';
+      overlay.style.display = 'flex';
+      overlay.textContent = '3';
+      generateBluePositions();
+      clearBoard();
+      startCountdown();
+    }
+
+    restartBtn.addEventListener('click', resetGame);
+
+    window.onload = () => {
+      generateBluePositions();
+      startCountdown();
+    }
+  </script>
+</body>
+</html>
