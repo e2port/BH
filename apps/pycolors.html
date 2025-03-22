@@ -70,6 +70,9 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
+
+
+    
     /* Container for palette options */
     #palettes {
       flex: 0 0 250px;
@@ -111,6 +114,11 @@
         margin: 5px;
       }
     }
+    @media (max-width: 768px) {
+  html, body {
+    overflow-y: auto;
+  }
+}
   </style>
 </head>
 <body>
