@@ -153,62 +153,42 @@
       requestAnimationFrame(animate);
     }
     animate();
-
-  // Function to handle both mouse and touch interactions.
-  function handleInteraction(x, y) {
-    const hitRadius = ballRadius * 1.5;  // Expanded collision area.
-    for (let ball of balls) {
-      const ballX = centerX + orbitRadius * Math.cos(ball.angle);
-      const ballY = centerY + orbitRadius * Math.sin(ball.angle);
-      if (Math.abs(x - ballX) < hitRadius && Math.abs(y - ballY) < hitRadius) {
-        if (ball.loaded) {
-          score += roundPoints(round);
-          round = 1;
-          selectionIndicator = {
-            text: "LOADED!",
-            x: ballX,
-            y: ballY,
-            color: "rgba(0,255,0,ALPHA)",
-            duration: 1000,
-            timer: 1000
-          };
-          selectionEl.textContent = "LOADED!";
-        } else {
-          round = (round < maxRound) ? round + 1 : 1;
-          selectionIndicator = {
-            text: "BLANK",
-            x: ballX,
-            y: ballY,
-            color: "rgba(255,0,0,ALPHA)",
-            duration: 1000,
-            timer: 1000
-          };
-          selectionEl.textContent = "BLANK";
-        }
-        scoreEl.textContent = score;
-        setupRound();
-        break;
+// Consolidate the squares collision detection into a single function.
+function processSquareInteraction(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = clientX - rect.left;
+  const clickY = clientY - rect.top;
+  // Use an expanded collision area (1.2 times the base square size)
+  const hitRadius = squareSize * 1.2;
+  for (let sq of squares) {
+    const x = centerX + orbitRadius * Math.cos(sq.angle);
+    const y = centerY + orbitRadius * Math.sin(sq.angle);
+    if (Math.abs(clickX - x) < hitRadius && Math.abs(clickY - y) < hitRadius) {
+      if (sq.loaded) {
+        score += roundPoints(round);
+        round = 1;
+      } else {
+        round = (round < maxRound) ? round + 1 : 1;
       }
+      scoreEl.textContent = score;
+      setupRound();
+      break;
     }
   }
+}
 
-  // Existing event listener for mouse clicks.
-  canvas.addEventListener('click', function(event) {
-    const rect = canvas.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
-    handleInteraction(clickX, clickY);
-  });
+// Existing event listener for mouse clicks.
+canvas.addEventListener('click', function(event) {
+  processSquareInteraction(event.clientX, event.clientY);
+});
 
-  // New event listener for touch events.
-  canvas.addEventListener('touchstart', function(event) {
-    event.preventDefault();  // Prevents default touch behaviors.
-    const touch = event.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const touchX = touch.clientX - rect.left;
-    const touchY = touch.clientY - rect.top;
-    handleInteraction(touchX, touchY);
-  });
+// New event listener for touch events.
+canvas.addEventListener('touchstart', function(event) {
+  event.preventDefault();  // Prevent default touch behaviors like scrolling.
+  const touch = event.touches[0];
+  processSquareInteraction(touch.clientX, touch.clientY);
+});
+
 
     // Handle click events with an expanded collision region.
     canvas.addEventListener('click', function(event) {
