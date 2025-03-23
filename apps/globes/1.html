@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Rotating 3D Globe - Globe5</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    #globeCanvas {
+      display: block;
+      margin: 0 auto;
+    }
+    #title {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 24px;
+      font-family: sans-serif;
+      z-index: 10;
+    }
+    #leftButton, #rightButton {
+      position: absolute;
+      bottom: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      font-family: sans-serif;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      z-index: 10;
+    }
+    #leftButton {
+      left: 20px;
+    }
+    #rightButton {
+      right: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="title">Globe5</div>
+  <canvas id="globeCanvas"></canvas>
+  <button id="leftButton">&#8592;</button>
+  <button id="rightButton">&#8594;</button>
+  <script>
+    const canvas = document.getElementById("globeCanvas");
+    const ctx = canvas.getContext("2d");
+    
+    // Resize the canvas based on viewport size.
+    function resizeCanvas() {
+      const size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+      canvas.width = size;
+      canvas.height = size;
+      centerX = canvas.width / 2;
+      centerY = canvas.height / 2;
+      globeRadius = size * 0.45;
+    }
+    let centerX, centerY, globeRadius;
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    
+    // Global rotation variables.
+    let rotationAngle = 0;
+    let rotationDirection = 1;  // 1 rotates right; -1 rotates left.
+    const rotationSpeed = 0.0002;
+    const tiltAngle = 20 * Math.PI / 180;
+    
+    // Convert spherical coordinates (in radians) to 3D Cartesian.
+    function sphericalToCartesian(lat, lon, radius) {
+      return {
+        x: radius * Math.cos(lat) * Math.cos(lon),
+        y: radius * Math.sin(lat),
+        z: radius * Math.cos(lat) * Math.sin(lon)
+      };
+    }
+    
+    // Apply a fixed tilt (x-axis) then a rotation (y-axis).
+    function rotatePoint(p, rotAngle) {
+      const yTilt = p.y * Math.cos(tiltAngle) - p.z * Math.sin(tiltAngle);
+      const zTilt = p.y * Math.sin(tiltAngle) + p.z * Math.cos(tiltAngle);
+      return {
+        x: p.x * Math.cos(rotAngle) + zTilt * Math.sin(rotAngle),
+        y: yTilt,
+        z: -p.x * Math.sin(rotAngle) + zTilt * Math.cos(rotAngle)
+      };
+    }
+    
+    // Simple orthographic projection to 2D canvas coordinates.
+    function project(p) {
+      return {
+        x: centerX + p.x,
+        y: centerY - p.y
+      };
+    }
+    
+    // Helper: convert degrees to radians.
+    function degToRad(deg) {
+      return deg * Math.PI / 180;
+    }
+    
+    // -- Detailed continent polygons (approximate) --
+    // Each continent is defined with an increased number of points for smoother edges.
+    const africa = [
+      {lon: -17, lat: 31},
+      {lon: -16, lat: 32},
+      {lon: -15, lat: 33},
+      {lon: -14, lat: 33.5},
+      {lon: -13, lat: 34},
+      {lon: -12, lat: 34},
+      {lon: -10, lat: 34},
+      {lon: -8,  lat: 34.2},
+      {lon: -5,  lat: 35},
+      {lon: -2,  lat: 35.5},
+      {lon: 0,   lat: 36},
+      {lon: 2,   lat: 36.2},
+      {lon: 5,   lat: 36},
+      {lon: 8,   lat: 36},
+      {lon: 10,  lat: 37},
+      {lon: 12,  lat: 37},
+      {lon: 15,  lat: 37},
+      {lon: 18,  lat: 36.5},
+      {lon: 20,  lat: 36},
+      {lon: 22,  lat: 35},
+      {lon: 25,  lat: 34},
+      {lon: 28,  lat: 33},
+      {lon: 30,  lat: 34},
+      {lon: 32,  lat: 33},
+      {lon: 33,  lat: 32},
+      {lon: 34,  lat: 31},
+      {lon: 35,  lat: 30},
+      {lon: 36,  lat: 29},
+      {lon: 37,  lat: 28},
+      {lon: 38,  lat: 26},
+      {lon: 38,  lat: 24},
+      {lon: 37,  lat: 22},
+      {lon: 35,  lat: 20},
+      {lon: 33,  lat: 19},
+      {lon: 32,  lat: 18},
+      {lon: 30,  lat: 15},
+      {lon: 28,  lat: 14},
+      {lon: 25,  lat: 12},
+      {lon: 22,  lat: 11},
+      {lon: 20,  lat: 10},
+      {lon: 18,  lat: 9},
+      {lon: 15,  lat: 9},
+      {lon: 12,  lat: 8},
+      {lon: 10,  lat: 8},
+      {lon: 8,   lat: 8},
+      {lon: 5,   lat: 8},
+      {lon: 2,   lat: 8},
+      {lon: 0,   lat: 8},
+      {lon: -2,  lat: 9},
+      {lon: -5,  lat: 10},
+      {lon: -8,  lat: 11},
+      {lon: -10, lat: 12},
+      {lon: -12, lat: 15},
+      {lon: -14, lat: 20},
+      {lon: -16, lat: 25},
+      {lon: -17, lat: 31}
+    ];
+    
+    const northAmerica = [
+      {lon: -170, lat: 70},
+      {lon: -168, lat: 69},
+      {lon: -165, lat: 68},
+      {lon: -162, lat: 68},
+      {lon: -160, lat: 67},
+      {lon: -157, lat: 67},
+      {lon: -155, lat: 67},
+      {lon: -152, lat: 67},
+      {lon: -150, lat: 68},
+      {lon: -147, lat: 68},
+      {lon: -145, lat: 68},
+      {lon: -142, lat: 68},
+      {lon: -140, lat: 67},
+      {lon: -138, lat: 67},
+      {lon: -135, lat: 66},
+      {lon: -133, lat: 65},
+      {lon: -130, lat: 65},
+      {lon: -128, lat: 64},
+      {lon: -125, lat: 64},
+      {lon: -123, lat: 63},
+      {lon: -120, lat: 63},
+      {lon: -118, lat: 62},
+      {lon: -115, lat: 62},
+      {lon: -113, lat: 61},
+      {lon: -110, lat: 61},
+      {lon: -108, lat: 60},
+      {lon: -105, lat: 60},
+      {lon: -103, lat: 59},
+      {lon: -100, lat: 59},
+      {lon: -98,  lat: 58},
+      {lon: -95,  lat: 58},
+      {lon: -93,  lat: 57},
+      {lon: -90,  lat: 57},
+      {lon: -88,  lat: 56},
+      {lon: -85,  lat: 56},
+      {lon: -83,  lat: 55},
+      {lon: -80,  lat: 55},
+      {lon: -78,  lat: 54},
+      {lon: -75,  lat: 54},
+      {lon: -73,  lat: 53},
+      {lon: -70,  lat: 53},
+      {lon: -68,  lat: 52},
+      {lon: -65,  lat: 52},
+      {lon: -60,  lat: 50},
+      {lon: -63,  lat: 48},
+      {lon: -65,  lat: 45},
+      {lon: -67,  lat: 42},
+      {lon: -70,  lat: 40},
+      {lon: -73,  lat: 38},
+      {lon: -75,  lat: 35},
+      {lon: -78,  lat: 33},
+      {lon: -80,  lat: 30},
+      {lon: -82,  lat: 28},
+      {lon: -85,  lat: 25},
+      {lon: -88,  lat: 22},
+      {lon: -90,  lat: 20},
+      {lon: -93,  lat: 20},
+      {lon: -95,  lat: 22},
+      {lon: -98,  lat: 25},
+      {lon: -100, lat: 28},
+      {lon: -103, lat: 30},
+      {lon: -105, lat: 35},
+      {lon: -108, lat: 40},
+      {lon: -110, lat: 45},
+      {lon: -113, lat: 50},
+      {lon: -115, lat: 55},
+      {lon: -118, lat: 60},
+      {lon: -120, lat: 65},
+      {lon: -123, lat: 68},
+      {lon: -125, lat: 69},
+      {lon: -128, lat: 70},
+      {lon: -130, lat: 70},
+      {lon: -133, lat: 70},
+      {lon: -135, lat: 70},
+      {lon: -138, lat: 70},
+      {lon: -140, lat: 70},
+      {lon: -143, lat: 70},
+      {lon: -145, lat: 70},
+      {lon: -148, lat: 70},
+      {lon: -150, lat: 70},
+      {lon: -152, lat: 70},
+      {lon: -155, lat: 70},
+      {lon: -157, lat: 70},
+      {lon: -160, lat: 70},
+      {lon: -162, lat: 70},
+      {lon: -165, lat: 70},
+      {lon: -170, lat: 70}
+    ];
+    
+    const southAmerica = [
+      {lon: -80, lat: 15},
+      {lon: -78, lat: 16},
+      {lon: -75, lat: 18},
+      {lon: -73, lat: 19},
+      {lon: -70, lat: 20},
+      {lon: -68, lat: 21},
+      {lon: -65, lat: 22},
+      {lon: -63, lat: 23},
+      {lon: -60, lat: 25},
+      {lon: -58, lat: 26},
+      {lon: -55, lat: 27},
+      {lon: -53, lat: 27.5},
+      {lon: -50, lat: 28},
+      {lon: -48, lat: 29},
+      {lon: -45, lat: 30},
+      {lon: -43, lat: 31},
+      {lon: -40, lat: 32},
+      {lon: -38, lat: 32},
+      {lon: -35, lat: 32},
+      {lon: -32, lat: 32},
+      {lon: -30, lat: 32},
+      {lon: -28, lat: 31},
+      {lon: -25, lat: 30},
+      {lon: -22, lat: 29},
+      {lon: -20, lat: 28},
+      {lon: -18, lat: 27},
+      {lon: -15, lat: 25},
+      {lon: -12, lat: 20},
+      {lon: -10, lat: 15},
+      {lon: -8,  lat: 10},
+      {lon: -5,  lat: 0},
+      {lon: -6,  lat: -10},
+      {lon: -8,  lat: -20},
+      {lon: -10, lat: -30},
+      {lon: -12, lat: -35},
+      {lon: -15, lat: -40},
+      {lon: -18, lat: -42},
+      {lon: -20, lat: -45},
+      {lon: -22, lat: -47},
+      {lon: -25, lat: -48},
+      {lon: -28, lat: -49},
+      {lon: -30, lat: -50},
+      {lon: -32, lat: -50},
+      {lon: -35, lat: -50},
+      {lon: -38, lat: -48},
+      {lon: -40, lat: -45},
+      {lon: -42, lat: -40},
+      {lon: -43, lat: -35},
+      {lon: -45, lat: -30},
+      {lon: -48, lat: -25},
+      {lon: -50, lat: -20},
+      {lon: -53, lat: -15},
+      {lon: -55, lat: -10},
+      {lon: -58, lat: -5},
+      {lon: -60, lat: 0},
+      {lon: -60, lat: 5},
+      {lon: -60, lat: 10},
+      {lon: -60, lat: 15}
+    ];
+    
+    const europe = [
+      {lon: -10, lat: 70},
+      {lon: -8,  lat: 69},
+      {lon: -5,  lat: 68},
+      {lon: -2,  lat: 67},
+      {lon: 0,   lat: 67},
+      {lon: 2,   lat: 66},
+      {lon: 5,   lat: 65},
+      {lon: 8,   lat: 64},
+      {lon: 10,  lat: 63},
+      {lon: 12,  lat: 62},
+      {lon: 15,  lat: 61},
+      {lon: 18,  lat: 60},
+      {lon: 20,  lat: 59},
+      {lon: 22,  lat: 58},
+      {lon: 25,  lat: 57},
+      {lon: 28,  lat: 56},
+      {lon: 30,  lat: 55},
+      {lon: 32,  lat: 54},
+      {lon: 35,  lat: 53},
+      {lon: 38,  lat: 52},
+      {lon: 40,  lat: 50},
+      {lon: 42,  lat: 48},
+      {lon: 42,  lat: 46},
+      {lon: 40,  lat: 44},
+      {lon: 38,  lat: 43},
+      {lon: 35,  lat: 42},
+      {lon: 32,  lat: 41},
+      {lon: 30,  lat: 40},
+      {lon: 28,  lat: 40},
+      {lon: 25,  lat: 40},
+      {lon: 22,  lat: 41},
+      {lon: 20,  lat: 42},
+      {lon: 18,  lat: 43},
+      {lon: 15,  lat: 44},
+      {lon: 12,  lat: 44},
+      {lon: 8,   lat: 45},
+      {lon: 5,   lat: 46},
+      {lon: 0,   lat: 47},
+      {lon: -2,  lat: 49},
+      {lon: -5,  lat: 50},
+      {lon: -8,  lat: 53},
+      {lon: -10, lat: 55},
+      {lon: -10, lat: 60},
+      {lon: -10, lat: 70}
+    ];
+    
+    const asia = [
+      {lon: 40,  lat: 65},
+      {lon: 42,  lat: 64},
+      {lon: 45,  lat: 63},
+      {lon: 47,  lat: 62},
+      {lon: 50,  lat: 61},
+      {lon: 52,  lat: 60},
+      {lon: 55,  lat: 59},
+      {lon: 57,  lat: 58},
+      {lon: 60,  lat: 57},
+      {lon: 62,  lat: 56},
+      {lon: 65,  lat: 55},
+      {lon: 67,  lat: 54},
+      {lon: 70,  lat: 55},
+      {lon: 72,  lat: 56},
+      {lon: 75,  lat: 57},
+      {lon: 77,  lat: 58},
+      {lon: 80,  lat: 59},
+      {lon: 82,  lat: 60},
+      {lon: 85,  lat: 60},
+      {lon: 87,  lat: 60},
+      {lon: 90,  lat: 60},
+      {lon: 92,  lat: 59},
+      {lon: 95,  lat: 58},
+      {lon: 97,  lat: 57},
+      {lon: 100, lat: 56},
+      {lon: 102, lat: 55},
+      {lon: 105, lat: 55},
+      {lon: 107, lat: 56},
+      {lon: 110, lat: 57},
+      {lon: 112, lat: 58},
+      {lon: 115, lat: 59},
+      {lon: 117, lat: 60},
+      {lon: 120, lat: 60},
+      {lon: 122, lat: 60},
+      {lon: 125, lat: 60},
+      {lon: 127, lat: 59},
+      {lon: 130, lat: 58},
+      {lon: 132, lat: 57},
+      {lon: 135, lat: 56},
+      {lon: 137, lat: 55},
+      {lon: 140, lat: 54},
+      {lon: 142, lat: 53},
+      {lon: 145, lat: 52},
+      {lon: 147, lat: 51},
+      {lon: 150, lat: 50},
+      {lon: 150, lat: 45},
+      {lon: 150, lat: 40},
+      {lon: 148, lat: 35},
+      {lon: 145, lat: 30},
+      {lon: 140, lat: 25},
+      {lon: 135, lat: 20},
+      {lon: 130, lat: 15},
+      {lon: 125, lat: 10},
+      {lon: 120, lat: 5},
+      {lon: 115, lat: 5},
+      {lon: 110, lat: 10},
+      {lon: 105, lat: 15},
+      {lon: 100, lat: 20},
+      {lon: 95,  lat: 25},
+      {lon: 90,  lat: 30},
+      {lon: 85,  lat: 35},
+      {lon: 80,  lat: 40},
+      {lon: 75,  lat: 45},
+      {lon: 70,  lat: 50},
+      {lon: 65,  lat: 55},
+      {lon: 60,  lat: 60},
+      {lon: 55,  lat: 62},
+      {lon: 50,  lat: 63},
+      {lon: 47,  lat: 64},
+      {lon: 45,  lat: 64},
+      {lon: 40,  lat: 65}
+    ];
+    
+    const australia = [
+      {lon: 110, lat: -10},
+      {lon: 112, lat: -10},
+      {lon: 115, lat: -10},
+      {lon: 118, lat: -10},
+      {lon: 120, lat: -11},
+      {lon: 122, lat: -12},
+      {lon: 124, lat: -13},
+      {lon: 126, lat: -14},
+      {lon: 128, lat: -15},
+      {lon: 130, lat: -16},
+      {lon: 132, lat: -17},
+      {lon: 134, lat: -18},
+      {lon: 136, lat: -20},
+      {lon: 138, lat: -22},
+      {lon: 140, lat: -24},
+      {lon: 142, lat: -26},
+      {lon: 144, lat: -28},
+      {lon: 146, lat: -30},
+      {lon: 147, lat: -32},
+      {lon: 148, lat: -34},
+      {lon: 148, lat: -36},
+      {lon: 147, lat: -38},
+      {lon: 145, lat: -39},
+      {lon: 143, lat: -40},
+      {lon: 141, lat: -40},
+      {lon: 139, lat: -39},
+      {lon: 137, lat: -38},
+      {lon: 135, lat: -36},
+      {lon: 133, lat: -34},
+      {lon: 131, lat: -32},
+      {lon: 129, lat: -30},
+      {lon: 127, lat: -28},
+      {lon: 125, lat: -26},
+      {lon: 123, lat: -24},
+      {lon: 121, lat: -22},
+      {lon: 119, lat: -20},
+      {lon: 117, lat: -18},
+      {lon: 115, lat: -16},
+      {lon: 113, lat: -14},
+      {lon: 111, lat: -12},
+      {lon: 110, lat: -10}
+    ];
+    
+    const continents = [
+      { name: "Africa", points: africa },
+      { name: "North America", points: northAmerica },
+      { name: "South America", points: southAmerica },
+      { name: "Europe", points: europe },
+      { name: "Asia", points: asia },
+      { name: "Australia", points: australia }
+    ];
+    
+    // Draw the globe: wireframe grid and continent overlays.
+    function drawGlobe() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Clip to the visible (front) hemisphere.
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.clip();
+      
+      // Optional subtle ocean background.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.fillStyle = "rgba(0, 0, 255, 0.05)";
+      ctx.fill();
+      
+      // Draw the yellow wireframe (latitude and longitude lines).
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 1.5;
+      for (let lat = -80; lat <= 80; lat += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lon = 0; lon <= 360; lon += 3) {
+          const point = sphericalToCartesian(degToRad(lat), degToRad(lon), globeRadius);
+          const rotated = rotatePoint(point, rotationAngle);
+          const proj = project(rotated);
+          if (first) {
+            ctx.moveTo(proj.x, proj.y);
+            first = false;
+          } else {
+            ctx.lineTo(proj.x, proj.y);
+          }
+        }
+        ctx.stroke();
+      }
+      for (let lon = 0; lon < 360; lon += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lat = -90; lat <= 90; lat += 3) {
+          const point = sphericalToCartesian(degToRad(lat), degToRad(lon), globeRadius);
+          const rotated = rotatePoint(point, rotationAngle);
+          const proj = project(rotated);
+          if (first) {
+            ctx.moveTo(proj.x, proj.y);
+            first = false;
+          } else {
+            ctx.lineTo(proj.x, proj.y);
+          }
+        }
+        ctx.stroke();
+      }
+      
+      // Draw continent overlays: red fill (alpha 0.5) with bright blue outlines.
+      ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+      ctx.lineWidth = 2;
+      
+      function drawContinent(polygon) {
+        ctx.beginPath();
+        polygon.forEach((v, i) => {
+          let point = sphericalToCartesian(degToRad(v.lat), degToRad(v.lon), globeRadius);
+          point = rotatePoint(point, rotationAngle);
+          let proj = project(point);
+          if (i === 0) {
+            ctx.moveTo(proj.x, proj.y);
+          } else {
+            ctx.lineTo(proj.x, proj.y);
+          }
+        });
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "blue";
+        ctx.stroke();
+      }
+      
+      continents.forEach(continent => {
+        drawContinent(continent.points);
+      });
+      
+      ctx.restore();
+      
+      // Draw the globe outline.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    
+    // Animation loop: update rotation and redraw.
+    let lastTime = performance.now();
+    function animate(now) {
+      const deltaTime = now - lastTime;
+      lastTime = now;
+      rotationAngle += deltaTime * rotationSpeed * rotationDirection;
+      drawGlobe();
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+    
+    // Interactivity: arrow buttons to change rotation direction.
+    document.getElementById("leftButton").addEventListener("click", () => {
+      rotationDirection = -1;
+    });
+    document.getElementById("rightButton").addEventListener("click", () => {
+      rotationDirection = 1;
+    });
+  </script>
+</body>
+</html>
