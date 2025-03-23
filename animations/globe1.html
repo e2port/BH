@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dope 3D Globe Visual</title>
+  <style>
+    /* Full-screen, centered canvas with a dark background */
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    canvas {
+      /* Optionally add a subtle shadow or border */
+      /* box-shadow: 0 0 20px rgba(255, 255, 0, 0.5); */
+    }
+  </style>
+</head>
+<body>
+  <canvas id="globeCanvas"></canvas>
+  <script>
+    // Setup canvas dimensions
+    const canvas = document.getElementById("globeCanvas");
+    const ctx = canvas.getContext("2d");
+    const size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+    canvas.width = size;
+    canvas.height = size;
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const R = size * 0.45;  // Radius with margin
+
+    // Function to clear and draw the globe
+    function drawGlobe() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // --- Draw Ocean & Globe Outline ---
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+      ctx.fillStyle = "rgba(0, 0, 255, 0.2)";  // Blue transparent ocean
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "yellow";  // Wireframe color
+      ctx.stroke();
+      ctx.closePath();
+
+      // --- Draw Latitude Lines as Ellipses ---
+      // (These represent circles on the sphere seen in perspective.)
+      for (let deg = -60; deg <= 60; deg += 30) {
+        const rad = deg * Math.PI / 180;
+        const yOffset = R * Math.sin(rad);
+        const ellipseRadius = R * Math.cos(rad);
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + yOffset, ellipseRadius, ellipseRadius, 0, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.closePath();
+      }
+
+      // --- Draw Longitude Lines as Curves ---
+      // Using the orthographic projection formulas:
+      //   x = cx + R * cos(lat) * sin(lon)
+      //   y = cy - R * sin(lat)
+      // We'll sample points along each meridian.
+      for (let deg = -150; deg < 180; deg += 30) {
+        const lonRad = deg * Math.PI / 180;
+        ctx.beginPath();
+        let firstPoint = true;
+        // Sample latitude (t) from -90 to 90 degrees
+        for (let t = -90; t <= 90; t += 2) {
+          const tRad = t * Math.PI / 180;
+          const x = cx + R * Math.cos(tRad) * Math.sin(lonRad);
+          const y = cy - R * Math.sin(tRad);
+          if (firstPoint) {
+            ctx.moveTo(x, y);
+            firstPoint = false;
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+        ctx.closePath();
+      }
+
+      // --- Draw Continent Approximations ---
+      // Land fill (red transparent) with yellow outline.
+      ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "yellow";
+
+      // Approximate shape for Africa
+      ctx.beginPath();
+      ctx.moveTo(cx + R * 0.1, cy - R * 0.1);
+      ctx.lineTo(cx + R * 0.3, cy);
+      ctx.lineTo(cx + R * 0.25, cy + R * 0.3);
+      ctx.lineTo(cx, cy + R * 0.25);
+      ctx.lineTo(cx - R * 0.05, cy);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Approximate shape for North America / United States
+      ctx.beginPath();
+      ctx.moveTo(cx - R * 0.5, cy - R * 0.1);
+      ctx.lineTo(cx - R * 0.2, cy - R * 0.4);
+      ctx.lineTo(cx - R * 0.1, cy - R * 0.2);
+      ctx.lineTo(cx - R * 0.15, cy + R * 0.1);
+      ctx.lineTo(cx - R * 0.4, cy);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Initial draw
+    drawGlobe();
+
+    // Optionally, add a resize listener to redraw on window resize.
+    window.addEventListener("resize", () => {
+      const newSize = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+      canvas.width = newSize;
+      canvas.height = newSize;
+      drawGlobe();
+    });
+  </script>
+</body>
+</html>
