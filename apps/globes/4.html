@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Globe5 – Interactive Rotating 3D Globe</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    #globeCanvas {
+      display: block;
+      margin: 0 auto;
+    }
+    #title {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 24px;
+      z-index: 10;
+    }
+    #leftButton, #rightButton {
+      position: absolute;
+      bottom: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      z-index: 10;
+    }
+    #leftButton { left: 20px; }
+    #rightButton { right: 20px; }
+    #legend {
+      position: absolute;
+      top: 50px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10;
+      color: white;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      border: 1px solid white;
+    }
+  </style>
+</head>
+<body>
+  <div id="title">Globe5</div>
+  <canvas id="globeCanvas"></canvas>
+  <button id="leftButton">&#8592;</button>
+  <button id="rightButton">&#8594;</button>
+  <div id="legend"></div>
+  <script>
+    // === Canvas Setup ===
+    const canvas = document.getElementById("globeCanvas");
+    const ctx = canvas.getContext("2d");
+    let centerX, centerY, globeRadius;
+    function resizeCanvas() {
+      const size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+      canvas.width = size;
+      canvas.height = size;
+      centerX = canvas.width / 2;
+      centerY = canvas.height / 2;
+      globeRadius = size * 0.45;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // === Global Rotation & Tilt ===
+    let rotationAngle = 0;
+    let rotationDirection = 1;  // 1 rotates right; -1 rotates left.
+    const rotationSpeed = 0.0002;
+    const tiltAngle = 20 * Math.PI / 180; // constant tilt
+
+    // === Helper Functions ===
+    function degToRad(deg) {
+      return deg * Math.PI / 180;
+    }
+    function sphericalToCartesian(lat, lon, radius) {
+      return {
+        x: radius * Math.cos(lat) * Math.cos(lon),
+        y: radius * Math.sin(lat),
+        z: radius * Math.cos(lat) * Math.sin(lon)
+      };
+    }
+    function rotatePoint(p, rotAngle) {
+      const yTilt = p.y * Math.cos(tiltAngle) - p.z * Math.sin(tiltAngle);
+      const zTilt = p.y * Math.sin(tiltAngle) + p.z * Math.cos(tiltAngle);
+      return {
+        x: p.x * Math.cos(rotAngle) + zTilt * Math.sin(rotAngle),
+        y: yTilt,
+        z: -p.x * Math.sin(rotAngle) + zTilt * Math.cos(rotAngle)
+      };
+    }
+    function project(p) {
+      return {
+        x: centerX + p.x,
+        y: centerY - p.y
+      };
+    }
+
+    // --- Sorting and Simplification Functions ---
+    // 1. Sort points by polar angle relative to their centroid.
+    function sortPolygonPoints(points) {
+      let sumLat = 0, sumLon = 0;
+      points.forEach(p => {
+        sumLat += p.lat;
+        sumLon += p.lon;
+      });
+      const centroid = {lat: sumLat / points.length, lon: sumLon / points.length};
+      // Return a new sorted array based on angle.
+      return points.slice().sort((a, b) => {
+        let angleA = Math.atan2(a.lat - centroid.lat, a.lon - centroid.lon);
+        let angleB = Math.atan2(b.lat - centroid.lat, b.lon - centroid.lon);
+        return angleA - angleB;
+      });
+    }
+    // 2. Douglas–Peucker algorithm to simplify the polygon.
+    function perpendicularDistance(point, lineStart, lineEnd) {
+      const dx = lineEnd.lon - lineStart.lon;
+      const dy = lineEnd.lat - lineStart.lat;
+      if (dx === 0 && dy === 0) {
+        return Math.sqrt(Math.pow(point.lat - lineStart.lat,2) + Math.pow(point.lon - lineStart.lon,2));
+      }
+      const t = ((point.lon - lineStart.lon) * dx + (point.lat - lineStart.lat) * dy) / (dx*dx + dy*dy);
+      const projLat = lineStart.lat + t * dy;
+      const projLon = lineStart.lon + t * dx;
+      return Math.sqrt(Math.pow(point.lat - projLat, 2) + Math.pow(point.lon - projLon, 2));
+    }
+    function douglasPeucker(points, tolerance) {
+      if (points.length < 3) return points;
+      let maxDistance = 0;
+      let index = 0;
+      for (let i = 1; i < points.length - 1; i++) {
+        let d = perpendicularDistance(points[i], points[0], points[points.length - 1]);
+        if (d > maxDistance) {
+          index = i;
+          maxDistance = d;
+        }
+      }
+      if (maxDistance > tolerance) {
+        let recResults1 = douglasPeucker(points.slice(0, index + 1), tolerance);
+        let recResults2 = douglasPeucker(points.slice(index), tolerance);
+        return recResults1.slice(0, -1).concat(recResults2);
+      } else {
+        return [points[0], points[points.length - 1]];
+      }
+    }
+    function refinePoints(points) {
+      let sorted = sortPolygonPoints(points);
+      // Tolerance is in degrees; adjust as needed.
+      let simplified = douglasPeucker(sorted, 1.0);
+      return simplified;
+    }
+
+    // === Continent Color Schemes (more vibrant) ===
+    const continentColors = {
+      "Africa": { fill: "rgba(255, 69, 0, 0.7)", stroke: "rgb(255, 69, 0)" },             // OrangeRed
+      "Asia": { fill: "rgba(255, 140, 0, 0.7)", stroke: "rgb(255, 140, 0)" },             // DarkOrange
+      "Europe": { fill: "rgba(50, 205, 50, 0.7)", stroke: "rgb(50, 205, 50)" },            // LimeGreen
+      "North America": { fill: "rgba(138, 43, 226, 0.7)", stroke: "rgb(138, 43, 226)" },    // BlueViolet
+      "South America": { fill: "rgba(186, 85, 211, 0.7)", stroke: "rgb(186, 85, 211)" },    // MediumOrchid
+      "Australia & Oceania": { fill: "rgba(30, 144, 255, 0.7)", stroke: "rgb(30, 144, 255)" } // DodgerBlue
+    };
+
+    // === Continent Data (Coastal City Coordinates) ===
+    // Each point is defined as {lat, lon} in degrees.
+    const rawAfrica = [
+      { lat: 30.0444, lon: 31.2357 },
+      { lat: 31.2001, lon: 29.9187 },
+      { lat: 32.8872, lon: 13.1913 },
+      { lat: 36.8065, lon: 10.1815 },
+      { lat: 36.7538, lon: 3.0588 },
+      { lat: 33.5731, lon: -7.5898 },
+      { lat: 14.7167, lon: -17.4677 },
+      { lat: 9.5171,  lon: -13.7185 },
+      { lat: 8.4656,  lon: -13.2317 },
+      { lat: 6.3106,  lon: -10.8048 },
+      { lat: 5.3600,  lon: -4.0083 },
+      { lat: 5.6037,  lon: -0.1870 },
+      { lat: 6.5244,  lon: 3.3792 },
+      { lat: 4.0511,  lon: 9.7679 },
+      { lat: 0.4162,  lon: 9.4673 },
+      { lat: -4.7969, lon: 11.8389 },
+      { lat: -8.8389, lon: 13.2894 },
+      { lat: -22.9575, lon: 14.5053 },
+      { lat: -33.9249, lon: 18.4241 },
+      { lat: -29.8587, lon: 31.0218 },
+      { lat: -25.9692, lon: 32.5732 },
+      { lat: -19.8436, lon: 34.8389 },
+      { lat: -6.7924,  lon: 39.2083 },
+      { lat: -4.0435,  lon: 39.6682 },
+      { lat: 2.0469,   lon: 45.3182 },
+      { lat: 11.5886,  lon: 43.1453 },
+      { lat: 19.6158,  lon: 37.2164 },
+      { lat: 15.6078,  lon: 39.4745 },
+      { lat: -18.1496, lon: 49.4025 },
+      { lat: -15.7167, lon: 46.3167 },
+      { lat: -20.1609, lon: 57.5012 },
+      { lat: -4.6196,  lon: 55.4513 },
+      { lat: -11.7172, lon: 43.2473 },
+      { lat: 0.3358,   lon: 6.7314 },
+      { lat: 14.9315,  lon: -23.5136 },
+      { lat: 18.0735,  lon: -15.9582 },
+      { lat: 13.4549,  lon: -16.5790 },
+      { lat: 11.8636,  lon: -15.5977 },
+      { lat: 6.1375,   lon: 1.2123 },
+      { lat: 6.3654,   lon: 2.4183 },
+      { lat: 4.8156,   lon: 7.0498 },
+      { lat: 3.7523,   lon: 8.7742 },
+      { lat: -0.7193,  lon: 8.7815 },
+      { lat: -12.3480, lon: 13.5456 },
+      { lat: -34.1831, lon: 22.1461 },
+      { lat: -23.3516, lon: 43.6854 },
+      { lat: -12.9740, lon: 40.5178 },
+      { lat: -6.1667,  lon: 39.2000 },
+      { lat: 10.4397,  lon: 45.0164 },
+      { lat: 29.9668,  lon: 32.5498 }
+    ];
+    const rawAsia = [
+      { lat: 35.6762, lon: 139.6503 },
+      { lat: 31.2304, lon: 121.4737 },
+      { lat: 22.3193, lon: 114.1694 },
+      { lat: 1.3521,  lon: 103.8198 },
+      { lat: 19.0760, lon: 72.8777 },
+      { lat: 25.2048, lon: 55.2708 },
+      { lat: 13.7563, lon: 100.5018 },
+      { lat: -6.2088, lon: 106.8456 },
+      { lat: 14.5995, lon: 120.9842 },
+      { lat: 24.8607, lon: 67.0011 },
+      { lat: 35.1796, lon: 129.0756 },
+      { lat: 34.6937, lon: 135.5023 },
+      { lat: 23.1291, lon: 113.2644 },
+      { lat: 22.5431, lon: 114.0579 },
+      { lat: 39.3434, lon: 117.3616 },
+      { lat: 10.8231, lon: 106.6297 },
+      { lat: 22.5726, lon: 88.3639 },
+      { lat: 13.0827, lon: 80.2707 },
+      { lat: 16.8661, lon: 96.1951 },
+      { lat: 24.4798, lon: 118.0819 },
+      { lat: 36.0671, lon: 120.3826 },
+      { lat: 38.9140, lon: 121.6147 },
+      { lat: 26.0745, lon: 119.2965 },
+      { lat: 29.8683, lon: 121.5440 },
+      { lat: 37.4563, lon: 126.7052 },
+      { lat: 34.6901, lon: 135.1955 },
+      { lat: 35.4437, lon: 139.6380 },
+      { lat: 22.6273, lon: 120.3014 },
+      { lat: 20.8449, lon: 106.6881 },
+      { lat: 22.3569, lon: 91.7832 },
+      { lat: 43.1332, lon: 131.9113 },
+      { lat: 21.1702, lon: 72.8311 },
+      { lat: 17.6868, lon: 83.2185 },
+      { lat: 9.9312,  lon: 76.2673 },
+      { lat: 6.9271,  lon: 79.8612 },
+      { lat: 23.5880, lon: 58.3829 },
+      { lat: 29.3759, lon: 47.9774 },
+      { lat: 25.2854, lon: 51.5310 },
+      { lat: 26.2285, lon: 50.5860 },
+      { lat: 4.9031,  lon: 114.9398 },
+      { lat: 10.6297, lon: 103.5097 },
+      { lat: 12.2388, lon: 109.1967 },
+      { lat: -5.1477, lon: 119.4327 },
+      { lat: -7.2575, lon: 112.7521 },
+      { lat: 7.1907,  lon: 125.4553 },
+      { lat: 10.3157, lon: 123.8854 },
+      { lat: 26.2124, lon: 127.6809 },
+      { lat: 18.2528, lon: 109.5122 },
+      { lat: 12.9236, lon: 100.8824 },
+      { lat: 4.1755,  lon: 73.5093 }
+    ];
+    const rawEurope = [
+      { lat: 41.0082, lon: 28.9784 },
+      { lat: 59.9311, lon: 30.3609 },
+      { lat: 51.5074, lon: -0.1278 },
+      { lat: 52.3676, lon: 4.9041 },
+      { lat: 41.3851, lon: 2.1734 },
+      { lat: 38.7223, lon: -9.1393 },
+      { lat: 40.8518, lon: 14.2681 },
+      { lat: 37.9838, lon: 23.7275 },
+      { lat: 43.2965, lon: 5.3698 },
+      { lat: 53.5511, lon: 9.9937 },
+      { lat: 55.6761, lon: 12.5683 },
+      { lat: 60.1699, lon: 24.9384 },
+      { lat: 59.3293, lon: 18.0686 },
+      { lat: 59.9139, lon: 10.7522 },
+      { lat: 64.1265, lon: -21.8174 },
+      { lat: 53.3498, lon: -6.2603 },
+      { lat: 53.4084, lon: -2.9916 },
+      { lat: 51.9244, lon: 4.4777 },
+      { lat: 51.2194, lon: 4.4025 },
+      { lat: 54.3520, lon: 18.6466 },
+      { lat: 59.4370, lon: 24.7536 },
+      { lat: 56.9496, lon: 24.1052 },
+      { lat: 54.7104, lon: 20.4522 },
+      { lat: 46.4825, lon: 30.7233 },
+      { lat: 44.1598, lon: 28.6348 },
+      { lat: 43.2141, lon: 27.9147 },
+      { lat: 40.6401, lon: 22.9444 },
+      { lat: 38.1157, lon: 13.3615 },
+      { lat: 45.4408, lon: 12.3155 },
+      { lat: 44.4056, lon: 8.9463 },
+      { lat: 43.7102, lon: 7.2620 },
+      { lat: 39.4699, lon: -0.3763 },
+      { lat: 36.7213, lon: -4.4217 },
+      { lat: 41.1579, lon: -8.6291 },
+      { lat: 43.2630, lon: -2.9350 },
+      { lat: 44.8378, lon: -0.5792 },
+      { lat: 47.2184, lon: -1.5536 },
+      { lat: 48.3904, lon: -4.4861 }
+    ];
+    const rawNorthAmerica = [
+      { lat: 40.7128, lon: -74.0060 },
+      { lat: 34.0522, lon: -118.2437 },
+      { lat: 19.4326, lon: -99.1332 },
+      { lat: 43.6532, lon: -79.3832 },
+      { lat: 41.8781, lon: -87.6298 },
+      { lat: 29.7604, lon: -95.3698 },
+      { lat: 23.1136, lon: -82.3666 },
+      { lat: 25.7617, lon: -80.1918 },
+      { lat: 49.2827, lon: -123.1207 },
+      { lat: 37.7749, lon: -122.4194 },
+      { lat: 42.3601, lon: -71.0589 },
+      { lat: 47.6062, lon: -122.3321 },
+      { lat: 45.5017, lon: -73.5673 },
+      { lat: 32.7157, lon: -117.1611 },
+      { lat: 8.9824,  lon: -79.5199 },
+      { lat: 29.9511, lon: -90.0715 },
+      { lat: 44.6488, lon: -63.5752 },
+      { lat: 61.2181, lon: -149.9003 },
+      { lat: 21.1619, lon: -86.8515 },
+      { lat: 18.4655, lon: -66.1057 },
+      { lat: 25.0443, lon: -77.3504 },
+      { lat: 18.0179, lon: -76.8099 },
+      { lat: 18.4861, lon: -69.9312 },
+      { lat: 19.1738, lon: -96.1342 },
+      { lat: 16.8531, lon: -99.8237 },
+      { lat: 17.5046, lon: -88.1962 },
+      { lat: 12.1148, lon: -86.2362 },
+      { lat: 13.6929, lon: -89.2182 },
+      { lat: 14.0723, lon: -87.1921 },
+      { lat: 14.6349, lon: -90.5069 },
+      { lat: 47.5615, lon: -52.7126 },
+      { lat: 64.1814, lon: -51.6941 },
+      { lat: 58.3019, lon: -134.4197 },
+      { lat: 48.4284, lon: -123.3656 },
+      { lat: 45.5152, lon: -122.6784 },
+      { lat: 33.7701, lon: -118.1937 },
+      { lat: 32.5149, lon: -117.0382 },
+      { lat: 27.9506, lon: -82.4572 },
+      { lat: 32.7765, lon: -79.9311 },
+      { lat: 32.0809, lon: -81.0912 },
+      { lat: 18.5944, lon: -72.3074 },
+      { lat: 13.1132, lon: -59.5988 },
+      { lat: 14.6104, lon: -61.0588 },
+      { lat: 12.1084, lon: -68.9335 },
+      { lat: 19.2869, lon: -81.3674 },
+      { lat: 18.4271, lon: -64.6200 },
+      { lat: 18.3419, lon: -64.9307 },
+      { lat: 12.5092, lon: -70.0086 },
+      { lat: 17.1274, lon: -61.8468 }
+    ];
+    const rawSouthAmerica = [
+      { lat: -23.5505, lon: -46.6333 },
+      { lat: -34.6037, lon: -58.3816 },
+      { lat: -22.9068, lon: -43.1729 },
+      { lat: -12.0464, lon: -77.0428 },
+      { lat: 4.7110,   lon: -74.0721 },
+      { lat: -33.4489, lon: -70.6693 },
+      { lat: 10.4806,  lon: -66.9036 },
+      { lat: -2.1900,  lon: -79.8875 },
+      { lat: -34.9011, lon: -56.1645 },
+      { lat: -25.2867, lon: -57.3333 },
+      { lat: -16.4897, lon: -68.1193 },
+      { lat: -8.0522,  lon: -34.9286 },
+      { lat: -12.9714, lon: -38.5014 },
+      { lat: -3.7172,  lon: -38.5431 },
+      { lat: -1.4558,  lon: -48.4902 },
+      { lat: -3.1190,  lon: -60.0217 },
+      { lat: -30.0346, lon: -51.2177 },
+      { lat: -32.9442, lon: -60.6505 },
+      { lat: -33.0472, lon: -71.6127 },
+      { lat: 10.9639,  lon: -74.7964 },
+      { lat: 10.3910,  lon: -75.4794 },
+      { lat: 10.6419,  lon: -71.6121 },
+      { lat: 6.8013,   lon: -58.1551 },
+      { lat: 5.8520,   lon: -55.2038 },
+      { lat: 4.9371,   lon: -52.3258 },
+      { lat: 0.0356,   lon: -51.0705 },
+      { lat: -5.7793,  lon: -35.2009 },
+      { lat: -7.1195,  lon: -34.8450 },
+      { lat: -9.6498,  lon: -35.7089 },
+      { lat: -10.9472, lon: -37.0731 },
+      { lat: -20.2976, lon: -40.2958 },
+      { lat: -27.5954, lon: -48.5480 },
+      { lat: -38.0055, lon: -57.5426 },
+      { lat: -45.8645, lon: -67.4966 },
+      { lat: -53.1638, lon: -70.9171 },
+      { lat: -54.8019, lon: -68.3030 },
+      { lat: -20.2208, lon: -70.1399 },
+      { lat: -23.6509, lon: -70.3975 },
+      { lat: -29.9027, lon: -71.2520 },
+      { lat: -29.9533, lon: -71.3436 },
+      { lat: -8.1116,  lon: -79.0289 },
+      { lat: -6.7701,  lon: -79.8448 },
+      { lat: -3.7489,  lon: -73.2516 },
+      { lat: -17.8146, lon: -63.1561 },
+      { lat: 3.4516,   lon: -76.5320 },
+      { lat: 11.2404,  lon: -74.2112 },
+      { lat: 10.2168,  lon: -64.6168 },
+      { lat: 10.4635,  lon: -64.1775 },
+      { lat: -34.9368, lon: -54.9345 },
+      { lat: -2.2154,  lon: -80.9541 }
+    ];
+    const rawOceania = [
+      { lat: -33.8688, lon: 151.2093 },
+      { lat: -37.8136, lon: 144.9631 },
+      { lat: -27.4698, lon: 153.0251 },
+      { lat: -31.9505, lon: 115.8605 },
+      { lat: -36.8485, lon: 174.7633 },
+      { lat: -41.2866, lon: 174.7756 },
+      { lat: -43.5321, lon: 172.6362 },
+      { lat: -18.1416, lon: 178.4419 },
+      { lat: -22.2711, lon: 166.4416 },
+      { lat: -9.4438,  lon: 147.1803 },
+      { lat: 21.3069,  lon: -157.8583 },
+      { lat: -17.5416, lon: 149.5667 },
+      { lat: -13.8506, lon: 171.7513 },
+      { lat: -21.1343, lon: 175.2010 },
+      { lat: -9.4457,  lon: 159.9729 },
+      { lat: -17.7334, lon: 168.3220 },
+      { lat: -16.9206, lon: 145.7722 },
+      { lat: -12.4634, lon: 130.8456 },
+      { lat: -34.9285, lon: 138.6007 },
+      { lat: -42.8821, lon: 147.3272 },
+      { lat: -28.0167, lon: 153.4000 },
+      { lat: -32.9283, lon: 151.7817 },
+      { lat: -34.4278, lon: 150.8936 },
+      { lat: -38.1499, lon: 144.3617 },
+      { lat: -19.2590, lon: 146.8169 },
+      { lat: -45.8788, lon: 170.5028 },
+      { lat: -37.6878, lon: 176.1651 },
+      { lat: -39.4928, lon: 176.9120 },
+      { lat: -17.6169, lon: 177.4508 },
+      { lat: -17.7765, lon: 177.4356 },
+      { lat: -14.2756, lon: 170.7020 },
+      { lat: 13.4769,  lon: 144.7502 },
+      { lat: 15.1894,  lon: 145.7499 },
+      { lat: 7.3428,   lon: 134.4789 },
+      { lat: 7.0897,   lon: 171.3803 },
+      { lat: 1.3290,   lon: 172.9790 },
+      { lat: -8.5211,  lon: 179.1949 },
+      { lat: -19.0554, lon: 169.9178 },
+      { lat: -21.2074, lon: 159.7754 },
+      { lat: -13.2825, lon: -176.1748 },
+      { lat: 6.9248,   lon: 158.1618 },
+      { lat: -0.5477,  lon: 166.9209 },
+      { lat: -29.0569, lon: 167.9617 },
+      { lat: -10.4214, lon: 105.6790 },
+      { lat: -12.1880, lon: 96.8289 },
+      { lat: -25.0662, lon: -130.1027 }
+    ];
+
+    // Group continents after refining their point order.
+    const continents = [
+      { name: "Africa", points: refinePoints(rawAfrica) },
+      { name: "Asia", points: refinePoints(rawAsia) },
+      { name: "Europe", points: refinePoints(rawEurope) },
+      { name: "North America", points: refinePoints(rawNorthAmerica) },
+      { name: "South America", points: refinePoints(rawSouthAmerica) },
+      { name: "Australia & Oceania", points: refinePoints(rawOceania) }
+    ];
+
+    // === Hover Detection ===
+    let hoveredContinent = null;
+    // Standard ray-casting algorithm.
+    function pointInPolygon(point, polygon) {
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].x, yi = polygon[i].y;
+        const xj = polygon[j].x, yj = polygon[j].y;
+        const intersect = ((yi > point.y) !== (yj > point.y)) &&
+          (point.x < (xj - xi) * (point.y - yi) / ((yj - yi) || 0.00001) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+    function updateHover(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX || e.touches[0].clientX) - rect.left;
+      const y = (e.clientY || e.touches[0].clientY) - rect.top;
+      hoveredContinent = null;
+      continents.forEach(continent => {
+        let projPoly = continent.points.map(v => {
+          let p3d = sphericalToCartesian(degToRad(v.lat), degToRad(v.lon), globeRadius);
+          p3d = rotatePoint(p3d, rotationAngle);
+          return project(p3d);
+        });
+        if (pointInPolygon({x, y}, projPoly)) {
+          hoveredContinent = continent.name;
+        }
+      });
+    }
+    canvas.addEventListener("mousemove", updateHover);
+    canvas.addEventListener("touchmove", updateHover);
+
+    // === Drawing the Globe ===
+    function drawGlobe() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      // Clip to the front hemisphere.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.clip();
+      // Ocean background.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.fillStyle = "rgba(0, 0, 255, 0.05)";
+      ctx.fill();
+      // Draw yellow wireframe.
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 1.5;
+      for (let lat = -80; lat <= 80; lat += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lon = 0; lon <= 360; lon += 3) {
+          const point = sphericalToCartesian(degToRad(lat), degToRad(lon), globeRadius);
+          const rotated = rotatePoint(point, rotationAngle);
+          const proj = project(rotated);
+          if (first) { ctx.moveTo(proj.x, proj.y); first = false; }
+          else { ctx.lineTo(proj.x, proj.y); }
+        }
+        ctx.stroke();
+      }
+      for (let lon = 0; lon < 360; lon += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lat = -90; lat <= 90; lat += 3) {
+          const point = sphericalToCartesian(degToRad(lat), degToRad(lon), globeRadius);
+          const rotated = rotatePoint(point, rotationAngle);
+          const proj = project(rotated);
+          if (first) { ctx.moveTo(proj.x, proj.y); first = false; }
+          else { ctx.lineTo(proj.x, proj.y); }
+        }
+        ctx.stroke();
+      }
+      // Draw continent polygons.
+      continents.forEach(continent => {
+        const colors = continentColors[continent.name];
+        let projPoly = continent.points.map(v => {
+          let p3d = sphericalToCartesian(degToRad(v.lat), degToRad(v.lon), globeRadius);
+          p3d = rotatePoint(p3d, rotationAngle);
+          return project(p3d);
+        });
+        ctx.beginPath();
+        projPoly.forEach((pt, i) => {
+          if (i === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        });
+        ctx.closePath();
+        if (hoveredContinent === continent.name) {
+          ctx.save();
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = colors.stroke;
+          ctx.lineWidth = 4;
+          ctx.fillStyle = colors.fill;
+          ctx.fill();
+          ctx.strokeStyle = colors.stroke;
+          ctx.stroke();
+          ctx.restore();
+        } else {
+          ctx.fillStyle = colors.fill;
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = colors.stroke;
+          ctx.fill();
+          ctx.stroke();
+        }
+      });
+      ctx.restore();
+      // Draw globe outline.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // === Animation Loop ===
+    let lastTime = performance.now();
+    function animate(now) {
+      const deltaTime = now - lastTime;
+      lastTime = now;
+      rotationAngle += deltaTime * rotationSpeed * rotationDirection;
+      drawGlobe();
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // === Button Interactivity ===
+    document.getElementById("leftButton").addEventListener("click", () => {
+      rotationDirection = -1;
+    });
+    document.getElementById("rightButton").addEventListener("click", () => {
+      rotationDirection = 1;
+    });
+
+    // === Build the Legend ===
+    const legendDiv = document.getElementById("legend");
+    legendDiv.innerHTML = "";
+    Object.keys(continentColors).forEach(name => {
+      const item = document.createElement("div");
+      item.className = "legend-item";
+      const colorBox = document.createElement("div");
+      colorBox.className = "legend-color";
+      colorBox.style.background = continentColors[name].fill;
+      item.appendChild(colorBox);
+      const text = document.createElement("span");
+      text.textContent = name;
+      item.appendChild(text);
+      legendDiv.appendChild(item);
+    });
+  </script>
+</body>
+</html>
