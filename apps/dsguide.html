@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Science / ML Guide  - BS"D</title>
+  <style>
+    /* Global Styles */
+    :root {
+      --blue-glow: #00ccff;
+      --light-blue: rgba(0, 204, 255, 0.2);
+      --background-dark: #0a0a24;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --border-color: rgba(0, 204, 255, 0.5);
+      --text-color: #4eecf5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--background-dark);
+      color: var(--text-color);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Container for entire presentation */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 20px;
+    }
+
+    .title-section h1 {
+      font-size: 2.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 30px var(--blue-glow);
+    }
+
+    /* Button Section */
+    .button-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+    }
+
+    .platform-btn {
+      background: var(--glass-bg);
+      border: 2px solid var(--border-color);
+      padding: 20px;
+      font-size: 1rem;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 10px var(--blue-glow);
+      color: var(--text-color);
+    }
+
+    .platform-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px var(--blue-glow);
+    }
+
+    /* Modal overlay styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(10, 10, 10, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal-content {
+      position: relative;
+      width: 90%;
+      max-width: 700px;
+      background: var(--glass-bg);
+      border: 5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 40px 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px var(--blue-glow);
+      color: var(--text-color);
+      animation: scaleUp 0.3s ease;
+    }
+
+    @keyframes scaleUp {
+      from { transform: scale(0.8); }
+      to { transform: scale(1); }
+    }
+
+    /* Close button for modal */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .close-btn:hover {
+      transform: scale(1.2);
+    }
+
+    /* Modal text styles */
+    #modal-text {
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    #modal-text h2 {
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+      text-shadow: 0 0 10px var(--blue-glow);
+    }
+
+    #modal-text p {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Title Section -->
+    <div class="title-section">
+      <h1>General Guide for DS/ML Problems</h1>
+      <p><strong>Please note:</strong> Trying to build a type of guiding pipeline to help with data science and machine learning work.</p>
+    </div>
+
+    <!-- Buttons for Platforms -->
+    <div class="button-section">
+      <button class="platform-btn" data-platform="prelim">Preliminaries</button>
+      <button class="platform-btn" data-platform="pi">Project Identification</button>
+      <button class="platform-btn" data-platform="stackoverflow">Stack Overflow</button>
+      <button class="platform-btn" data-platform="huggingface">Hugging Face</button>
+      <button class="platform-btn" data-platform="slack">Slack</button>
+      <button class="platform-btn" data-platform="facebook">Facebook</button>
+      <button class="platform-btn" data-platform="instagram">Instagram</button>
+      <button class="platform-btn" data-platform="twitterx">Twitter X</button>
+      <button class="platform-btn" data-platform="reddit">Reddit</button>
+      <button class="platform-btn" data-platform="whatsapp">WhatsApp</button>
+      <button class="platform-btn" data-platform="telegram">Telegram</button>
+      <button class="platform-btn" data-platform="signal">Signal</button>
+      <button class="platform-btn" data-platform="discord">Discord</button>
+      <button class="platform-btn" data-platform="youtube">YouTube</button>
+      <button class="platform-btn" data-platform="steam">Steam</button>
+      <button class="platform-btn" data-platform="oldforums">Old-School Forums</button>
+      <button class="platform-btn" data-platform="bluesky">Bluesky</button>
+    </div>
+  </div>
+
+  <!-- Modal for Detailed Platform Info -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-btn">&times;</button>
+      <div id="modal-text">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data mapping for platform details
+    const platformDetails = {
+      prelim: `
+        <h2>Preliminaries</h2>
+        <p><strong>Clean:</strong> Organize the data so that it is more structures, take care of missing values, and organize data into proper shape.</p>
+        <p><strong>Check:</strong> Make sure there isn't any strong outliers for any of the features (box plot helps see this visually); verify correct dtypes.</p>
+      `,
+      pi: `
+        <h2>Problem Identification</h2>
+        <p><strong>Supervised Learning Issue:</strong> For when the target variable is known and labeled.</p>
+        <p><strong>Unsupervised Learning Issue:</strong> When the data is not labeled and techniques like clustering will be necessary. </p>
+      `,
+      stackoverflow: `
+        <h2>Stack Overflow – The Digital Oracle of Code</h2>
+        <p><strong>Pro:</strong> Answers exist for everything—even your greatest coding sins.</p>
+        <p><strong>Con:</strong> Any question you ask has already been answered—twice—by someone who resents your existence.</p>
+      `,
+      huggingface: `
+        <h2>Hugging Face – The AI Developer’s Playground</h2>
+        <p><strong>Pro:</strong> Cutting-edge machine learning models at your fingertips.</p>
+        <p><strong>Con:</strong> The growing suspicion that your job is being replaced by the very AI you're training.</p>
+      `,
+      slack: `
+        <h2>Slack – Where Work Pretends to Happen</h2>
+        <p><strong>Pro:</strong> Instant messaging for teams striving for efficient communication.</p>
+        <p><strong>Con:</strong> Mostly used to send memes and complain about meetings.</p>
+      `,
+      facebook: `
+        <h2>Facebook – The Digital Retirement Home</h2>
+        <p><strong>Pro:</strong> Great for keeping up with distant relatives, quirky memes, and old classmates.</p>
+        <p><strong>Con:</strong> Algorithmic manipulation so strong, your thoughts start feeling like targeted ads.</p>
+      `,
+      instagram: `
+        <h2>Instagram – Life, But With Filters</h2>
+        <p><strong>Pro:</strong> Ideal for influencers and aesthetically pleasing meals.</p>
+        <p><strong>Con:</strong> Everyone seems better-looking—even your dog.</p>
+      `,
+      twitterx: `
+        <h2>Twitter X – Elon's Digital Circus</h2>
+        <p><strong>Pro:</strong> Breaking news, real-time debates, and unfiltered public discourse.</p>
+        <p><strong>Con:</strong> Also a recipe for real-time meltdowns and corporate nonsense.</p>
+      `,
+      reddit: `
+        <h2>Reddit – The Chaotic Agora of the Internet</h2>
+        <p><strong>Pro:</strong> If something exists, Reddit has a dedicated, obsessive community for it.</p>
+        <p><strong>Con:</strong> That same obsession can lead to endless debates and echo chambers.</p>
+      `,
+      whatsapp: `
+        <h2>WhatsApp – Encrypted Chaos</h2>
+        <p><strong>Pro:</strong> Secure, simple, and globally ubiquitous messaging.</p>
+        <p><strong>Con:</strong> Family group chats that never seem to end.</p>
+      `,
+      telegram: `
+        <h2>Telegram – The Digital Underground</h2>
+        <p><strong>Pro:</strong> Feature-rich messaging with massive groups and strong encryption.</p>
+        <p><strong>Con:</strong> Also the hangout for conspiracy theorists and crypto enthusiasts.</p>
+      `,
+      signal: `
+        <h2>Signal – The Paranoid’s Choice</h2>
+        <p><strong>Pro:</strong> Privacy-focused, no ads, and a straightforward experience.</p>
+        <p><strong>Con:</strong> So secure that sometimes you wonder if you even exist on it.</p>
+      `,
+      discord: `
+        <h2>Discord – From Gamers to Corporate Slackers</h2>
+        <p><strong>Pro:</strong> A thriving hub for niche communities—from gaming to work chats.</p>
+        <p><strong>Con:</strong> Many communities eventually devolve into drama-filled echo chambers.</p>
+      `,
+      youtube: `
+        <h2>YouTube – The New Cable TV</h2>
+        <p><strong>Pro:</strong> An infinite library of entertainment and learning.</p>
+        <p><strong>Con:</strong> You came for a five-minute tutorial and ended up forging a medieval longsword.</p>
+      `,
+      steam: `
+        <h2>Steam – The Gamer’s Social Network</h2>
+        <p><strong>Pro:</strong> Connect with friends, buy games, and discover new adventures.</p>
+        <p><strong>Con:</strong> Your unplayed games backlog might last several lifetimes.</p>
+      `,
+      oldforums: `
+        <h2>Old-School Forums – The Last Bastions of Internet Civility</h2>
+        <p><strong>Pro:</strong> Longer, deeper conversations with less algorithmic interference.</p>
+        <p><strong>Con:</strong> Finding an active one is like discovering Atlantis.</p>
+      `,
+      bluesky: `
+        <h2>Bluesky – The Decentralized Dream</h2>
+        <p><strong>Pro:</strong> A refreshing break from centralized control with a truly open protocol.</p>
+        <p><strong>Con:</strong> Its experimental nature can sometimes feel like you're in a never-ending beta test.</p>
+      `
+    };
+
+    // Elements
+    const modal = document.getElementById("modal");
+    const modalText = document.getElementById("modal-text");
+    const closeBtn = document.querySelector(".close-btn");
+    const platformButtons = document.querySelectorAll(".platform-btn");
+
+    // Event listener for each platform button
+    platformButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const platform = btn.getAttribute("data-platform");
+        if (platformDetails[platform]) {
+          modalText.innerHTML = platformDetails[platform];
+          modal.classList.remove("hidden");
+        }
+      });
+    });
+
+    // Close modal on clicking the close button
+    closeBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+
+    // Optional: Close modal if user clicks outside the content area
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
