@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rotating 3D Wireframe Globe with Continents</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="globeCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById("globeCanvas");
+    const ctx = canvas.getContext("2d");
+    
+    // Set canvas dimensions based on window size.
+    function resizeCanvas() {
+      const size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+      canvas.width = size;
+      canvas.height = size;
+      centerX = canvas.width / 2;
+      centerY = canvas.height / 2;
+      globeRadius = size * 0.45;
+    }
+    let centerX, centerY, globeRadius;
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    
+    // Global rotation state and constant tilt
+    let rotationAngle = 0;
+    const tiltAngle = 20 * Math.PI / 180;
+    
+    // Convert spherical coordinates to 3D Cartesian coordinates.
+    // lat and lon are in radians.
+    function sphericalToCartesian(lat, lon, radius) {
+      return {
+        x: radius * Math.cos(lat) * Math.cos(lon),
+        y: radius * Math.sin(lat),
+        z: radius * Math.cos(lat) * Math.sin(lon)
+      };
+    }
+    
+    // Rotate a point: first apply a tilt around the x-axis then a rotation around the y-axis.
+    function rotatePoint(p, rotAngle) {
+      // Tilt around the x-axis
+      const yTilt = p.y * Math.cos(tiltAngle) - p.z * Math.sin(tiltAngle);
+      const zTilt = p.y * Math.sin(tiltAngle) + p.z * Math.cos(tiltAngle);
+      // Rotation around the y-axis
+      return {
+        x: p.x * Math.cos(rotAngle) + zTilt * Math.sin(rotAngle),
+        y: yTilt,
+        z: -p.x * Math.sin(rotAngle) + zTilt * Math.cos(rotAngle)
+      };
+    }
+    
+    // Simple orthographic projection.
+    function project(p) {
+      return {
+        x: centerX + p.x,
+        y: centerY - p.y  // Invert y to match canvas coordinates.
+      };
+    }
+    
+    // Helper: convert degrees to radians.
+    function degToRad(deg) {
+      return deg * Math.PI / 180;
+    }
+    
+    // Define continent polygons (spherical coordinates in degrees)
+    // These are rough approximations for visual appeal.
+    const africa = [
+      { lon: -20, lat: 37 },
+      { lon: 50, lat: 37 },
+      { lon: 40, lat: 0 },
+      { lon: 30, lat: -35 },
+      { lon: -20, lat: -35 },
+      { lon: -10, lat: 0 }
+    ];
+    
+    const northAmerica = [
+      { lon: -130, lat: 55 },
+      { lon: -60, lat: 55 },
+      { lon: -60, lat: 40 },
+      { lon: -80, lat: 25 },
+      { lon: -120, lat: 25 },
+      { lon: -130, lat: 40 }
+    ];
+    
+    const southAmerica = [
+      { lon: -80, lat: 15 },
+      { lon: -35, lat: 10 },
+      { lon: -30, lat: -55 },
+      { lon: -70, lat: -55 },
+      { lon: -80, lat: -10 }
+    ];
+    
+    const europe = [
+      { lon: -10, lat: 70 },
+      { lon: 30, lat: 70 },
+      { lon: 40, lat: 60 },
+      { lon: 30, lat: 40 },
+      { lon: -5, lat: 40 },
+      { lon: -10, lat: 50 }
+    ];
+    
+    const asia = [
+      { lon: 40, lat: 65 },
+      { lon: 100, lat: 65 },
+      { lon: 130, lat: 55 },
+      { lon: 150, lat: 15 },
+      { lon: 120, lat: 5 },
+      { lon: 80, lat: 5 },
+      { lon: 60, lat: 25 },
+      { lon: 40, lat: 50 }
+    ];
+    
+    const australia = [
+      { lon: 110, lat: -10 },
+      { lon: 155, lat: -10 },
+      { lon: 155, lat: -45 },
+      { lon: 110, lat: -45 }
+    ];
+    
+    // Group all continents.
+    const continents = [
+      { name: "Africa", points: africa },
+      { name: "North America", points: northAmerica },
+      { name: "South America", points: southAmerica },
+      { name: "Europe", points: europe },
+      { name: "Asia", points: asia },
+      { name: "Australia", points: australia }
+    ];
+    
+    // Draw the globe: wireframe grid and continent overlays.
+    function drawGlobe() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Create a clipping mask to show only the front hemisphere.
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.clip();
+      
+      // Optional: draw a subtle ocean background.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.fillStyle = "rgba(0, 0, 255, 0.05)";
+      ctx.fill();
+      
+      // Set styles for the wireframe grid.
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 1.5;
+      
+      // Draw latitude lines.
+      for (let lat = -80; lat <= 80; lat += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lon = 0; lon <= 360; lon += 3) {
+          const point = sphericalToCartesian(degToRad(lat), degToRad(lon), globeRadius);
+          const rotated = rotatePoint(point, rotationAngle);
+          const proj = project(rotated);
+          if (first) {
+            ctx.moveTo(proj.x, proj.y);
+            first = false;
+          } else {
+            ctx.lineTo(proj.x, proj.y);
+          }
+        }
+        ctx.stroke();
+      }
+      
+      // Draw longitude lines.
+      for (let lon = 0; lon < 360; lon += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lat = -90; lat <= 90; lat += 3) {
+          const point = sphericalToCartesian(degToRad(lat), degToRad(lon), globeRadius);
+          const rotated = rotatePoint(point, rotationAngle);
+          const proj = project(rotated);
+          if (first) {
+            ctx.moveTo(proj.x, proj.y);
+            first = false;
+          } else {
+            ctx.lineTo(proj.x, proj.y);
+          }
+        }
+        ctx.stroke();
+      }
+      
+      // Draw continent overlays.
+      // Use a less transparent red fill.
+      ctx.fillStyle = "rgba(255, 0, 0, 0.4)";
+      ctx.lineWidth = 2;
+      
+      function drawContinent(polygon) {
+        ctx.beginPath();
+        polygon.forEach((v, i) => {
+          let point = sphericalToCartesian(degToRad(v.lat), degToRad(v.lon), globeRadius);
+          point = rotatePoint(point, rotationAngle);
+          let proj = project(point);
+          if (i === 0) {
+            ctx.moveTo(proj.x, proj.y);
+          } else {
+            ctx.lineTo(proj.x, proj.y);
+          }
+        });
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+      
+      continents.forEach(continent => {
+        drawContinent(continent.points);
+      });
+      
+      ctx.restore();
+      
+      // Draw the globe outline.
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, globeRadius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    
+    // Animate the globe with a continuously updating rotation.
+    let lastTime = performance.now();
+    function animate(now) {
+      const deltaTime = now - lastTime;
+      lastTime = now;
+      rotationAngle += deltaTime * 0.0002;
+      drawGlobe();
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
