@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Science / ML Guide  - BS"D</title>
+  <style>
+    /* Global Styles */
+    :root {
+      --blue-glow: #f0b7b1;
+      --light-blue: rgba(255, 204, 0, 0.2);
+      --background-dark: #5c1514;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --border-color: rgba(0, 204, 255, 0.5);
+      --text-color: #4eecf5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--background-dark);
+      color: var(--text-color);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Container for entire presentation */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 20px;
+    }
+
+    .title-section h1 {
+      font-size: 2.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 30px var(--blue-glow);
+    }
+
+    /* Button Section */
+    .button-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+    }
+
+    .platform-btn {
+      background: var(--glass-bg);
+      border: 2px solid var(--border-color);
+      padding: 20px;
+      font-size: 1rem;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 10px var(--blue-glow);
+      color: var(--text-color);
+    }
+
+    .platform-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px var(--blue-glow);
+    }
+
+    /* Modal overlay styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(10, 10, 10, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal-content {
+      position: relative;
+      width: 90%;
+      max-width: 700px;
+      background: var(--glass-bg);
+      border: 5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 40px 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px var(--blue-glow);
+      color: var(--text-color);
+      animation: scaleUp 0.3s ease;
+    }
+
+    @keyframes scaleUp {
+      from { transform: scale(0.8); }
+      to { transform: scale(1); }
+    }
+
+    /* Close button for modal */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .close-btn:hover {
+      transform: scale(1.2);
+    }
+
+    /* Modal text styles */
+    #modal-text {
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    #modal-text h2 {
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+      text-shadow: 0 0 10px var(--blue-glow);
+    }
+
+    #modal-text p {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Title Section -->
+    <div class="title-section">
+      <h1>General Guide for DS/ML Problems</h1>
+      <p><strong>Please note:</strong> This guide is designed to help you streamline your data science and machine learning workflow, especially on days when you’re feeling under the weather.</p>
+    </div>
+
+    <!-- Buttons for Platforms -->
+    <div class="button-section">
+      <button class="platform-btn" data-platform="prelim">Preliminaries</button>
+      <button class="platform-btn" data-platform="pi">Project Identification</button>
+      <button class="platform-btn" data-platform="super">Supervised Learning</button>
+      <button class="platform-btn" data-platform="unsuper">Unsupervised Learning</button>
+      <button class="platform-btn" data-platform="classmetrics">Classification Metrics</button>
+      <button class="platform-btn" data-platform="regressmetrics">Regression Metrics</button>
+      <button class="platform-btn" data-platform="hyper">Hyperparameter Tuning</button>
+      <button class="platform-btn" data-platform="out">Outlier Detection</button>
+      <button class="platform-btn" data-platform="normal">Normalization / Standardization</button>
+      <button class="platform-btn" data-platform="encode">Encoding Categorical Data</button>
+      <button class="platform-btn" data-platform="split">Splitting Data</button>
+      <button class="platform-btn" data-platform="time">Time Series / Sequential Data</button>
+      <button class="platform-btn" data-platform="massive">For Massive Datasets</button>
+      <button class="platform-btn" data-platform="metrics">Evaluation Metrics</button>
+      <button class="platform-btn" data-platform="regression">Regression Models Explained</button>
+      <button class="platform-btn" data-platform="classification">Classification Models Explained</button>
+      <button class="platform-btn" data-platform="clustering">Clustering Models Explained</button>
+    </div>
+  </div>
+
+  <!-- Modal for Detailed Platform Info -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-btn">&times;</button>
+      <div id="modal-text">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data mapping for platform details
+    const platformDetails = {
+      prelim: `
+        <h2>Preliminaries</h2>
+        <p><strong>Clean:</strong> Organize and preprocess your data, address missing values, and ensure the dataset is in the proper shape for analysis.</p>
+        <p><strong>Check:</strong> Identify outliers using visualizations (like box plots) and verify data types are correctly assigned.</p>
+      `,
+      pi: `
+        <h2>Problem Identification</h2>
+        <p><strong>Supervised Learning Issue:</strong> Use when the target variable is known and labeled.</p>
+        <p><strong>Unsupervised Learning Issue:</strong> Use when data is unlabeled and clustering or association techniques are needed.</p>
+      `,
+      super: `
+        <h2>Supervised Learning</h2>
+        <p><strong>Numerical Target Variable:</strong> For regression problems, explore linear relationships with Linear Regression or non-linear trends with Random Forest Regression or XGBoost.</p>
+        <p><strong>Categorical Target Variable:</strong> For binary outcomes use Logistic Regression; for multi-class issues, try Random Forest, XGBoost, or SVM.</p>
+        <p><strong>Additional Techniques:</strong> Consider Ridge/Lasso regression for multicollinearity, SMOTE for imbalanced datasets, or PCA for dimensionality reduction.</p>
+      `,
+      unsuper: `
+        <h2>Unsupervised Learning</h2>
+        <p><strong>Grouping Data Points:</strong> Use K-means for compact, spherical clusters, DBSCAN for noisy or irregular clusters, or Hierarchical Clustering for dendrogram visualizations.</p>
+        <p><strong>Pattern Discovery:</strong> Apply PCA for dimensionality reduction, t-SNE/Umap for visualization, or Association Rules for market basket analysis.</p>
+      `,
+      classmetrics: `
+        <h2>Classification Metrics</h2>
+        <p><strong>Accuracy:</strong> Best used when class distributions are balanced.</p>
+        <p><strong>Precision, Recall, F1-Score:</strong> Critical for evaluating performance on imbalanced datasets.</p>
+        <p><strong>ROC-AUC:</strong> Provides insight into model performance for binary classification tasks.</p>
+      `,
+      regressmetrics: `
+        <h2>Regression Metrics</h2>
+        <p><strong>R<sup>2</sup>:</strong> Indicates the proportion of variance in the dependent variable explained by the model.</p>
+        <p><strong>Mean Absolute Error (MAE) & Mean Squared Error (MSE):</strong> Provide measures of average error; lower values reflect better performance.</p>
+        <p><strong>Root Mean Squared Error (RMSE):</strong> The square root of MSE, offering sensitivity to larger errors.</p>
+      `,
+      hyper: `
+        <h2>Hyperparameter Tuning</h2>
+        <p><strong>GridSearchCV / RandomizedSearchCV:</strong> Systematically explore parameter spaces through cross-validation to find optimal settings.</p>
+        <p><strong>Bayesian Optimization:</strong> Leverage probabilistic models to efficiently optimize hyperparameters for compute-intensive models.</p>
+      `,
+      out: `
+        <h2>Outlier Detection</h2>
+        <p><strong>Visualization:</strong> Use box plots, scatter plots, and other visual tools to detect anomalous data points.</p>
+        <p><strong>Statistical Methods:</strong> Apply Z-scores or the IQR method to identify and handle outliers effectively.</p>
+      `,
+      normal: `
+        <h2>Normalization and Standardization for Certain Features</h2>
+        <p><strong>Min-Max Scaling:</strong> Rescale features to a fixed range (typically 0 to 1) to ensure consistency.</p>
+        <p><strong>Z-score Standardization:</strong> Transform features to have zero mean and unit variance, helping many algorithms converge faster.</p>
+      `,
+      encode: `
+        <h2>Encoding Categorical Data</h2>
+        <p><strong>Label Encoding:</strong> Convert categorical labels into numeric values when the order of categories matters.</p>
+        <p><strong>One-Hot Encoding:</strong> Create binary columns for each category to avoid imparting an unintended ordinal relationship.</p>
+      `,
+      split: `
+        <h2>Splitting Data (Train-Test-Split)</h2>
+        <p><strong>Hold-out Method:</strong> Divide your dataset into training and testing sets (e.g., 70/30 or 80/20) to evaluate model performance.</p>
+        <p><strong>Stratified Sampling:</strong> Ensure that class distributions remain consistent across both training and testing sets, especially in imbalanced datasets.</p>
+      `,
+      time: `
+        <h2>Working with Sequential or Time-based Data</h2>
+        <p><strong>Date-Time Parsing:</strong> Convert date strings to recognized date objects and extract useful features such as day, month, and year.</p>
+        <p><strong>Lag Features & Rolling Statistics:</strong> Create lag variables and rolling window statistics to capture trends, seasonality, and autocorrelation in your data.</p>
+      `,
+      massive: `
+        <h2>Deep Learning for Massive Datasets</h2>
+        <p><strong>Distributed Training:</strong> Use frameworks like TensorFlow or PyTorch with multi-GPU or multi-node support to scale training.</p>
+        <p><strong>Data Generators:</strong> Implement data generators for efficient loading and real-time augmentation to handle large datasets.</p>
+      `,
+      metrics: `
+        <h2>Understanding Evaluation Metrics</h2>
+        <p><strong>Confusion Matrix:</strong> Break down predictions into true positives, false positives, true negatives, and false negatives for classification tasks.</p>
+        <p><strong>Cross-Validation:</strong> Use k-fold cross-validation to better assess model generalization and guard against overfitting.</p>
+      `,
+      regression: `
+        <h2>Regression Models Explained</h2>
+        <p><strong>Linear Regression:</strong> A basic model assuming a linear relationship between predictors and the target variable.</p>
+        <p><strong>Tree-Based Methods:</strong> Models like Random Forest, Gradient Boosting, and XGBoost capture non-linear relationships and interactions effectively.</p>
+      `,
+      classification: `
+        <h2>Classification Models Explained</h2>
+        <p><strong>Logistic Regression:</strong> A simple, interpretable model for binary classification tasks.</p>
+        <p><strong>Ensemble Methods:</strong> Techniques like Random Forest, SVM, and XGBoost combine multiple models to improve overall accuracy.</p>
+      `,
+      clustering: `
+        <h2>Clustering Models Explained</h2>
+        <p><strong>K-Means Clustering:</strong> Partition data into k clusters by minimizing the variance within each cluster.</p>
+        <p><strong>Hierarchical Clustering:</strong> Build a dendrogram to understand the data's structure at multiple levels of granularity.</p>
+      `
+    };
+
+    // Elements
+    const modal = document.getElementById("modal");
+    const modalText = document.getElementById("modal-text");
+    const closeBtn = document.querySelector(".close-btn");
+    const platformButtons = document.querySelectorAll(".platform-btn");
+
+    // Event listener for each platform button
+    platformButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const platform = btn.getAttribute("data-platform");
+        if (platformDetails[platform]) {
+          modalText.innerHTML = platformDetails[platform];
+          modal.classList.remove("hidden");
+        }
+      });
+    });
+
+    // Close modal on clicking the close button
+    closeBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+
+    // Optional: Close modal if user clicks outside the content area
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
