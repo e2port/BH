@@ -166,10 +166,10 @@
     <div class="button-section">
       <button class="platform-btn" data-platform="prelim">Preliminaries</button>
       <button class="platform-btn" data-platform="pi">Project Identification</button>
-      <button class="platform-btn" data-platform="stackoverflow">Stack Overflow</button>
-      <button class="platform-btn" data-platform="huggingface">Hugging Face</button>
-      <button class="platform-btn" data-platform="slack">Slack</button>
-      <button class="platform-btn" data-platform="facebook">Facebook</button>
+      <button class="platform-btn" data-platform="super">Supervised Learning</button>
+      <button class="platform-btn" data-platform="unsuper">Unsupervised Learning</button>
+      <button class="platform-btn" data-platform="classmetrics">Classification Metrics</button>
+      <button class="platform-btn" data-platform="regressmetrics">Regression Metrics</button>
       <button class="platform-btn" data-platform="instagram">Instagram</button>
       <button class="platform-btn" data-platform="twitterx">Twitter X</button>
       <button class="platform-btn" data-platform="reddit">Reddit</button>
@@ -207,23 +207,24 @@
         <p><strong>Supervised Learning Issue:</strong> For when the target variable is known and labeled.</p>
         <p><strong>Unsupervised Learning Issue:</strong> When the data is not labeled and techniques like clustering will be necessary. </p>
       `,
-      stackoverflow: `
-        <h2>Stack Overflow – The Digital Oracle of Code</h2>
-        <p><strong>Pro:</strong> Answers exist for everything—even your greatest coding sins.</p>
-        <p><strong>Con:</strong> Any question you ask has already been answered—twice—by someone who resents your existence.</p>
+      super: `
+        <h2>Supervised Learning</h2>
+        <p><strong>Numerical Target Variable:</strong> Regression type problem. Is there linear relationship? If so try Linear Regression, if not, try Random Forest Regression or XGBoost</p>
+        <p><strong>Categorical Target Variable:</strong> If binary, do logistic regression. If not try Random Forest/XGBoost/SVM.</p>
+        <p><strong>Additionally:</strong> Ridge/Lasso for high multicollinearity; SMOTE for class weighing in unbalanced data; High Dimensions can use PCA/Naive Bayes/TF_IDF.</p>
       `,
-      huggingface: `
-        <h2>Hugging Face – The AI Developer’s Playground</h2>
-        <p><strong>Pro:</strong> Cutting-edge machine learning models at your fingertips.</p>
-        <p><strong>Con:</strong> The growing suspicion that your job is being replaced by the very AI you're training.</p>
+      unsuper: `
+        <h2>Unsupervised Learning</h2>
+        <p><strong>Need to group similar data points?:</strong> K-means (when compact spherical clusters); DBSCAN (for irregular noisy clusters); Hierarchial Clustering (for dendrogram visualization.)</p>
+        <p><strong>No, so pattern discovery?:</strong> PCA (for dimension reduction); t-SNE/Umap (for visualization); Association Rules (Apriori/ FP-Growth) for market basket analysis.</p>
       `,
-      slack: `
-        <h2>Slack – Where Work Pretends to Happen</h2>
+      classmetrics: `
+        <h2>Classification Metrics</h2>
         <p><strong>Pro:</strong> Instant messaging for teams striving for efficient communication.</p>
         <p><strong>Con:</strong> Mostly used to send memes and complain about meetings.</p>
       `,
-      facebook: `
-        <h2>Facebook – The Digital Retirement Home</h2>
+      regressmetrics: `
+        <h2>Regression Metrics</h2>
         <p><strong>Pro:</strong> Great for keeping up with distant relatives, quirky memes, and old classmates.</p>
         <p><strong>Con:</strong> Algorithmic manipulation so strong, your thoughts start feeling like targeted ads.</p>
       `,
