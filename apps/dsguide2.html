@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Data Science / ML Guide  - BS"D</title>
   <style>
-    /* Global Styles */
+    /* Global Styles with Pastel Red Theme */
     :root {
-      --blue-glow: #f0b7b1;
-      --light-blue: rgba(255, 204, 0, 0.2);
-      --background-dark: #5c1514;
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --border-color: rgba(0, 204, 255, 0.5);
-      --text-color: #4eecf5;
+      --pastel-bg: #ffe6e6;            /* very light pastel red background */
+      --pastel-glow: #ff9999;          /* soft red glow for text shadow and effects */
+      --pastel-button: #ffb3b3;        /* button background */
+      --pastel-border: #ff8080;        /* button and modal borders */
+      --text-color: #660000;           /* dark red for legible text */
     }
 
     * {
@@ -23,7 +22,7 @@
     }
 
     body {
-      background: var(--background-dark);
+      background: var(--pastel-bg);
       color: var(--text-color);
       overflow-x: hidden;
       min-height: 100vh;
@@ -50,7 +49,7 @@
       font-size: 2.1rem;
       text-transform: uppercase;
       letter-spacing: 2px;
-      text-shadow: 0 0 30px var(--blue-glow);
+      text-shadow: 0 0 30px var(--pastel-glow);
     }
 
     /* Button Section */
@@ -61,8 +60,8 @@
     }
 
     .platform-btn {
-      background: var(--glass-bg);
-      border: 2px solid var(--border-color);
+      background: var(--pastel-button);
+      border: 2px solid var(--pastel-border);
       padding: 20px;
       font-size: 1rem;
       text-align: center;
@@ -70,13 +69,13 @@
       cursor: pointer;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       backdrop-filter: blur(8px);
-      box-shadow: 0 0 10px var(--blue-glow);
+      box-shadow: 0 0 10px var(--pastel-glow);
       color: var(--text-color);
     }
 
     .platform-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 15px var(--blue-glow);
+      box-shadow: 0 0 15px var(--pastel-glow);
     }
 
     /* Modal overlay styles */
@@ -86,7 +85,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(10, 10, 10, 0.85);
+      background: rgba(255, 102, 102, 0.85);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -104,12 +103,12 @@
       position: relative;
       width: 90%;
       max-width: 700px;
-      background: var(--glass-bg);
-      border: 5px solid var(--border-color);
+      background: var(--pastel-button);
+      border: 5px solid var(--pastel-border);
       border-radius: 8px;
       padding: 40px 20px;
       backdrop-filter: blur(10px);
-      box-shadow: 0 0 30px var(--blue-glow);
+      box-shadow: 0 0 30px var(--pastel-glow);
       color: var(--text-color);
       animation: scaleUp 0.3s ease;
     }
@@ -145,11 +144,20 @@
     #modal-text h2 {
       margin-bottom: 10px;
       font-size: 1.8rem;
-      text-shadow: 0 0 10px var(--blue-glow);
+      text-shadow: 0 0 10px var(--pastel-glow);
     }
 
     #modal-text p {
       margin-bottom: 10px;
+    }
+    
+    pre {
+      background: #fff0f0;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      color: #660000;
     }
   </style>
 </head>
@@ -158,7 +166,7 @@
     <!-- Title Section -->
     <div class="title-section">
       <h1>General Guide for DS/ML Problems</h1>
-      <p><strong>Please note:</strong> This guide is designed to help you streamline your data science and machine learning workflow, especially on days when you’re feeling under the weather.</p>
+      <p><strong>Please note:</strong> This guide is designed to help you streamline your data science and machine learning workflow, especially on days when you’re not feeling your best.</p>
     </div>
 
     <!-- Buttons for Platforms -->
@@ -226,63 +234,98 @@
       regressmetrics: `
         <h2>Regression Metrics</h2>
         <p><strong>R<sup>2</sup>:</strong> Indicates the proportion of variance in the dependent variable explained by the model.</p>
-        <p><strong>Mean Absolute Error (MAE) & Mean Squared Error (MSE):</strong> Provide measures of average error; lower values reflect better performance.</p>
-        <p><strong>Root Mean Squared Error (RMSE):</strong> The square root of MSE, offering sensitivity to larger errors.</p>
+        <p><strong>MAE & MSE:</strong> Measure average errors. Lower values indicate better performance.</p>
+        <p><strong>RMSE:</strong> The square root of MSE, which is sensitive to larger errors.</p>
       `,
       hyper: `
         <h2>Hyperparameter Tuning</h2>
-        <p><strong>GridSearchCV / RandomizedSearchCV:</strong> Systematically explore parameter spaces through cross-validation to find optimal settings.</p>
-        <p><strong>Bayesian Optimization:</strong> Leverage probabilistic models to efficiently optimize hyperparameters for compute-intensive models.</p>
+        <p><strong>GridSearchCV / RandomizedSearchCV:</strong> Systematically explore parameter spaces using cross-validation to identify optimal settings.</p>
+        <p><strong>Bayesian Optimization:</strong> Efficiently optimize hyperparameters using probabilistic models, especially for compute-intensive models.</p>
       `,
       out: `
         <h2>Outlier Detection</h2>
-        <p><strong>Visualization:</strong> Use box plots, scatter plots, and other visual tools to detect anomalous data points.</p>
-        <p><strong>Statistical Methods:</strong> Apply Z-scores or the IQR method to identify and handle outliers effectively.</p>
+        <p><strong>Visualization:</strong> Use box plots and scatter plots to spot anomalies.</p>
+        <p><strong>Statistical Methods:</strong> Utilize Z-scores or the IQR method to flag outliers.</p>
       `,
       normal: `
         <h2>Normalization and Standardization for Certain Features</h2>
-        <p><strong>Min-Max Scaling:</strong> Rescale features to a fixed range (typically 0 to 1) to ensure consistency.</p>
-        <p><strong>Z-score Standardization:</strong> Transform features to have zero mean and unit variance, helping many algorithms converge faster.</p>
+        <p><strong>Min-Max Scaling:</strong> Rescale features to a fixed range (usually 0 to 1) to maintain consistency.</p>
+        <p><strong>Z-score Standardization:</strong> Transform features to have zero mean and unit variance, which aids in algorithm convergence.</p>
       `,
       encode: `
         <h2>Encoding Categorical Data</h2>
-        <p><strong>Label Encoding:</strong> Convert categorical labels into numeric values when the order of categories matters.</p>
-        <p><strong>One-Hot Encoding:</strong> Create binary columns for each category to avoid imparting an unintended ordinal relationship.</p>
+        <p><strong>Label Encoding:</strong> Convert categorical labels into numeric values when there is an inherent order.</p>
+        <p><strong>One-Hot Encoding:</strong> Create binary columns for each category to avoid misinterpreting categorical order.</p>
       `,
       split: `
         <h2>Splitting Data (Train-Test-Split)</h2>
         <p><strong>Hold-out Method:</strong> Divide your dataset into training and testing sets (e.g., 70/30 or 80/20) to evaluate model performance.</p>
-        <p><strong>Stratified Sampling:</strong> Ensure that class distributions remain consistent across both training and testing sets, especially in imbalanced datasets.</p>
+        <p><strong>Stratified Sampling:</strong> Ensure that class distributions remain consistent across both sets, particularly for imbalanced datasets.</p>
+        <p><strong>Code Snippet:</strong></p>
+        <pre><code>from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)</code></pre>
+        <p>This setup uses an 80/20 split with a fixed random state for reproducibility. Adjust test_size and random_state as needed.</p>
       `,
       time: `
         <h2>Working with Sequential or Time-based Data</h2>
-        <p><strong>Date-Time Parsing:</strong> Convert date strings to recognized date objects and extract useful features such as day, month, and year.</p>
-        <p><strong>Lag Features & Rolling Statistics:</strong> Create lag variables and rolling window statistics to capture trends, seasonality, and autocorrelation in your data.</p>
+        <p><strong>Date-Time Parsing:</strong> Convert date strings into recognized date objects and extract useful features (day, month, year).</p>
+        <p><strong>Lag Features & Rolling Statistics:</strong> Create lag variables and rolling window statistics to capture trends and seasonality.</p>
+        <p><strong>Code Snippet:</strong></p>
+        <pre><code>import pandas as pd
+df['date'] = pd.to_datetime(df['date'])
+df['lag_1'] = df['value'].shift(1)
+df['rolling_mean'] = df['value'].rolling(window=3).mean()</code></pre>
+        <p>Ensure to handle missing values that result from lag creation, especially at the start of your series.</p>
       `,
       massive: `
         <h2>Deep Learning for Massive Datasets</h2>
-        <p><strong>Distributed Training:</strong> Use frameworks like TensorFlow or PyTorch with multi-GPU or multi-node support to scale training.</p>
-        <p><strong>Data Generators:</strong> Implement data generators for efficient loading and real-time augmentation to handle large datasets.</p>
+        <p><strong>Distributed Training:</strong> Leverage frameworks like TensorFlow or PyTorch to train models across multiple GPUs or nodes.</p>
+        <p><strong>Data Generators:</strong> Use data generators to load and augment data in real time, minimizing memory usage.</p>
+        <p><strong>Code Snippet:</strong></p>
+        <pre><code>from tensorflow.keras.preprocessing.image import ImageDataGenerator
+datagen = ImageDataGenerator(rescale=1./255, rotation_range=20, horizontal_flip=True)
+train_generator = datagen.flow_from_directory('train_dir', target_size=(224,224), batch_size=32)</code></pre>
+        <p>This example demonstrates an image data generator for real-time augmentation, ideal for large-scale training.</p>
       `,
       metrics: `
         <h2>Understanding Evaluation Metrics</h2>
-        <p><strong>Confusion Matrix:</strong> Break down predictions into true positives, false positives, true negatives, and false negatives for classification tasks.</p>
-        <p><strong>Cross-Validation:</strong> Use k-fold cross-validation to better assess model generalization and guard against overfitting.</p>
+        <p><strong>Confusion Matrix:</strong> Breaks down predictions into true positives (TP), false positives (FP), true negatives (TN), and false negatives (FN) for classification tasks.</p>
+        <p><strong>R<sup>2</sup> Score:</strong> R<sup>2</sup> = 1 - (SS<sub>res</sub> / SS<sub>tot</sub>), where SS<sub>res</sub> is the sum of squared residuals and SS<sub>tot</sub> is the total sum of squares.</p>
+        <p><strong>RMSE:</strong> RMSE = √((1/n) Σ(actual - predicted)²) which provides insight into the magnitude of errors.</p>
+        <p><strong>ROC-AUC:</strong> Measures the area under the ROC curve, reflecting the model's ability to distinguish between classes.</p>
+        <p><strong>Accuracy vs Precision vs Recall vs F1:</strong> Accuracy measures overall correctness; Precision = TP / (TP + FP); Recall = TP / (TP + FN); F1 is the harmonic mean of precision and recall.</p>
       `,
       regression: `
         <h2>Regression Models Explained</h2>
-        <p><strong>Linear Regression:</strong> A basic model assuming a linear relationship between predictors and the target variable.</p>
-        <p><strong>Tree-Based Methods:</strong> Models like Random Forest, Gradient Boosting, and XGBoost capture non-linear relationships and interactions effectively.</p>
+        <p><strong>Linear Regression:</strong> A fundamental model that fits a linear equation to the training data.</p>
+        <p><strong>Tree-Based Methods:</strong> Models such as Random Forest or XGBoost capture non-linear relationships effectively.</p>
+        <p><strong>Code Snippet:</strong></p>
+        <pre><code>from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)</code></pre>
+        <p><em>This code demonstrates a simple linear regression model. It fits a straight line to the data, making it a good baseline. More complex methods (like RandomForestRegressor) can capture non-linearity.</em></p>
       `,
       classification: `
         <h2>Classification Models Explained</h2>
-        <p><strong>Logistic Regression:</strong> A simple, interpretable model for binary classification tasks.</p>
-        <p><strong>Ensemble Methods:</strong> Techniques like Random Forest, SVM, and XGBoost combine multiple models to improve overall accuracy.</p>
+        <p><strong>Logistic Regression:</strong> A straightforward and interpretable model for binary classification tasks.</p>
+        <p><strong>Ensemble Methods:</strong> Techniques such as Random Forest and SVM combine multiple models for improved accuracy.</p>
+        <p><strong>Code Snippet:</strong></p>
+        <pre><code>from sklearn.linear_model import LogisticRegression
+model = LogisticRegression(random_state=42, solver='lbfgs')
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)</code></pre>
+        <p><em>This logistic regression example shows how to classify binary outcomes. For more complex datasets, ensemble methods or SVMs can provide better performance.</em></p>
       `,
       clustering: `
         <h2>Clustering Models Explained</h2>
-        <p><strong>K-Means Clustering:</strong> Partition data into k clusters by minimizing the variance within each cluster.</p>
-        <p><strong>Hierarchical Clustering:</strong> Build a dendrogram to understand the data's structure at multiple levels of granularity.</p>
+        <p><strong>K-Means Clustering:</strong> Partitions data into k clusters by minimizing within-cluster variance.</p>
+        <p><strong>Hierarchical Clustering:</strong> Uses a dendrogram to reveal data structure at multiple granularities.</p>
+        <p><strong>Code Snippet:</strong></p>
+        <pre><code>from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=3, random_state=42)
+clusters = kmeans.fit_predict(X)</code></pre>
+        <p><em>This example uses K-Means to group data into three clusters. Hierarchical clustering can be performed with libraries like SciPy for detailed dendrogram analysis.</em></p>
       `
     };
 
