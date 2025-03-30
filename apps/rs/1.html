@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>River and Stone Minigame</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Georgia', serif;
+      background: linear-gradient(#c6e2ff, #d6f5d6);
+      overflow: hidden;
+    }
+
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .river {
+      position: absolute;
+      width: 100vw;
+      height: 50vh;
+      bottom: 0;
+      background: linear-gradient(to top, #1e3f66, #3478a3);
+      animation: flow 15s linear infinite;
+    }
+
+    .stone {
+      position: absolute;
+      width: 120px;
+      height: 60px;
+      background: #666;
+      border-radius: 50%;
+      bottom: 40vh;
+      left: 60vw;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .stone:hover {
+      transform: scale(1.1);
+    }
+
+    .message-box {
+      position: absolute;
+      top: 10vh;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 60vw;
+      text-align: center;
+      font-size: 1.2rem;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes flow {
+      0% { background-position: 0 0; }
+      100% { background-position: 1000px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <div class="river"></div>
+    <div class="stone" onclick="revealMessage()"></div>
+    <div class="message-box" id="messageBox">
+      <p><strong>"The river forgets, but the stone remembers."</strong><br><br>
+      The water rushes past, erasing footsteps and echoes. But carved in silence, the stone holds names, faces, and moments the current cannot steal.<br><br>
+      <em>— Memory, like stone, endures only when stillness is chosen over flow.</em></p>
+    </div>
+  </div>
+
+  <script>
+    function revealMessage() {
+      document.getElementById('messageBox').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
