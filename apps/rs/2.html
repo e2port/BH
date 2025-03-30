@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>River and Stone Minigame</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Georgia', serif;
+      background: linear-gradient(#c6e2ff, #d6f5d6);
+      overflow: hidden;
+    }
+
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .river {
+      position: absolute;
+      width: 100vw;
+      height: 50vh;
+      bottom: 0;
+      background: linear-gradient(to top, #1e3f66, #3478a3);
+      animation: flow 30s linear infinite;
+      background-size: 200% 100%;
+      z-index: 1;
+    }
+
+    .stone {
+      position: absolute;
+      width: 120px;
+      height: 60px;
+      background: #444;
+      border-radius: 50%;
+      bottom: 42vh;
+      left: 60vw;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.3s ease;
+      z-index: 2;
+    }
+
+    .stone:hover {
+      transform: scale(1.1);
+      background: #555;
+    }
+
+    .message-box {
+      position: absolute;
+      top: 10vh;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 60vw;
+      text-align: center;
+      font-size: 1.2rem;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      z-index: 3;
+    }
+
+    .clue {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: background 0.3s;
+      z-index: 2;
+    }
+
+    .clue:hover {
+      background: rgba(255, 255, 255, 1);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes flow {
+      0% { background-position: 0 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <div class="river"></div>
+    <div class="stone" onclick="checkPuzzleSolved()"></div>
+
+    <div class="clue" id="clue1" style="top: 25vh; left: 10vw;">"The current washes away..."</div>
+    <div class="clue" id="clue2" style="top: 35vh; left: 30vw;">"...but memory clings to edges..."</div>
+    <div class="clue" id="clue3" style="top: 20vh; left: 70vw;">"...etched in stillness."</div>
+
+    <div class="message-box" id="messageBox">
+      <p><strong>"The river forgets, but the stone remembers."</strong><br><br>
+      The water rushes past, erasing footsteps and echoes. But carved in silence, the stone holds names, faces, and moments the current cannot steal.<br><br>
+      <em>— Memory, like stone, endures only when stillness is chosen over flow.</em></p>
+    </div>
+  </div>
+
+  <script>
+    let cluesClicked = {
+      clue1: false,
+      clue2: false,
+      clue3: false
+    };
+
+    document.getElementById('clue1').addEventListener('click', () => collectClue('clue1'));
+    document.getElementById('clue2').addEventListener('click', () => collectClue('clue2'));
+    document.getElementById('clue3').addEventListener('click', () => collectClue('clue3'));
+
+    function collectClue(clueId) {
+      document.getElementById(clueId).classList.add('hidden');
+      cluesClicked[clueId] = true;
+    }
+
+    function checkPuzzleSolved() {
+      if (cluesClicked.clue1 && cluesClicked.clue2 && cluesClicked.clue3) {
+        document.getElementById('messageBox').style.display = 'block';
+      } else {
+        alert("The stone is silent... something is missing.");
+      }
+    }
+  </script>
+</body>
+</html>
