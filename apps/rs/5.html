@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>River and Stone Minigame</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to top, #2b5876, #4e4376);
+      overflow: hidden;
+      animation: starflow 60s linear infinite;
+    }
+
+    @keyframes starflow {
+      from { filter: hue-rotate(0deg); }
+      to { filter: hue-rotate(360deg); }
+    }
+
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .river {
+      position: absolute;
+      width: 100vw;
+      height: 50vh;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        120deg,
+        #2193b0,
+        #6dd5ed 20%,
+        #00c6ff 40%,
+        #2193b0 60%,
+        #6dd5ed 80%
+      );
+      background-size: 800% 100%;
+      animation: flow 10s linear infinite;
+      z-index: 1;
+      opacity: 0.95;
+      mix-blend-mode: screen;
+    }
+
+    .stone {
+      position: absolute;
+      width: 140px;
+      height: 70px;
+      background: radial-gradient(circle, #6e6e6e, #2c2c2c);
+      border-radius: 50%;
+      bottom: 42vh;
+      left: 60vw;
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+      transition: transform 0.4s ease, background 0.4s ease;
+      z-index: 2;
+    }
+
+    .stone:hover {
+      transform: scale(1.2);
+      background: radial-gradient(circle, #888, #444);
+    }
+
+    .message-box {
+      position: absolute;
+      top: 10vh;
+      background: rgba(255, 255, 255, 0.97);
+      border: 3px solid #000;
+      border-radius: 20px;
+      padding: 26px;
+      max-width: 70vw;
+      text-align: center;
+      font-size: 1.4rem;
+      display: none;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      z-index: 3;
+      color: #222;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/6e/Vincent_van_Gogh_-_The_Starry_Night_-_Google_Art_Project.jpg');
+      background-size: cover;
+      background-blend-mode: lighten;
+    }
+
+    .clue {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #1a1a1a;
+      text-shadow: 1px 1px 2px #ccc;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      z-index: 2;
+      backdrop-filter: blur(2px);
+    }
+
+    .clue:hover {
+      background: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .graffiti {
+      position: absolute;
+      top: 10vh;
+      left: 10vw;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-size: 2.5rem;
+      color: #ff3cac;
+      text-shadow: 2px 2px 5px #000;
+      cursor: pointer;
+      z-index: 4;
+      transition: transform 0.3s ease;
+    }
+
+    .graffiti:hover {
+      transform: scale(1.2) rotate(-2deg);
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #ff3cac;
+      border-radius: 50%;
+      opacity: 0.8;
+      pointer-events: none;
+      animation: pop 1s ease-out forwards;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes flow {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 800% 0%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <div class="river"></div>
+    <div class="stone" onclick="checkPuzzleSolved()"></div>
+
+    <div class="clue" id="clue1" style="top: 25vh; left: 8vw;">"The current whispers secrets..."</div>
+    <div class="clue" id="clue2" style="top: 35vh; left: 33vw;">"...but only stillness holds truth..."</div>
+    <div class="clue" id="clue3" style="top: 18vh; left: 72vw;">"...etched deep in timeless stone."</div>
+
+    <div class="graffiti" id="graffitiTag">ECHO VIBES</div>
+
+    <div class="message-box" id="messageBox">
+      <p><strong>"The river forgets, but the stone remembers."</strong><br><br>
+      You walked through echo and rhythm, but found clarity in silence. The river’s pulse told you stories, but the stone gave you truth.<br><br>
+      <em>— Let your flow be bold, but carve your values where time can’t reach. Brilliance lies in patience, and power in stillness.</em><br><br>
+      <span style="font-size: 1rem; color: #fff; text-shadow: 0 0 4px #000">Wu-Tang wisdom seal approved — style sharp like a blade, depth deep like a canyon.</span></p>
+    </div>
+  </div>
+
+  <script>
+    let cluesClicked = {
+      clue1: false,
+      clue2: false,
+      clue3: false
+    };
+
+    document.getElementById('clue1').addEventListener('click', () => collectClue('clue1'));
+    document.getElementById('clue2').addEventListener('click', () => collectClue('clue2'));
+    document.getElementById('clue3').addEventListener('click', () => collectClue('clue3'));
+
+    document.getElementById('graffitiTag').addEventListener('click', (e) => {
+      const graffiti = e.target;
+      graffiti.style.display = 'none';
+      for (let i = 0; i < 40; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = (e.clientX + Math.random() * 50 - 25) + 'px';
+        particle.style.top = (e.clientY + Math.random() * 50 - 25) + 'px';
+        particle.style.background = ['#ff3cac', '#78ffd6', '#f0f'][(i % 3)];
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+      }
+    });
+
+    function collectClue(clueId) {
+      document.getElementById(clueId).classList.add('hidden');
+      cluesClicked[clueId] = true;
+    }
+
+    function checkPuzzleSolved() {
+      if (cluesClicked.clue1 && cluesClicked.clue2 && cluesClicked.clue3) {
+        document.getElementById('messageBox').style.display = 'block';
+      } else {
+        alert("The stone stays quiet — you ain't unlocked its vibe yet.");
+      }
+    }
+  </script>
+</body>
+</html>
