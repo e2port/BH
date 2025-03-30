@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>River and Stone Minigame</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top left, #2b5876, #4e4376);
+      overflow: hidden;
+      animation: hueShift 60s linear infinite;
+    }
+
+    @keyframes hueShift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .river {
+      position: absolute;
+      width: 100vw;
+      height: 50vh;
+      bottom: 0;
+      background: linear-gradient(to top, #1f4e5f, #287aa9, #3fd0d4);
+      background-size: 800% 100%;
+      animation: riverFlow 12s ease-in-out infinite;
+      z-index: 1;
+      mix-blend-mode: screen;
+      opacity: 0.9;
+    }
+
+    @keyframes riverFlow {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 800% 0%; }
+    }
+
+    .stone {
+      position: absolute;
+      width: 140px;
+      height: 70px;
+      background: linear-gradient(to bottom right, #4b4b4b, #2c2c2c);
+      border-radius: 50%;
+      bottom: 42vh;
+      left: 60vw;
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      z-index: 3;
+    }
+
+    .stone:hover {
+      transform: scale(1.25);
+      background: linear-gradient(to bottom right, #6f6f6f, #444);
+    }
+
+    .message-box {
+      position: absolute;
+      top: 10vh;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid #000;
+      border-radius: 24px;
+      padding: 30px;
+      max-width: 70vw;
+      font-size: 1.5rem;
+      text-align: center;
+      display: none;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6);
+      z-index: 5;
+      color: #1d1d1d;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/6e/Vincent_van_Gogh_-_The_Starry_Night_-_Google_Art_Project.jpg');
+      background-size: cover;
+      background-blend-mode: multiply;
+    }
+
+    .clue {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #222;
+      text-shadow: 1px 1px 2px #bbb;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 4;
+    }
+
+    .clue:hover {
+      background: #fefefe;
+      transform: scale(1.1) rotate(-1deg);
+    }
+
+    .graffiti {
+      position: absolute;
+      top: 8vh;
+      left: 8vw;
+      font-family: 'Permanent Marker', cursive;
+      font-size: 3rem;
+      color: #ff3cac;
+      text-shadow: 3px 3px 6px #000;
+      cursor: pointer;
+      z-index: 6;
+      transition: transform 0.4s ease;
+    }
+
+    .graffiti:hover {
+      transform: scale(1.3) rotate(-2deg);
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff3cac;
+      animation: explode 1.5s ease-out forwards;
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @keyframes explode {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <div class="river"></div>
+    <div class="stone" onclick="checkPuzzleSolved()"></div>
+
+    <div class="clue" id="clue1" style="top: 20vh; left: 12vw;">"The current whispers secrets..."</div>
+    <div class="clue" id="clue2" style="top: 33vh; left: 40vw;">"...but only stillness holds truth..."</div>
+    <div class="clue" id="clue3" style="top: 22vh; left: 70vw;">"...etched deep in timeless stone."</div>
+
+    <div class="graffiti" id="graffitiTag">ECHO VIBES</div>
+
+    <div class="message-box" id="messageBox">
+      <p><strong>"The river forgets, but the stone remembers."</strong><br><br>
+        In a world of rushing rhythms, you found the voice that speaks only when all else is still.<br><br>
+        <em>— Be water when you flow, be stone when you choose. Carve your legacy in silence, and it will echo forever.</em><br><br>
+        <span style="font-size: 1rem; color: #fff; text-shadow: 0 0 4px #000">Wu-Tang certified. Flow cosmic. Memory deep. You made it eternal.</span>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const cluesClicked = {
+      clue1: false,
+      clue2: false,
+      clue3: false
+    };
+
+    document.getElementById('clue1').onclick = () => collectClue('clue1');
+    document.getElementById('clue2').onclick = () => collectClue('clue2');
+    document.getElementById('clue3').onclick = () => collectClue('clue3');
+
+    function collectClue(id) {
+      document.getElementById(id).classList.add('hidden');
+      cluesClicked[id] = true;
+    }
+
+    function checkPuzzleSolved() {
+      if (cluesClicked.clue1 && cluesClicked.clue2 && cluesClicked.clue3) {
+        document.getElementById('messageBox').style.display = 'block';
+      } else {
+        alert("The stone ain't ready yet. Listen deeper.");
+      }
+    }
+
+    document.getElementById('graffitiTag').addEventListener('click', (e) => {
+      const graffiti = e.target;
+      graffiti.style.display = 'none';
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.left = (e.clientX + Math.random() * 60 - 30) + 'px';
+        particle.style.top = (e.clientY + Math.random() * 60 - 30) + 'px';
+        particle.style.background = ['#ff3cac', '#78ffd6', '#fff700'][Math.floor(Math.random() * 3)];
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1500);
+      }
+    });
+  </script>
+</body>
+</html>
