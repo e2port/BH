@@ -16,14 +16,14 @@
       height: 100vh;
       background-color: midnightblue;
     }
-    /* The game canvas (for drawing the player, enemies, bullets, etc) */
+    /* The game canvas (for drawing the player, enemies, bullets) at z-index 120 */
     #gameCanvas {
       position: absolute;
       top: 0;
       left: 0;
-      z-index: 120; /* now set to 120 for game content */
+      z-index: 120;
     }
-    /* Top title bar showing game title, timer, score and round */
+    /* Top title bar (z-index 150) */
     #titleBar {
       position: absolute;
       top: 0;
@@ -36,11 +36,11 @@
       font-size: 16px;
       line-height: 40px;
       padding: 0 10px;
-      z-index: 150; /* raised above canvas */
+      z-index: 150;
       display: flex;
       justify-content: space-between;
     }
-    /* Teleport button: occupies the bottom 20% of the screen */
+    /* Teleport button area (bottom 20%) – tap to teleport */
     #teleportBtn {
       position: absolute;
       bottom: 0;
@@ -51,7 +51,7 @@
       background-color: transparent;
       border: 2px solid yellow;
     }
-    /* Left movement button: on extreme left */
+    /* Left movement button (15% width on left side) */
     #leftBtn {
       position: absolute;
       left: 0;
@@ -62,7 +62,7 @@
       background-color: transparent;
       border: 2px solid yellow;
     }
-    /* Right movement button: on extreme right */
+    /* Right movement button (15% width on right side) */
     #rightBtn {
       position: absolute;
       right: 0;
@@ -73,7 +73,7 @@
       background-color: transparent;
       border: 2px solid yellow;
     }
-    /* Middle area between the left and right buttons */
+    /* Middle area (for shield and fire buttons) */
     #middleArea {
       position: absolute;
       left: 15%;
@@ -82,7 +82,7 @@
       height: calc(100vh - 40px - 20%);
       z-index: 200;
     }
-    /* Shield button: top 15% of middle area */
+    /* Shield button (top 15% of middle area) */
     #shieldBtn {
       position: absolute;
       top: 0;
@@ -93,7 +93,7 @@
       border: 2px solid yellow;
       z-index: 200;
     }
-    /* Fire button: occupies the remaining 85% of middle area */
+    /* Fire button (remaining 85% of middle area) */
     #fireBtn {
       position: absolute;
       bottom: 0;
@@ -111,11 +111,11 @@
       user-select: none;
       z-index: 200;
     }
-    /* Change the color of the Chinese character when the button is active */
+    /* Change the color of the Chinese “火” when pressed */
     #fireBtn.active {
       color: red;
     }
-    /* Game Over overlay */
+    /* Game Over overlay (z-index 300) */
     #gameOverOverlay {
       position: absolute;
       top: 0;
@@ -164,36 +164,31 @@
     </div>
   </div>
   <script>
-    // Get canvas and context
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Resize canvas to fill the container
+    // Resize canvas and position the player just above the bottom teleport area.
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      // Position the player vertically at the center of the teleport area (bottom 20%)
-      player.y = canvas.height - (canvas.height * 0.2) / 2;
+      player.y = canvas.height - (canvas.height * 0.2) - 10;
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Global game variables
     let gameOver = false;
     let currentRound = 1;
     let score = 0;
     let startTime = null;
     let elapsedTime = 0;
-    let countdown = 3; // 3-second countdown at start of game or round
+    let countdown = 3; // 3-second countdown at round start
     let countdownActive = true;
     let enemyShootTimer = 0;
-    // A flag that determines if shooting (both enemy and player) is enabled
     let shootingEnabled = false;
 
-    // Player object: a neon red triangle at the bottom.
     let player = {
       x: canvas.width / 2,
-      y: canvas.height - (canvas.height * 0.2) / 2,
+      y: canvas.height - (canvas.height * 0.2) - 10,
       size: 30,
       shieldActive: false,
       shieldTimer: 0,
@@ -201,20 +196,13 @@
       speed: 5
     };
 
-    // Arrays for enemies, player bullets and enemy bullets
     let enemies = [];
     let playerBullets = [];
     let enemyBullets = [];
-
-    // Flags for continuous left/right movement
     let moveLeft = false;
     let moveRight = false;
-
-    // Enemy shooting interval (in milliseconds)
     const enemyShootInterval = 1000;
 
-    // Initialize enemies for the current round.
-    // Enemies are arranged in 2 rows and 3 columns.
     function initEnemies() {
       enemies = [];
       const rows = 2;
@@ -230,24 +218,23 @@
             x: startX + c * spacingX,
             y: startY + r * spacingY,
             size: enemySize,
-            hitsLeft: currentRound // Increase hit requirement each round.
+            hitsLeft: currentRound
           });
         }
       }
     }
 
-    // Reset game state for a new game.
     function resetGame() {
       gameOver = false;
       currentRound = 1;
       score = 0;
       player.x = canvas.width / 2;
+      player.y = canvas.height - (canvas.height * 0.2) - 10;
       player.shieldActive = false;
       player.shieldTimer = 0;
       player.availableShields = 1;
       playerBullets = [];
       enemyBullets = [];
-      // For each new round, initialize enemies but start with a countdown.
       initEnemies();
       startTime = Date.now();
       countdown = 3;
@@ -257,25 +244,23 @@
       document.getElementById('gameOverOverlay').style.display = 'none';
     }
 
-    // Start the game
     resetGame();
 
-    // ----- UI Button Event Listeners (Touch) -----
-    // Left movement button
+    // Left movement button events.
     const leftBtn = document.getElementById('leftBtn');
     leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft = true; });
     leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveLeft = false; });
-
-    // Right movement button
+    
+    // Right movement button events.
     const rightBtn = document.getElementById('rightBtn');
     rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveRight = true; });
     rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveRight = false; });
 
-    // Teleport button: teleports the player to the opposite side along the bottom.
+    // Teleport button: tap to teleport.
     const teleportBtn = document.getElementById('teleportBtn');
     teleportBtn.addEventListener('touchstart', (e) => { e.preventDefault(); teleportPlayer(); });
     function teleportPlayer() {
-      if (!shootingEnabled) return; // only allow teleport after countdown ends
+      if (!shootingEnabled) return;
       if (player.x < canvas.width / 2) {
         player.x = canvas.width - player.size / 2 - 5;
       } else {
@@ -283,11 +268,11 @@
       }
     }
 
-    // Shield button: activates a shield (if available) that lasts 5 seconds.
+    // Shield button.
     const shieldBtn = document.getElementById('shieldBtn');
     shieldBtn.addEventListener('touchstart', (e) => { e.preventDefault(); activateShield(); });
     function activateShield() {
-      if (!shootingEnabled) return; // cannot activate during countdown
+      if (!shootingEnabled) return;
       if (player.availableShields > 0 && !player.shieldActive) {
         player.shieldActive = true;
         player.shieldTimer = 5000;
@@ -295,21 +280,17 @@
       }
     }
 
-    // Fire button: fires bullets and flashes the Chinese “火” (blue normally, turns red on press).
+    // Fire button.
     const fireBtn = document.getElementById('fireBtn');
-    fireBtn.addEventListener('click', () => {
-      fireWeapon();
-      flashFireButton();
-    });
+    fireBtn.addEventListener('click', () => { fireWeapon(); flashFireButton(); });
     fireBtn.addEventListener('touchstart', (e) => { e.preventDefault(); fireWeapon(); flashFireButton(); });
     function flashFireButton() {
       fireBtn.classList.add('active');
       setTimeout(() => { fireBtn.classList.remove('active'); }, 100);
     }
     function fireWeapon() {
-      if (!shootingEnabled) return; // ignore firing during countdown
+      if (!shootingEnabled) return;
       if (currentRound === 1) {
-        // Single shot (straight up)
         playerBullets.push({
           x: player.x,
           y: player.y - player.size,
@@ -317,7 +298,6 @@
           vy: -7
         });
       } else {
-        // Triple shot (center, left, and right bullets)
         playerBullets.push({
           x: player.x,
           y: player.y - player.size,
@@ -339,7 +319,7 @@
       }
     }
 
-    // ----- Keyboard Controls for PC -----
+    // Keyboard Controls for PC.
     document.addEventListener('keydown', function(e) {
       if (e.repeat) return;
       switch (e.key) {
@@ -349,7 +329,12 @@
           break;
         case 's':
         case 'S':
-          teleportPlayer();
+          if (!shootingEnabled) return;
+          if (player.x < canvas.width / 2) {
+            player.x = canvas.width - player.size / 2 - 5;
+          } else {
+            player.x = player.size / 2 + 5;
+          }
           break;
         case 'a':
         case 'A':
@@ -364,6 +349,8 @@
           flashFireButton();
           break;
       }
+      if (player.x < player.size / 2) player.x = player.size / 2;
+      if (player.x > canvas.width - player.size / 2) player.x = canvas.width - player.size / 2;
     });
     document.addEventListener('keyup', function(e) {
       switch (e.key) {
@@ -378,7 +365,6 @@
       }
     });
 
-    // ----- Main Game Loop -----
     let lastTime = Date.now();
     function gameLoop() {
       if (gameOver) return;
@@ -392,49 +378,41 @@
     requestAnimationFrame(gameLoop);
 
     function update(deltaTime) {
-      // Update timer, score and round info in the title bar.
       elapsedTime = Math.floor((Date.now() - startTime) / 1000);
       document.getElementById('timer').innerText = elapsedTime;
       document.getElementById('score').innerText = score;
       document.getElementById('round').innerText = currentRound;
-
-      // Update countdown timer regardless of shootingEnabled
+      
       if (countdownActive) {
         countdown -= deltaTime / 1000;
         if (countdown <= 0) {
           countdownActive = false;
-          shootingEnabled = true; // allow shooting after countdown ends
+          shootingEnabled = true;
           countdown = 0;
         }
       }
-
-      // Always update player movement, even during countdown.
-      // Scale movement by deltaTime (base ~16.67ms per frame)
+      
       if (moveLeft) player.x -= player.speed * (deltaTime / 16.67);
       if (moveRight) player.x += player.speed * (deltaTime / 16.67);
       if (player.x < player.size / 2) player.x = player.size / 2;
       if (player.x > canvas.width - player.size / 2) player.x = canvas.width - player.size / 2;
-
-      // Update shield timer.
+      
       if (player.shieldActive) {
         player.shieldTimer -= deltaTime;
         if (player.shieldTimer <= 0) {
           player.shieldActive = false;
         }
       }
-
-      // Only update bullets, enemy shooting, and collisions when shooting is enabled.
+      
       if (shootingEnabled) {
-        // Update player bullets.
         for (let i = playerBullets.length - 1; i >= 0; i--) {
           let bullet = playerBullets[i];
           bullet.x += bullet.vx * (deltaTime / 16.67);
           bullet.y += bullet.vy * (deltaTime / 16.67);
-          if (bullet.y < 0) { 
+          if (bullet.y < 0) {
             playerBullets.splice(i, 1);
             continue;
           }
-          // Check collision with each enemy.
           for (let j = enemies.length - 1; j >= 0; j--) {
             let enemy = enemies[j];
             if (
@@ -451,16 +429,13 @@
             }
           }
         }
-
-        // Update enemy bullets.
         for (let i = enemyBullets.length - 1; i >= 0; i--) {
           let bullet = enemyBullets[i];
           bullet.y += bullet.vy * (deltaTime / 16.67);
-          if (bullet.y > canvas.height) { 
+          if (bullet.y > canvas.height) {
             enemyBullets.splice(i, 1);
             continue;
           }
-          // Define player's hit box as a rectangle.
           let playerBox = {
             x: player.x - player.size / 2,
             y: player.y - player.size,
@@ -479,8 +454,6 @@
             }
           }
         }
-
-        // Enemy shooting: every enemyShootInterval, a random enemy fires a bullet.
         enemyShootTimer += deltaTime;
         if (enemyShootTimer >= enemyShootInterval) {
           enemyShootTimer = 0;
@@ -494,21 +467,17 @@
             });
           }
         }
-
-        // Check if all enemies are cleared – if so, start a new round with a countdown.
         if (enemies.length === 0) {
           if (currentRound < 3) {
             currentRound++;
-            player.availableShields++; // Reward an extra shield.
+            player.availableShields++;
             playerBullets = [];
             enemyBullets = [];
-            // Start a new 3-second countdown
             countdown = 3;
             countdownActive = true;
             shootingEnabled = false;
             initEnemies();
           } else {
-            // Completed 3 rounds: game won. End game.
             endGame(true);
           }
         }
@@ -516,10 +485,7 @@
     }
 
     function draw() {
-      // Clear canvas.
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw the player as a neon red triangle.
       ctx.fillStyle = "red";
       ctx.beginPath();
       ctx.moveTo(player.x, player.y - player.size);
@@ -527,8 +493,6 @@
       ctx.lineTo(player.x + player.size / 2, player.y);
       ctx.closePath();
       ctx.fill();
-
-      // If shield is active, draw a slightly larger outline triangle.
       if (player.shieldActive) {
         ctx.strokeStyle = "orange";
         ctx.lineWidth = 4;
@@ -539,16 +503,11 @@
         ctx.lineTo(player.x + shieldSize / 2, player.y);
         ctx.stroke();
       }
-
-      // Only draw enemies and bullets when shooting is enabled.
       if (shootingEnabled) {
-        // Draw enemies as neon green squares.
         ctx.fillStyle = "lime";
         enemies.forEach(enemy => {
           ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
         });
-
-        // Draw player bullets as bright yellow lines.
         ctx.strokeStyle = "yellow";
         ctx.lineWidth = 2;
         playerBullets.forEach(bullet => {
@@ -557,8 +516,6 @@
           ctx.lineTo(bullet.x, bullet.y + 10);
           ctx.stroke();
         });
-
-        // Draw enemy bullets as red dots.
         ctx.fillStyle = "red";
         enemyBullets.forEach(bullet => {
           ctx.beginPath();
@@ -566,8 +523,6 @@
           ctx.fill();
         });
       }
-
-      // Overlay the countdown number if active.
       if (countdownActive) {
         ctx.fillStyle = "white";
         ctx.font = "48px sans-serif";
@@ -576,15 +531,12 @@
       }
     }
 
-    // End the game: show game over overlay with final score and time.
     function endGame(win = false) {
       gameOver = true;
-      const overlay = document.getElementById('gameOverOverlay');
       document.getElementById('finalScore').innerText = `Score: ${score}   Time: ${elapsedTime} s`;
-      overlay.style.display = "flex";
+      document.getElementById('gameOverOverlay').style.display = "flex";
     }
 
-    // Restart button resets the game.
     const restartBtn = document.getElementById('restartBtn');
     restartBtn.addEventListener('click', () => {
       resetGame();
