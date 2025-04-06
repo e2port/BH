@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Alien Invasion</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    /* Game container fills the viewport */
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-color: midnightblue;
+    }
+    /* The game canvas (for drawing the player, enemies, bullets, etc) */
+    #gameCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    /* Top title bar showing game title, timer, score and round */
+    #titleBar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background-color: #222;
+      color: white;
+      font-family: sans-serif;
+      font-size: 16px;
+      line-height: 40px;
+      padding: 0 10px;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+    }
+    /* Teleport button: occupies the bottom 20% of the screen */
+    #teleportBtn {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 20%;
+      z-index: 20;
+      background-color: transparent;
+      border: 2px solid yellow;
+    }
+    /* Left movement button: on extreme left */
+    #leftBtn {
+      position: absolute;
+      left: 0;
+      top: 40px;
+      width: 15%;
+      height: calc(100vh - 40px - 20%);
+      z-index: 20;
+      background-color: transparent;
+      border: 2px solid yellow;
+    }
+    /* Right movement button: on extreme right */
+    #rightBtn {
+      position: absolute;
+      right: 0;
+      top: 40px;
+      width: 15%;
+      height: calc(100vh - 40px - 20%);
+      z-index: 20;
+      background-color: transparent;
+      border: 2px solid yellow;
+    }
+    /* Middle area between the left and right buttons */
+    #middleArea {
+      position: absolute;
+      left: 15%;
+      width: 70%;
+      top: 40px;
+      height: calc(100vh - 40px - 20%);
+      z-index: 20;
+    }
+    /* Shield button: top 15% of middle area */
+    #shieldBtn {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 15%;
+      background-color: transparent;
+      border: 2px solid yellow;
+    }
+    /* Fire button: occupies the remaining 85% of middle area */
+    #fireBtn {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 85%;
+      background-color: transparent;
+      border: 2px solid yellow;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      font-size: 2em;
+      color: blue;
+      user-select: none;
+    }
+    /* Change the color of the Chinese character when the button is active */
+    #fireBtn.active {
+      color: red;
+    }
+    /* Game Over overlay */
+    #gameOverOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      font-size: 24px;
+      display: none;
+    }
+    #restartBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <div id="titleBar">
+      <div id="gameTitle">Alien Invasion</div>
+      <div id="gameInfo">
+        Time: <span id="timer">0</span> s | Score: <span id="score">0</span> | Round: <span id="round">1</span>
+      </div>
+    </div>
+    <div id="teleportBtn"></div>
+    <div id="leftBtn"></div>
+    <div id="rightBtn"></div>
+    <div id="middleArea">
+      <div id="shieldBtn"></div>
+      <div id="fireBtn">火</div>
+    </div>
+    <div id="gameOverOverlay">
+      <div id="gameOverText">Game Over!</div>
+      <div id="finalScore"></div>
+      <button id="restartBtn">Restart</button>
+    </div>
+  </div>
+  <script>
+    // Get canvas and context
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    // Resize canvas to fill the container
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      if(player) {
+        // Position the player vertically at the center of the teleport area (bottom 20%)
+        player.y = canvas.height - (canvas.height * 0.2) / 2;
+      }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Global game variables
+    let gameStarted = false;
+    let gameOver = false;
+    let currentRound = 1;
+    let score = 0;
+    let startTime = null;
+    let elapsedTime = 0;
+    let countdown = 3; // seconds countdown before each round
+    let countdownActive = true;
+    let enemyShootTimer = 0;
+
+    // Player object: a neon red triangle at the bottom.
+    let player = {
+      x: canvas.width / 2,
+      y: canvas.height - (canvas.height * 0.2) / 2,
+      size: 30,
+      shieldActive: false,
+      shieldTimer: 0,
+      availableShields: 1,
+      speed: 5
+    };
+
+    // Arrays for enemies, player bullets and enemy bullets
+    let enemies = [];
+    let playerBullets = [];
+    let enemyBullets = [];
+
+    // Flags for continuous left/right movement
+    let moveLeft = false;
+    let moveRight = false;
+
+    // Enemy shooting interval (in milliseconds)
+    const enemyShootInterval = 1000;
+
+    // Initialize enemies for the current round.
+    // Enemies are arranged in 3 rows and 5 columns.
+    function initEnemies() {
+      enemies = [];
+      const rows = 3;
+      const cols = 5;
+      const enemySize = 30;
+      const spacingX = (canvas.width - 100) / (cols - 1);
+      const spacingY = 40;
+      const startX = 50;
+      const startY = 60;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          enemies.push({
+            x: startX + c * spacingX,
+            y: startY + r * spacingY,
+            size: enemySize,
+            hitsLeft: currentRound // Increase hit requirement each round.
+          });
+        }
+      }
+    }
+
+    // Reset game state for a new game.
+    function resetGame() {
+      gameOver = false;
+      currentRound = 1;
+      score = 0;
+      player.x = canvas.width / 2;
+      player.shieldActive = false;
+      player.shieldTimer = 0;
+      player.availableShields = 1;
+      playerBullets = [];
+      enemyBullets = [];
+      initEnemies();
+      startTime = Date.now();
+      countdown = 3;
+      countdownActive = true;
+      enemyShootTimer = 0;
+      document.getElementById('gameOverOverlay').style.display = 'none';
+    }
+
+    // Start the game
+    resetGame();
+    gameStarted = true;
+
+    // ----- UI Button Event Listeners (Touch/Mouse) -----
+    // Left movement button
+    const leftBtn = document.getElementById('leftBtn');
+    leftBtn.addEventListener('mousedown', () => { moveLeft = true; });
+    leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft = true; });
+    leftBtn.addEventListener('mouseup', () => { moveLeft = false; });
+    leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveLeft = false; });
+
+    // Right movement button
+    const rightBtn = document.getElementById('rightBtn');
+    rightBtn.addEventListener('mousedown', () => { moveRight = true; });
+    rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveRight = true; });
+    rightBtn.addEventListener('mouseup', () => { moveRight = false; });
+    rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveRight = false; });
+
+    // Teleport button: teleports the player to the opposite side along the bottom.
+    const teleportBtn = document.getElementById('teleportBtn');
+    teleportBtn.addEventListener('click', teleportPlayer);
+    teleportBtn.addEventListener('touchstart', (e) => { e.preventDefault(); teleportPlayer(); });
+    function teleportPlayer() {
+      if (player.x < canvas.width / 2) {
+        player.x = canvas.width - player.size / 2 - 5;
+      } else {
+        player.x = player.size / 2 + 5;
+      }
+    }
+
+    // Shield button: activates a shield (if available) that lasts 5 seconds.
+    const shieldBtn = document.getElementById('shieldBtn');
+    shieldBtn.addEventListener('click', activateShield);
+    shieldBtn.addEventListener('touchstart', (e) => { e.preventDefault(); activateShield(); });
+    function activateShield() {
+      if (player.availableShields > 0 && !player.shieldActive) {
+        player.shieldActive = true;
+        player.shieldTimer = 5000;
+        player.availableShields--;
+      }
+    }
+
+    // Fire button: fires bullets and flashes the Chinese “火” (blue normally, turns red on press).
+    const fireBtn = document.getElementById('fireBtn');
+    fireBtn.addEventListener('click', () => {
+      fireWeapon();
+      flashFireButton();
+    });
+    fireBtn.addEventListener('touchstart', (e) => { e.preventDefault(); fireWeapon(); flashFireButton(); });
+    function flashFireButton() {
+      fireBtn.classList.add('active');
+      setTimeout(() => { fireBtn.classList.remove('active'); }, 100);
+    }
+    function fireWeapon() {
+      if (currentRound === 1) {
+        // Single shot (straight up)
+        playerBullets.push({
+          x: player.x,
+          y: player.y - player.size,
+          vx: 0,
+          vy: -7
+        });
+      } else {
+        // Triple shot (center, left, and right bullets)
+        playerBullets.push({
+          x: player.x,
+          y: player.y - player.size,
+          vx: 0,
+          vy: -7
+        });
+        playerBullets.push({
+          x: player.x,
+          y: player.y - player.size,
+          vx: -2,
+          vy: -7
+        });
+        playerBullets.push({
+          x: player.x,
+          y: player.y - player.size,
+          vx: 2,
+          vy: -7
+        });
+      }
+    }
+
+    // ----- Keyboard Controls for PC -----
+    document.addEventListener('keydown', function(e) {
+      if (e.repeat) return;
+      switch (e.key) {
+        case 'w':
+        case 'W':
+          activateShield();
+          break;
+        case 's':
+        case 'S':
+          teleportPlayer();
+          break;
+        case 'a':
+        case 'A':
+          moveLeft = true;
+          break;
+        case 'd':
+        case 'D':
+          moveRight = true;
+          break;
+        case ' ':
+          fireWeapon();
+          flashFireButton();
+          break;
+      }
+    });
+    document.addEventListener('keyup', function(e) {
+      switch (e.key) {
+        case 'a':
+        case 'A':
+          moveLeft = false;
+          break;
+        case 'd':
+        case 'D':
+          moveRight = false;
+          break;
+      }
+    });
+
+    // ----- Main Game Loop -----
+    let lastTime = Date.now();
+    function gameLoop() {
+      if (gameOver) return;
+      const now = Date.now();
+      const deltaTime = now - lastTime;
+      lastTime = now;
+      update(deltaTime);
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+
+    function update(deltaTime) {
+      // Update timer, score and round info in the title bar.
+      elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+      document.getElementById('timer').innerText = elapsedTime;
+      document.getElementById('score').innerText = score;
+      document.getElementById('round').innerText = currentRound;
+
+      // Countdown before starting (or between) waves.
+      if (countdownActive) {
+        countdown -= deltaTime / 1000;
+        if (countdown <= 0) { countdownActive = false; }
+        // Do not update game objects during countdown.
+        return;
+      }
+
+      // Move the player based on left/right flags.
+      if (moveLeft) player.x -= player.speed;
+      if (moveRight) player.x += player.speed;
+      if (player.x < player.size / 2) player.x = player.size / 2;
+      if (player.x > canvas.width - player.size / 2) player.x = canvas.width - player.size / 2;
+
+      // Update shield timer.
+      if (player.shieldActive) {
+        player.shieldTimer -= deltaTime;
+        if (player.shieldTimer <= 0) { player.shieldActive = false; }
+      }
+
+      // Update player bullets.
+      for (let i = playerBullets.length - 1; i >= 0; i--) {
+        let bullet = playerBullets[i];
+        bullet.x += bullet.vx;
+        bullet.y += bullet.vy;
+        if (bullet.y < 0) { playerBullets.splice(i, 1); continue; }
+        // Check collision with each enemy.
+        for (let j = enemies.length - 1; j >= 0; j--) {
+          let enemy = enemies[j];
+          if (
+            bullet.x > enemy.x && bullet.x < enemy.x + enemy.size &&
+            bullet.y > enemy.y && bullet.y < enemy.y + enemy.size
+          ) {
+            enemy.hitsLeft--;
+            playerBullets.splice(i, 1);
+            if (enemy.hitsLeft <= 0) {
+              enemies.splice(j, 1);
+              score += 10;
+            }
+            break;
+          }
+        }
+      }
+
+      // Update enemy bullets.
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        let bullet = enemyBullets[i];
+        bullet.y += bullet.vy;
+        if (bullet.y > canvas.height) { enemyBullets.splice(i, 1); continue; }
+        // Approximate player's hit area as a rectangle.
+        let playerBox = {
+          x: player.x - player.size / 2,
+          y: player.y - player.size,
+          width: player.size,
+          height: player.size
+        };
+        if (
+          bullet.x > playerBox.x && bullet.x < playerBox.x + playerBox.width &&
+          bullet.y > playerBox.y && bullet.y < playerBox.y + playerBox.height
+        ) {
+          if (player.shieldActive) {
+            enemyBullets.splice(i, 1);
+          } else {
+            endGame();
+            return;
+          }
+        }
+      }
+
+      // Enemy shooting: every enemyShootInterval, a random enemy fires a bullet.
+      enemyShootTimer += deltaTime;
+      if (enemyShootTimer >= enemyShootInterval) {
+        enemyShootTimer = 0;
+        if (enemies.length > 0) {
+          let randomEnemy = enemies[Math.floor(Math.random() * enemies.length)];
+          enemyBullets.push({
+            x: randomEnemy.x + randomEnemy.size / 2,
+            y: randomEnemy.y + randomEnemy.size,
+            vy: 3,
+            radius: 5
+          });
+        }
+      }
+
+      // Check if all enemies are cleared – if so, prepare next round (up to 3 rounds).
+      if (enemies.length === 0) {
+        if (currentRound < 3) {
+          currentRound++;
+          player.availableShields++; // Reward an extra shield.
+          playerBullets = [];
+          enemyBullets = [];
+          countdown = 3;
+          countdownActive = true;
+          initEnemies();
+        } else {
+          // Completed 3 rounds: game won. End game (you can modify this as needed).
+          endGame(true);
+        }
+      }
+    }
+
+    function draw() {
+      // Clear canvas.
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // If countdown is active, display it in the center.
+      if (countdownActive) {
+        ctx.fillStyle = "white";
+        ctx.font = "48px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(Math.ceil(countdown), canvas.width / 2, canvas.height / 2);
+        return;
+      }
+
+      // Draw the player as a neon red triangle.
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y - player.size);
+      ctx.lineTo(player.x - player.size / 2, player.y);
+      ctx.lineTo(player.x + player.size / 2, player.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // If shield is active, draw a slightly larger outline triangle.
+      if (player.shieldActive) {
+        ctx.strokeStyle = "orange";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        let shieldSize = player.size * 1.5;
+        ctx.moveTo(player.x, player.y - shieldSize);
+        ctx.lineTo(player.x - shieldSize / 2, player.y);
+        ctx.lineTo(player.x + shieldSize / 2, player.y);
+        ctx.stroke();
+      }
+
+      // Draw enemies as neon green squares.
+      ctx.fillStyle = "lime";
+      enemies.forEach(enemy => {
+        ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+      });
+
+      // Draw player bullets as bright yellow lines.
+      ctx.strokeStyle = "yellow";
+      ctx.lineWidth = 2;
+      playerBullets.forEach(bullet => {
+        ctx.beginPath();
+        ctx.moveTo(bullet.x, bullet.y);
+        ctx.lineTo(bullet.x, bullet.y + 10);
+        ctx.stroke();
+      });
+
+      // Draw enemy bullets as red dots.
+      ctx.fillStyle = "red";
+      enemyBullets.forEach(bullet => {
+        ctx.beginPath();
+        ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    // End the game: show game over overlay with final score and time.
+    function endGame(win = false) {
+      gameOver = true;
+      const overlay = document.getElementById('gameOverOverlay');
+      document.getElementById('finalScore').innerText = `Score: ${score}   Time: ${elapsedTime} s`;
+      overlay.style.display = "flex";
+    }
+
+    // Restart button resets the game.
+    const restartBtn = document.getElementById('restartBtn');
+    restartBtn.addEventListener('click', () => {
+      resetGame();
+      lastTime = Date.now();
+      requestAnimationFrame(gameLoop);
+    });
+  </script>
+</body>
+</html>
