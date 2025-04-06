@@ -47,7 +47,7 @@
       left: 0;
       width: 100%;
       height: 20%;
-      z-index: 20;
+      z-index: 200;
       background-color: transparent;
       border: 2px solid yellow;
     }
@@ -58,7 +58,7 @@
       top: 40px;
       width: 15%;
       height: calc(100vh - 40px - 20%);
-      z-index: 20;
+      z-index: 200;
       background-color: transparent;
       border: 2px solid yellow;
     }
@@ -69,7 +69,7 @@
       top: 40px;
       width: 15%;
       height: calc(100vh - 40px - 20%);
-      z-index: 20;
+      z-index: 200;
       background-color: transparent;
       border: 2px solid yellow;
     }
@@ -80,7 +80,7 @@
       width: 70%;
       top: 40px;
       height: calc(100vh - 40px - 20%);
-      z-index: 20;
+      z-index: 200;
     }
     /* Shield button: top 15% of middle area */
     #shieldBtn {
@@ -90,6 +90,7 @@
       width: 100%;
       height: 15%;
       background-color: transparent;
+      z-index: 200;
       border: 2px solid yellow;
     }
     /* Fire button: occupies the remaining 85% of middle area */
@@ -108,6 +109,7 @@
       font-size: 2em;
       color: blue;
       user-select: none;
+      z-index: 200;
     }
     /* Change the color of the Chinese character when the button is active */
     #fireBtn.active {
@@ -143,7 +145,7 @@
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
     <div id="titleBar">
-      <div id="gameTitle">Alien Invasion</div>
+      <div id="gameTitle">Ode2JG   בס"ד</div>
       <div id="gameInfo">
         Time: <span id="timer">0</span> s | Score: <span id="score">0</span> | Round: <span id="round">1</span>
       </div>
@@ -214,9 +216,9 @@
     // Enemies are arranged in 3 rows and 5 columns.
     function initEnemies() {
       enemies = [];
-      const rows = 3;
-      const cols = 5;
-      const enemySize = 30;
+      const rows = 2;
+      const cols = 3;
+      const enemySize = 25;
       const spacingX = (canvas.width - 100) / (cols - 1);
       const spacingY = 40;
       const startX = 50;
@@ -260,21 +262,16 @@
     // ----- UI Button Event Listeners (Touch/Mouse) -----
     // Left movement button
     const leftBtn = document.getElementById('leftBtn');
-    leftBtn.addEventListener('mousedown', () => { moveLeft = true; });
     leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft = true; });
-    leftBtn.addEventListener('mouseup', () => { moveLeft = false; });
     leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveLeft = false; });
 
     // Right movement button
     const rightBtn = document.getElementById('rightBtn');
-    rightBtn.addEventListener('mousedown', () => { moveRight = true; });
     rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveRight = true; });
-    rightBtn.addEventListener('mouseup', () => { moveRight = false; });
     rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); moveRight = false; });
 
     // Teleport button: teleports the player to the opposite side along the bottom.
     const teleportBtn = document.getElementById('teleportBtn');
-    teleportBtn.addEventListener('click', teleportPlayer);
     teleportBtn.addEventListener('touchstart', (e) => { e.preventDefault(); teleportPlayer(); });
     function teleportPlayer() {
       if (!shootingEnabled) return; // only allow teleport after countdown ends
@@ -287,7 +284,6 @@
 
     // Shield button: activates a shield (if available) that lasts 5 seconds.
     const shieldBtn = document.getElementById('shieldBtn');
-    shieldBtn.addEventListener('click', activateShield);
     shieldBtn.addEventListener('touchstart', (e) => { e.preventDefault(); activateShield(); });
     function activateShield() {
       if (!shootingEnabled) return; // cannot activate during countdown
