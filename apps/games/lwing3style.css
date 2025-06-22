@@ -1,0 +1,104 @@
+/* lwing3style.css */
+
+/* ========================= */
+/* Section 1: CSS Variables */
+/* ========================= */
+:root {
+  --bg-color: #1a1a1a;
+  --bar-color: #444;
+  --text-color: #fff;
+  --highlight: #ffd700;
+  --canvas-bg: #87ceeb;
+  --font-main: Arial, sans-serif;
+  --font-title: Impact, Charcoal, sans-serif;
+}
+
+/* ========================= */
+/* Section 2: Global Styles */
+/* ========================= */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-main);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* ========================= */
+/* Section 3: Layout */
+/* ========================= */
+.game-container {
+  position: relative;
+  overflow: hidden;
+  width: 90vw;
+  max-width: 600px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================= */
+/* Section 4: Top Bar UI     */
+/* ========================= */
+.top-bar {
+  width: 100%;
+  background: var(--bar-color);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.top-bar h2 {
+  font-family: var(--font-title);
+  font-size: 28px;
+  color: var(--highlight);
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+.score-timer {
+  font-size: 16px;
+  background: #222;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+/* ========================= */
+/* Section 5: Canvas Style   */
+/* ========================= */
+canvas {
+  flex-grow: 1;
+  background: var(--canvas-bg);
+}
+
+/* ========================= */
+/* Section 6: Countdown Text */
+/* ========================= */
+.countdown {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 50px;
+  font-weight: bold;
+  color: var(--highlight);
+  z-index: 10;
+}
+
+/* ========================= */
+/* Section 7: Future Styles  */
+/* ========================= */
+/* TODO: Add selectors for
+   - sprite animations
+   - UI menus
+   - pause screens
+   - settings dialog
+*/
+
+
