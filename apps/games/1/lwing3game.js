@@ -34,8 +34,8 @@ let countdownInterval, bgInterval, currentBgIndex;
 // Section 3: Asset Loading Stubs
 // ================================
 // TODO: Replace rectangles with real images/sprites
-// const playerSprite = new Image();
-// playerSprite.src = 'assets/lion.png';
+const playerSprite = new Image();
+playerSprite.src = 'assets/lion-flap.png';  // the 80×10 PNG
 
 // ================================
 // Section 4: Sound & Music Stubs
@@ -63,23 +63,56 @@ function createLion() {
   return {
     x: canvasWidth * 0.2,
     y: canvasHeight * 0.5,
-    width: 20,
+    width: 20,              // logical draw size
     height: 10,
     velocityY: 0,
+
+    // sprite-sheet parameters:
+    frameCount: 4,
+    frameIndex: 0,
+    frameTimer: 0,
+    flapDuration: 200,      // ms to show flap frame
+
     draw() {
-      // TODO: draw playerSprite instead
-      ctx.fillStyle = "#800080";
-      ctx.fillRect(this.x, this.y, this.width, this.height);
+      // source x = frameIndex * frameWidth
+      const fw = this.width;
+      ctx.drawImage(
+        playerSprite,
+        this.frameIndex * fw,  // sx
+        0,                      // sy
+        fw,                     // sWidth
+        this.height,           // sHeight
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     },
-    update() {
-      this.velocityY += CONFIG.gravity;
-      this.y += this.velocityY;
+
+    update(dt) {
+      // basic physics
+      this.velocityY += CONFIG.gravity * (dt / 16);
+      this.y += this.velocityY * (dt / 16);
+
+      // sprite timer: revert to idle after flapDuration
+      if (this.frameIndex === 1) {
+        this.frameTimer += dt;
+        if (this.frameTimer >= this.flapDuration) {
+          this.frameIndex = 0;
+          this.frameTimer = 0;
+        }
+      }
+
+      // bounds check
       if (this.y < 0 || this.y + this.height > canvasHeight) {
         restartGame();
       }
     },
+
     flap() {
       this.velocityY = CONFIG.jumpStrength;
+      this.frameIndex = 1;     // switch to “wings up”
+      this.frameTimer = 0;
       // TODO: flapSound.play();
     }
   };
@@ -200,6 +233,15 @@ function gameLoop() {
   updateScore();
   requestAnimationFrame(gameLoop);
 }
+let last = performance.now();
+function loop(ts) {
+  const dt = ts - last;
+  last = ts;
+  lion.update(dt);
+  drawAll();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 
 // ================================
 // Section 12: Countdown & Restart
