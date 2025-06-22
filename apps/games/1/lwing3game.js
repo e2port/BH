@@ -226,6 +226,7 @@ function updateScore() {
 let lastTime = 0;
 
 function gameLoop(timestamp) {
+  if (!gameRunning) return;
   // 1) Compute time delta
   const dt = timestamp - lastTime;
   lastTime = timestamp;
@@ -250,11 +251,6 @@ function gameLoop(timestamp) {
   }
 }
 
-// Start the loop:
-requestAnimationFrame((ts) => {
-  lastTime = ts;      // initialize lastTime before the first frame
-  gameLoop(ts);
-});
 
 
 // ================================
