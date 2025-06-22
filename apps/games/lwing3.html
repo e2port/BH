@@ -1,0 +1,39 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LWing3</title>
+  <!-- ========================= -->
+  <!-- Stylesheet -->
+  <!-- ========================= -->
+  <link rel="stylesheet" href="lwing3style.css" />
+  <!-- ========================= -->
+  <!-- Game Script -->
+  <!-- ========================= -->
+  <script defer src="lwing3game.js"></script>
+</head>
+<body>
+  <!-- ========================= -->
+  <!-- Game Container -->
+  <!-- ========================= -->
+  <div class="game-container">
+    <!-- Top Bar: Title / Score / Timer -->
+    <div class="top-bar">
+      <h2 id="game-title">LWing2</h2>
+      <div class="score-timer">
+        <span id="timer">0:00</span> | <span id="score">00000</span>
+      </div>
+    </div>
+    <!-- Main Drawing Surface -->
+    <canvas id="gameCanvas"></canvas>
+    <!-- Countdown Overlay -->
+    <div id="countdown" class="countdown"></div>
+    <!-- Future UI Hooks (menus, dialogs, etc.) -->
+    <div id="ui-container"></div>
+  </div>
+</body>
+</html>
+
+
