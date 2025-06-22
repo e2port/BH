@@ -220,28 +220,42 @@ function updateScore() {
 }
 
 // ================================
-// Section 11: Main Loop
+// Section 11: Main Loop (with dt)
 // ================================
-function gameLoop() {
-  if (!gameRunning) return;
+
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+  // 1) Compute time delta
+  const dt = timestamp - lastTime;
+  lastTime = timestamp;
+
+  // 2) Clear
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  lion.update();
-  lion.draw();
-  updateObstacles();
-  drawObstacles();
-  checkCollision();
-  updateScore();
-  requestAnimationFrame(gameLoop);
-}
-let last = performance.now();
-function loop(ts) {
-  const dt = ts - last;
-  last = ts;
+
+  // 3) Update all objects with dt
   lion.update(dt);
-  drawAll();
-  requestAnimationFrame(loop);
+  updateObstacles(dt);    // if your obstacles need dt too
+  checkCollision();
+  updateScore(dt);        // if score is time‐based
+
+  // 4) Draw everything
+  lion.draw();
+  drawObstacles();
+  drawScore();            // or however you render it
+
+  // 5) Loop
+  if (gameRunning) {
+    requestAnimationFrame(gameLoop);
+  }
 }
-requestAnimationFrame(loop);
+
+// Start the loop:
+requestAnimationFrame((ts) => {
+  lastTime = ts;      // initialize lastTime before the first frame
+  gameLoop(ts);
+});
+
 
 // ================================
 // Section 12: Countdown & Restart
