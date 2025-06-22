@@ -242,7 +242,7 @@ function gameLoop(timestamp) {
   // 4) Draw everything
   lion.draw();
   drawObstacles();
-  drawScore();            // or however you render it
+
 
   // 5) Loop
   if (gameRunning) {
@@ -277,14 +277,16 @@ function restartGame() {
 }
 
 function startGame() {
-  lion = createLion();
-  obstacles = [];
-  score = 0;
-  gameStartTime = Date.now();
+  lion         = createLion();
+  obstacles    = [];
+  score        = 0;
+  gameStartTime= Date.now();
   generateObstacle();
-  gameRunning = true;
-  gameLoop();
+  gameRunning  = true;
+  lastTime     = performance.now();           // initialize our lastTime
+  requestAnimationFrame(gameLoop);           // ✅ passes a timestamp in
 }
+
 
 // ================================
 // Section 13: Extra Feature Hooks
