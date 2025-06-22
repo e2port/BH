@@ -74,6 +74,10 @@ function createLion() {
     flapDuration: 200,      // ms to show flap frame
 
     draw() {
+       if (!playerSprite.complete || playerSprite.naturalWidth === 0) {
+    // skip drawing until it’s loaded
+    return;
+   }
       // source x = frameIndex * frameWidth
       const fw = this.width;
       ctx.drawImage(
