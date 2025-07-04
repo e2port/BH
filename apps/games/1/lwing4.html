@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LWing4 </title>
+  <!-- ========================= -->
+  <!-- Section: Stylesheet      -->
+  <!-- ========================= -->
+  <style>
+    /* Section 1: CSS Variables */
+    :root {
+      --bg-color: #1a1a1a;
+      --bar-color: #444;
+      --text-color: #fff;
+      --highlight: #ffd700;
+      --canvas-bg: #87ceeb;
+      --font-main: Arial, sans-serif;
+      --font-title: Impact, Charcoal, sans-serif;
+    }
+    /* Section 2: Global Styles */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh;
+    }
+    /* Section 3: Layout */
+    .game-container {
+      position: relative; overflow: hidden;
+      width: 90vw; max-width: 600px; height: 80vh;
+      display: flex; flex-direction: column;
+    }
+    /* Section 4: Top Bar UI */
+    .top-bar {
+      width: 100%; background: var(--bar-color);
+      padding: 10px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .top-bar h2 {
+      font-family: var(--font-title);
+      font-size: 28px; color: var(--highlight);
+      margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .score-timer {
+      font-size: 16px; background: #222;
+      padding: 5px 10px; border-radius: 5px;
+    }
+    /* Section 5: Canvas Style */
+    canvas {
+      flex-grow: 1; background: var(--canvas-bg);
+    }
+    /* Section 6: Countdown Text */
+    .countdown {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 50px; font-weight: bold;
+      color: var(--highlight); z-index: 10;
+    }
+    /* Section 7: Future Styles (placeholders) */
+    /* TODO: sprite animations, pause screens, settings dialog, etc. */
+  </style>
+</head>
+<body>
+  <!-- ========================= -->
+  <!-- Section: HTML Structure   -->
+  <!-- ========================= -->
+  <div class="game-container">
+    <!-- Top Bar: Title / Timer / Score -->
+    <div class="top-bar">
+      <h2 id="game-title">LWing4 SLOW</h2>
+      <div class="score-timer">
+        <span id="timer">0:00</span> | <span id="score">00000</span>
+      </div>
+    </div>
+    <!-- Main Canvas -->
+    <canvas id="gameCanvas"></canvas>
+    <!-- Countdown Overlay -->
+    <div id="countdown" class="countdown"></div>
+    <!-- Future UI Hooks -->
+    <div id="ui-container"></div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- Section: Game Script      -->
+  <!-- ========================= -->
+  <script>
+  // Section 1: Configuration
+  const CONFIG = {
+    gravity: 0.2,
+    jumpStrength: -4,        // weaker flap: need multiple presses
+    obstacleSpeed: 1.0,      // slower obstacles
+    obstacleWidth: 15,
+    obstacleGap: 150,
+    minGapMargin: 25,
+    obstacleSpacing: 250,    // wider spacing
+    bgColors: ["#87CEEB","#FFB6C1","#90EE90","#FFA07A","#DDA0DD","#ADD8E6"],
+    bgCycleMs: 10000,
+    countdownStart: 4
+  };
+
+  // Section 2: State Variables
+  let canvas, ctx, canvasWidth, canvasHeight;
+  let lion, obstacles, score, gameStartTime;
+  let gameRunning = false, countdownTime;
+  let countdownInterval, bgInterval, currentBgIndex = 0;
+  let lastTime = 0;
+
+  // Section 3: Assets (Sprites & Audio)
+  const playerSprite = new Image();
+  playerSprite.src = 'assets/lion-flap.png'; // sprite-sheet: 4 frames horizontally
+
+  const flapSound = new Audio('assets/flap.wav');
+  const bgMusic   = new Audio('assets/theme.mp3');
+  bgMusic.loop = true;
+
+  // Section 4: Input Handling
+  function setupControls() {
+    document.addEventListener("keydown", e => {
+      if (e.code === "Space") lion.flap();
+    });
+    document.addEventListener("click", () => lion.flap());
+    // TODO: add touch controls
+  }
+
+  // Section 5: Player Object (Lion)
+  function createLion() {
+    return {
+      x: 0, y: 0, width: 20, height: 10,
+      velocityY: 0,
+      frameCount: 4,
+      frameIndex: 0,
+      frameTimer: 0,
+      flapDuration: 400,    // ms total for full 4-frame flap
+      draw() {
+        if (!playerSprite.complete) return;
+        const fw = playerSprite.naturalWidth / this.frameCount;
+        ctx.drawImage(
+          playerSprite,
+          this.frameIndex * fw, 0, fw, playerSprite.naturalHeight,
+          this.x, this.y, this.width, this.height
+        );
+      },
+      update(dt) {
+        // physics
+        this.velocityY += CONFIG.gravity * (dt / 16);
+        this.y += this.velocityY * (dt / 16);
+        // sprite animation during flap
+        if (this.frameIndex > 0) {
+          this.frameTimer += dt;
+          const perFrame = this.flapDuration / this.frameCount;
+          if (this.frameTimer >= perFrame) {
+            this.frameTimer -= perFrame;
+            this.frameIndex++;
+            if (this.frameIndex >= this.frameCount) {
+              this.frameIndex = 0;
+            }
+          }
+        }
+        // bounds check
+        if (this.y < 0 || this.y + this.height > canvasHeight) restartGame();
+      },
+      flap() {
+        this.velocityY = CONFIG.jumpStrength;
+        this.frameIndex = 1;  // start flap animation
+        this.frameTimer = 0;
+        flapSound.currentTime = 0;
+        flapSound.play();
+      }
+    };
+  }
+
+  // Section 6: Canvas & Resize
+  function resizeCanvas() {
+    canvasWidth  = canvas.clientWidth;
+    canvasHeight = canvas.clientHeight;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    if (lion) lion.x = canvasWidth * 0.2;
+  }
+
+  // Section 7: Background Cycling
+  function changeBackgroundColor() {
+    currentBgIndex = (currentBgIndex + 1) % CONFIG.bgColors.length;
+    canvas.style.background = CONFIG.bgColors[currentBgIndex];
+  }
+
+  // Section 8: Obstacles (Customizable)
+  function generateObstacle() {
+    const gap = CONFIG.obstacleGap;
+    const maxTop = canvasHeight - gap - CONFIG.minGapMargin;
+    const topH = Math.random() * maxTop + CONFIG.minGapMargin;
+    const bottomH = canvasHeight - topH - gap;
+    // obstacle object: tweak properties here for advanced patterns
+    obstacles.push({ x: canvasWidth, width: CONFIG.obstacleWidth, topHeight: topH, bottomHeight: bottomH });
+  }
+
+  function updateObstacles() {
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      obstacles[i].x -= CONFIG.obstacleSpeed;
+      if (obstacles[i].x + obstacles[i].width < 0) obstacles.splice(i, 1);
+    }
+    // spawn new when spacing reached
+    if (!obstacles.length || obstacles[obstacles.length - 1].x < canvasWidth - CONFIG.obstacleSpacing) {
+      generateObstacle();
+    }
+  }
+
+  function drawObstacles() {
+    ctx.fillStyle = "#FF4500";
+    obstacles.forEach(o => {
+      ctx.fillRect(o.x, 0, o.width, o.topHeight);
+      ctx.fillRect(o.x, canvasHeight - o.bottomHeight, o.width, o.bottomHeight);
+    });
+  }
+
+  // Section 9: Collision & Score
+  function checkCollision() {
+    for (let o of obstacles) {
+      if (
+        (lion.x < o.x + o.width && lion.x + lion.width > o.x &&
+         (lion.y < o.topHeight || lion.y + lion.height > canvasHeight - o.bottomHeight))
+      ) {
+        restartGame();
+      }
+    }
+  }
+
+  function updateScore() {
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+    let pts = elapsed * 10; // simple linear score
+    score = pts;
+    document.getElementById("timer").textContent = `0:${elapsed.toString().padStart(2,"0")}`;
+    document.getElementById("score").textContent = score.toString().padStart(5,"0");
+  }
+
+  // Section 10: Main Loop
+  function gameLoop(timestamp) {
+    if (!gameRunning) return;
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
+    ctx.clearRect(0,0,canvasWidth,canvasHeight);
+    lion.update(dt);
+    updateObstacles();
+    checkCollision();
+    updateScore();
+    lion.draw();
+    drawObstacles();
+    if (gameRunning) requestAnimationFrame(gameLoop);
+  }
+
+  // Section 11: Countdown & Restart
+  function restartGame() {
+    gameRunning = false;
+    clearInterval(countdownInterval);
+    countdownTime = CONFIG.countdownStart;
+    document.getElementById("countdown").textContent = countdownTime;
+    countdownInterval = setInterval(() => {
+      countdownTime--;
+      document.getElementById("countdown").textContent = countdownTime > 0 ? countdownTime : "";
+      if (countdownTime <= 0) {
+        clearInterval(countdownInterval);
+        document.getElementById("countdown").textContent = "";
+        startGame();
+      }
+    }, 1000);
+  }
+
+  function startGame() {
+    lion          = createLion();
+    lion.x        = canvasWidth * 0.2;
+    lion.y        = canvasHeight * 0.5;
+    obstacles     = [];
+    score         = 0;
+    gameStartTime = Date.now();
+    generateObstacle();
+    gameRunning   = true;
+    lastTime      = performance.now();
+    bgMusic.play();
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Section 12: Initialization
+  function init() {
+    canvas = document.getElementById("gameCanvas");
+    ctx    = canvas.getContext("2d");
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    setupControls();
+    bgInterval = setInterval(changeBackgroundColor, CONFIG.bgCycleMs);
+    restartGame();
+  }
+  // kick things off
+  init();
+  </script>
+</body>
+</html>
