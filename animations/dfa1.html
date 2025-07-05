@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Our Services | Debt Freedom Attorneys</title>
+  <style>
+    /* Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+
+    /* Header */
+    header {
+      background: #144462;
+      color: #fff;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 1rem 2%;
+      display: flex;
+      align-items: center;
+      justify-content: center; /* center contents */
+      gap: 2rem;
+      z-index: 1000;
+    }
+    header .logo {
+      height: 80px;               /* larger logo */
+      margin-right: 1rem;
+    }
+    nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1rem;            /* slightly larger */
+    }
+    nav a:hover { opacity: 0.8; }
+
+    /* Main layout */
+    main {
+      display: flex;
+      max-width: 1200px;
+      margin: 6rem auto 2rem;     /* account for fixed header */
+      padding: 0 2%;
+      gap: 2rem;
+    }
+    .side-banner {
+      flex: 0 0 auto;
+      text-align: center;
+    }
+    .side-banner img {
+      display: block;
+      width: 100%;
+      max-width: 800px;           /* twice the previous 400px */
+      object-fit: cover;
+    }
+
+    /* Video box + modal */
+    .video-box {
+      margin: 1.5rem auto;
+      width: 320px;
+      cursor: pointer;
+      border: 2px solid #1E6490;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .video-box img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .video-description {
+      max-width: 320px;
+      margin: 0.5rem auto 2rem;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      background: #f9f9f9;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      position: relative;
+      width: 90%;
+      max-width: 720px;
+    }
+    .modal-content iframe {
+      width: 100%;
+      height: 405px;
+      border: none;
+    }
+    .modal .close {
+      position: absolute;
+      top: -10px; right: -10px;
+      background: #fff;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      font-size: 1.2rem;
+      line-height: 32px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+    }
+    .content h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #111;
+    }
+    .content h2 {
+      font-size: 1.5rem;
+      margin: 1.5rem 0 0.5rem;
+      color: #111;
+    }
+    .content p {
+      margin-bottom: 1rem;
+    }
+    .content ul {
+      list-style: none;
+      margin-bottom: 1rem;
+    }
+    .content li {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .content li:before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #1E6490;
+    }
+
+    /* Footer */
+    footer {
+      background: #f5f5f5;
+      padding: 2rem 2%;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    footer .footer-logo {
+      height: 90px;               /* three times the previous 30px */
+      margin-bottom: 1rem;
+    }
+    footer nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    footer nav a {
+      color: #333;
+      text-decoration: none;
+    }
+    footer nav a:hover { text-decoration: underline; }
+    footer p { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/#home">
+      <img class="logo" src="dfa001.png" alt="Debt Freedom Attorneys">
+    </a>
+    <nav>
+      <a href="https://debtfreedomattorneys.com/services">Services</a>
+      <a href="https://debtfreedomattorneys.com/clientele">For Whom</a>
+      <a href="https://debtfreedomattorneys.com/reviews">Reviews</a>
+      <a href="https://debtfreedomattorneys.com/about">About Us</a>
+      <a href="https://debtfreedomattorneys.com/contact">Contact</a>
+      <a href="https://portal.debtfreedomattorneys.com/" target="_blank">Log In</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="side-banner">
+      <img src="dfa002.png" alt="A Lawyer">
+
+      <!-- Video thumbnail box -->
+      <div class="video-box" id="videoBox">
+        <!-- Replace with a thumbnail image of your video -->
+        <img src="https://img.youtube.com/vi/VIDEO_ID/hqdefault.jpg" alt="Watch Our Intro">
+      </div>
+      <div class="video-description">
+        <p>This short video explains how Debt Freedom Attorneys can help you stop creditor harassment and invalid debts—step by step.</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <p style="color:#1E6490;font-weight:600;">Learn</p>
+      <h1>Our Services</h1>
+      <p>At Debt Freedom Attorneys, ensuring your journey towards financial liberation is handled with the utmost care and professionalism.</p>
+
+      <h2>Legal Representation</h2>
+      <p>Facing creditor lawsuits can be a daunting experience.</p>
+      <p>Our commitment to swift resolution drives us to act expediently, understanding that time is of the essence when facing legal challenges.</p>
+
+      <h2>Consumer Protection Law Services</h2>
+      <p>Your rights as a consumer are powerful, and our vigilant legal team is adept at wielding consumer protection laws as a shield against unfair practices.</p>
+      <p>Our comprehensive approach to consumer protection includes:</p>
+      <ul>
+        <li><strong>Stopping Harassment:</strong> We work to end incessant calls and undue pressure from creditors, ensuring your right to privacy and peace.</li>
+        <li><strong>Invalidating Unjust Debts:</strong> When debts are unfounded or collection practices breach legal standards, we move decisively to free you from undue obligations.</li>
+        <li><strong>Litigation for Violations:</strong> If creditors overstep legal boundaries, we take assertive legal action, suing for damages and deterring future violations.</li>
+        <li><strong>Litigation Defense:</strong> If you’re sued on an enrolled debt, we represent you in the litigation proceedings.</li>
+      </ul>
+      <p>At Debt Freedom Attorneys, safe harbor from debt is possible. Contact us today to secure your financial future.</p>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">
+      <img class="footer-logo" src="dfa003.png" alt="Debt Freedom Attorneys">
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="https://debtfreedomattorneys.com/services">Services</a>
+      <a href="https://debtfreedomattorneys.com/clientele">For Whom</a>
+      <a href="https://debtfreedomattorneys.com/reviews">Reviews</a>
+      <a href="https://debtfreedomattorneys.com/about">About Us</a>
+      <a href="https://debtfreedomattorneys.com/contact">Contact</a>
+      <a href="https://debtfreedomattorneys.com/report-harassment">Harassment</a>
+      <a href="https://debtfreedomattorneys.com/privacy">Privacy</a>
+      <a href="https://debtfreedomattorneys.com/terms">Terms</a>
+      <a href="https://portal.debtfreedomattorneys.com/" target="_blank">Log In</a>
+    </nav>
+    <p>
+      Consultation with Debt Freedom Attorneys does not automatically establish an attorney-client relationship. Information provided on this site is for educational purposes only.
+    </p>
+    <p>© 2025 Debt Freedom Attorneys. All rights reserved.</p>
+  </footer>
+
+  <!-- Video modal -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <iframe
+        src="https://www.youtube.com/embed/VIDEO_ID?autoplay=1"
+        allow="autoplay; encrypted-media"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    const box = document.getElementById('videoBox');
+    const modal = document.getElementById('videoModal');
+    const closeBtn = document.getElementById('closeModal');
+
+    box.addEventListener('click', () => {
+      modal.style.display = 'flex';
+    });
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      // stop video playback by resetting src
+      const iframe = modal.querySelector('iframe');
+      iframe.src = iframe.src;
+    });
+    // also close if user clicks outside the video
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        closeBtn.click();
+      }
+    });
+  </script>
+
+</body>
+</html>
