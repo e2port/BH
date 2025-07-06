@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Our Services | Debt Freedom Attorneys</title>
+  <style>
+    /* Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+
+    /* Header */
+    header {
+      background: #144462;
+      color: #fff;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 1rem 2%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      z-index: 1000;
+    }
+    header .logo { height: 60px; }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+    nav a:hover { opacity: 0.8; }
+
+    /* Responsive Video Grid */
+    main.video-list {
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: 6rem auto 2rem;
+      padding: 0 2%;
+      gap: 0;
+    }
+    .video-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+      gap: 2rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .video-item:last-child { border-bottom: none; }
+
+    .video-box {
+      cursor: pointer;
+      border: 2px solid #1E6490;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 100%;
+    }
+    .video-box img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .video-text h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: #144462;
+    }
+    .video-text p {
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      background: #f5f5f5;
+      padding: 2rem 2%;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    footer .footer-logo { height: 80px; margin-bottom: 1rem; }
+    footer nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    footer nav a {
+      color: #333;
+      text-decoration: none;
+    }
+    footer nav a:hover { text-decoration: underline; }
+    footer p { margin-top: 1rem; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      position: relative;
+      width: 90%; max-width: 720px;
+    }
+    .modal-content iframe {
+      width: 100%; height: 405px; border: none;
+    }
+    .modal .close {
+      position: absolute;
+      top: -10px; right: -10px;
+      background: #fff;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      font-size: 1.2rem;
+      line-height: 32px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .video-item { grid-template-columns: 1fr; }
+      header { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/#home"><img class="logo" src="dfa001.png" alt="Debt Freedom Attorneys"></a>
+    <nav>
+      <a href="https://debtfreedomattorneys.com/services">Services</a>
+      <a href="https://debtfreedomattorneys.com/clientele">For Whom</a>
+      <a href="https://debtfreedomattorneys.com/reviews">Reviews</a>
+      <a href="https://debtfreedomattorneys.com/about">About Us</a>
+      <a href="https://debtfreedomattorneys.com/contact">Contact</a>
+      <a href="https://portal.debtfreedomattorneys.com/" target="_blank">Log In</a>
+    </nav>
+  </header>
+
+  <main class="video-list">
+    <!-- Repeat this block for each of the 6 videos -->
+    <div class="video-item">
+      <div class="video-box" data-video-id="VIDEO_ID1">
+        <img src="https://img.youtube.com/vi/VIDEO_ID1/hqdefault.jpg" alt="Video 1">
+      </div>
+      <div class="video-text">
+        <h3>Introduction to Your Rights</h3>
+        <p>Learn how the FDCPA protects you from creditor harassment and unfair debt-collection tactics, step by step.</p>
+      </div>
+    </div>
+    <div class="video-item">
+      <div class="video-box" data-video-id="VIDEO_ID2">
+        <img src="https://img.youtube.com/vi/VIDEO_ID2/hqdefault.jpg" alt="Video 2">
+      </div>
+      <div class="video-text">
+        <h3>Stopping Harassing Calls</h3>
+        <p>Discover effective strategies to put an end to repeated and unlawful phone calls from debt collectors.</p>
+      </div>
+    </div>
+    <div class="video-item">
+      <div class="video-box" data-video-id="VIDEO_ID3">
+        <img src="https://img.youtube.com/vi/VIDEO_ID3/hqdefault.jpg" alt="Video 3">
+      </div>
+      <div class="video-text">
+        <h3>Invalidating Unjust Debts</h3>
+        <p>See how we challenge and remove debts that are unfair, inaccurate, or improperly validated.</p>
+      </div>
+    </div>
+    <div class="video-item">
+      <div class="video-box" data-video-id="VIDEO_ID4">
+        <img src="https://img.youtube.com/vi/VIDEO_ID4/hqdefault.jpg" alt="Video 4">
+      </div>
+      <div class="video-text">
+        <h3>Filing Lawsuits for Violations</h3>
+        <p>Understand the process of suing creditors who break the law and how it deters future misconduct.</p>
+      </div>
+    </div>
+    <div class="video-item">
+      <div class="video-box" data-video-id="VIDEO_ID5">
+        <img src="https://img.youtube.com/vi/VIDEO_ID5/hqdefault.jpg" alt="Video 5">
+      </div>
+      <div class="video-text">
+        <h3>Defending You in Court</h3>
+        <p>Learn about our comprehensive defense strategies when you are sued on a debt.</p>
+      </div>
+    </div>
+    <div class="video-item">
+      <div class="video-box" data-video-id="VIDEO_ID6">
+        <img src="https://img.youtube.com/vi/VIDEO_ID6/hqdefault.jpg" alt="Video 6">
+      </div>
+      <div class="video-text">
+        <h3>Securing Your Financial Future</h3>
+        <p>Find out how to achieve peace of mind and financial stability with our tailored legal solutions.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">
+      <img class="footer-logo" src="dfa003.png" alt="Debt Freedom Attorneys">
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="https://debtfreedomattorneys.com/services">Services</a>
+      <a href="https://debtfreedomattorneys.com/clientele">For Whom</a>
+      <a href="https://debtfreedomattorneys.com/reviews">Reviews</a>
+      <a href="https://debtfreedomattorneys.com/about">About Us</a>
+      <a href="https://debtfreedomattorneys.com/contact">Contact</a>
+      <a href="https://debtfreedomattorneys.com/report-harassment">Harassment</a>
+      <a href="https://debtfreedomattorneys.com/privacy">Privacy</a>
+      <a href="https://debtfreedomattorneys.com/terms">Terms</a>
+      <a href="https://portal.debtfreedomattorneys.com/" target="_blank">Log In</a>
+    </nav>
+    <p>Consultation with Debt Freedom Attorneys does not automatically establish an attorney-client relationship. Information provided on this site is for educational purposes only.</p>
+    <p>© 2025 Debt Freedom Attorneys. All rights reserved.</p>
+  </footer>
+
+  <!-- Video modal -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <iframe src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    const boxes = document.querySelectorAll('.video-box');
+    const modal = document.getElementById('videoModal');
+    const closeBtn = document.getElementById('closeModal');
+    const iframe = modal.querySelector('iframe');
+
+    boxes.forEach(box => {
+      box.addEventListener('click', () => {
+        const id = box.getAttribute('data-video-id');
+        iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+        modal.style.display = 'flex';
+      });
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      iframe.src = '';
+    });
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeBtn.click();
+    });
+  </script>
+</body>
+</html>
