@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Our Services | Debt Freedom Attorneys</title>
+  <style>
+    /* Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+
+    /* Header */
+    header {
+      background: #144462;
+      color: #fff;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 1rem 2%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      z-index: 1000;
+    }
+    header .logo { height: 80px; margin-right: 1rem; }
+    nav { display: flex; gap: 1.5rem; }
+    nav a { color: #fff; text-decoration: none; font-size: 1rem; }
+    nav a:hover { opacity: 0.8; }
+
+    /* Main layout */
+    main {
+      display: flex;
+      max-width: 1200px;
+      margin: 6rem auto 2rem;
+      padding: 0 2%;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .side-banner {
+      flex: 0 0 auto;
+      text-align: center;
+    }
+    .side-banner img {
+      width: 100%;
+      max-width: 540px;
+      object-fit: cover;
+    }
+
+    /* Video boxes */
+    .video-box {
+      margin: 1.5rem auto;
+      width: 320px;
+      cursor: pointer;
+      border: 2px solid #1E6490;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .video-box img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .video-description {
+      max-width: 320px;
+      margin: 0.5rem auto 2rem;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      background: #f9f9f9;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      position: relative;
+      width: 90%;
+      max-width: 720px;
+    }
+    .modal-content iframe {
+      width: 100%;
+      height: 405px;
+      border: none;
+    }
+    .modal .close {
+      position: absolute;
+      top: -10px; right: -10px;
+      background: #fff;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      font-size: 1.2rem;
+      line-height: 32px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+    }
+    .content h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #111; }
+    .content h2 { font-size: 1.5rem; margin: 1.5rem 0 0.5rem; color: #111; }
+    .content h3 { font-size: 1.2rem; margin: 0.5rem; color: #111; }
+    .content p { margin-bottom: 1rem; }
+    .content ul { list-style: none; margin-bottom: 1rem; }
+    .content li {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .content li:before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #1E6490;
+    }
+
+    /* Upload Claims Section */
+    .upload-videos { max-width: 1200px; margin: 2rem auto; padding: 0 2%; }
+    .upload-videos h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #111;
+      text-align: center;
+    }
+    .upload-videos-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+    .upload-videos-container .video-box {
+      flex: 1 1 calc(33.333% - 1rem);
+      max-width: calc(33.333% - 1rem);
+    }
+
+    /* Footer */
+    footer {
+      background: #f5f5f5;
+      padding: 2rem 2%;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    footer .footer-logo {
+      height: 90px;
+      margin-bottom: 1rem;
+    }
+    footer nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    footer nav a { color: #333; text-decoration: none; }
+    footer nav a:hover { text-decoration: underline; }
+    footer p { margin-top: 1rem; }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a href="/#home"><img class="logo" src="dfa001.png" alt="Debt Freedom Attorneys"></a>
+    <nav>
+      <a href="https://debtfreedomattorneys.com/services">Services</a>
+      <a href="https://debtfreedomattorneys.com/clientele">For Whom</a>
+      <a href="https://debtfreedomattorneys.com/reviews">Reviews</a>
+      <a href="https://debtfreedomattorneys.com/about">About Us</a>
+      <a href="https://debtfreedomattorneys.com/contact">Contact</a>
+      <a href="https://portal.debtfreedomattorneys.com/" target="_blank">Log In</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- LEFT BANNER -->
+    <div class="side-banner">
+      <img src="dfa002.png" alt="A Lawyer">
+
+      <!-- Trailer -->
+      <div class="video-box" data-video-id="AlWTzSHtB4k">
+        <img src="https://img.youtube.com/vi/AlWTzSHtB4k/hqdefault.jpg" alt="FDCPA Trailer">
+      </div>
+      <div class="video-description">
+        <h3>FDCPA Trailer</h3>
+        <p>Overview and introduction and what you may learn.</p>
+      </div>
+
+      <!-- Other Side-Banner Videos -->
+      <div class="video-box" data-video-id="VIDEO_ID1">
+        <img src="009DFArT.png" alt="What is FDCPA?">
+      </div>
+      <div class="video-description">
+        <h3>1. What is FDCPA?</h3>
+        <p>Learn how the FDCPA protects you from creditor harassment and unfair debt-collection tactics.</p>
+      </div>
+
+      <div class="video-box" data-video-id="VIDEO_ID2">
+        <img src="009DFArT.png" alt="Violations">
+      </div>
+      <div class="video-description">
+        <h3>2. What can be defined as violations?</h3>
+        <p>A look at the list and sample scenarios.</p>
+      </div>
+
+           <div class="video-box" data-video-id="VIDEO_ID3">
+        <img src="009DFArT.png" alt="Violations">
+      </div>
+      <div class="video-description">
+        <h3>3. What to do if being harassed according to FDCPA?</h3>
+        <p>Discover effective strategies to put an end to repeated and unlawful phone calls from debt collectors.</p>
+      </div>
+
+            <div class="video-box" data-video-id="VIDEO_ID4">
+        <img src="009DFArT.png" alt="Violations">
+      </div>
+      <div class="video-description">
+        <h3>4. How to Follow-up?</h3>
+        <p>Understand the process of suing creditors who break the law and how it deters future misconduct.</p>
+      </div>
+
+            <div class="video-box" data-video-id="VIDEO_ID5">
+        <img src="009DFArT.png" alt="Violations">
+      </div>
+      <div class="video-description">
+        <h3>5. How will this help?</h3>
+        <p>Find out how one can receive monetary compensation for the troubles experienced.</p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="content">
+      <p style="color:#1E6490;font-weight:600;">Learn</p>
+      <h1>'FDCPA' Violations</h1>
+      <p>This is just a sample page for presentation purposes.</p>
+      <h3>Disclaimer:</h3>
+
+      <p>  Digital Assets used in the videos are derived from Kosher & Organic sources:</p>
+      <p>  Music sourced from ‘Liborio Conti’ (https://www.no-copyright-music.com/) - (copyright-free)</p>
+      <p>  Narration sourced from https://audiofytext.com/ - (copyright-free)</p>
+      <p>  Video Compiled with KDenLive v25.04.2 (Free & Open Source)</p>
+      <p>  Stock footage sourced from Pexel.com & Pixabay.com - (abiding by licensed uses)</p>
+      <p>  [You cannot use any of the Content as part of a trade-mark, design-mark, trade-name, business name or service mark.]</p>
+
+      <h2>Legal Representation</h2>
+      <p>Facing creditors and debt-collectors can be daunting.</p>
+      <p>Let us help you implement protections provided by the FDCPA.</p>
+
+      <h2>What is FDCPA?</h2>
+      <p>The Fair Debt-Collections Practices Act is a federal statute of the US.</p>
+      <p>It guards everyday citizens from unethical practices and behaviors.</p>
+
+      <!-- INSERTED HARASSMENT LIST -->
+      <h2>Common Forms of FDCPA Harassment</h2>
+      <ul>
+        <li>Repeated or Excessive Phone Calls</li>
+        <li>Calls to the Workplace After Being Asked to Stop</li>
+        <li>Contacting Third Parties</li>
+        <li>Use of Threatening or Abusive Language</li>
+        <li>False or Misleading Statements</li>
+        <li>Threats of Arrest or Imprisonment</li>
+        <li>Failing to Identify Themselves Properly</li>
+        <li>Trying to Collect Debts Not Owed</li>
+        <li>Failing to Validate the Debt</li>
+        <li>Calling After a Cease and Desist Request</li>
+      </ul>
+
+      <h2>Consumer Protection Law Services</h2>
+      <p>Your rights as a consumer are powerful, and our vigilant legal team is adept at wielding consumer protection laws as a shield against unfair practices.</p>
+      <ul>
+        <li><strong>Stopping Harassment:</strong> End incessant calls and undue pressure from creditors.</li>
+        <li><strong>Invalidating Unjust Debts:</strong> Free you from unfounded or improperly asserted obligations.</li>
+        <li><strong>Litigation for Violations:</strong> Sue for damages and deter future misconduct.</li>
+        <li><strong>Litigation Defense:</strong> Defend you if you’re sued on an enrolled debt.</li>
+      </ul>
+      <p>Contact us today to secure your financial future.</p>
+    </div>
+  </main>
+
+  <!-- UPLOAD CLAIM VIDEOS -->
+  <section class="upload-videos">
+    <h2>How to Upload Harassment Claim</h2>
+    <div class="upload-videos-container">
+      <div class="video-box" data-video-id="fzRHc9HqsxA">
+        <img src="https://img.youtube.com/vi/fzRHc9HqsxA/hqdefault.jpg" alt="Upload via PC">
+        <div class="video-description"><h3>PC Upload</h3></div>
+      </div>
+      <div class="video-box" data-video-id="naxrs3b6Mj4">
+        <img src="https://img.youtube.com/vi/naxrs3b6Mj4/hqdefault.jpg" alt="Upload via Android">
+        <div class="video-description"><h3>Android Upload</h3></div>
+      </div>
+      <div class="video-box" data-video-id="IPHONE_UPLOAD_ID">
+        <img src="https://img.youtube.com/vi/IPHONE_UPLOAD_ID/hqdefault.jpg" alt="Upload via iPhone">
+        <div class="video-description"><h3>iPhone Upload</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <a href="/"><img class="footer-logo" src="dfa003.png" alt="Debt Freedom Attorneys"></a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="https://debtfreedomattorneys.com/services">Services</a>
+      <a href="https://debtfreedomattorneys.com/clientele">For Whom</a>
+      <a href="https://debtfreedomattorneys.com/reviews">Reviews</a>
+      <a href="https://debtfreedomattorneys.com/about">About Us</a>
+      <a href="https://debtfreedomattorneys.com/contact">Contact</a>
+      <a href="https://debtfreedomattorneys.com/report-harassment">Harassment</n>
+    </nav>
+    <p>Consultation with Debt Freedom Attorneys does not automatically establish an attorney-client relationship. Information provided is educational only.</p>
+    <p>© 2025 Debt Freedom Attorneys. All rights reserved.</p>
+  </footer>
+
+  <!-- Video Modal -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <iframe src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    const modal   = document.getElementById('videoModal');
+    const iframe  = modal.querySelector('iframe');
+    const closeBtn= document.getElementById('closeModal');
+
+    // Attach to EVERY .video-box with a data-video-id
+    document.querySelectorAll('.video-box[data-video-id]').forEach(box => {
+      box.addEventListener('click', () => {
+        const vid = box.getAttribute('data-video-id');
+        iframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1`;
+        modal.style.display = 'flex';
+      });
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      iframe.src = '';
+    });
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeBtn.click();
+    });
+  </script>
+
+</body>
+</html>
