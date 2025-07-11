@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LWing6 - Updated</title>
+  <style>
+    :root {
+      --bg-color: #1a1a1a;
+      --bar-color: #444;
+      --text-color: #fff;
+      --highlight: #ffd700;
+      --font-main: Arial, sans-serif;
+      --font-title: Impact, Charcoal, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh;
+    }
+    .game-container {
+      position: relative; overflow: hidden;
+      width: 90vw; max-width: 600px; height: 80vh;
+      display: flex; flex-direction: column;
+    }
+    .top-bar {
+      width: 100%; background: var(--bar-color);
+      padding: 10px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .top-bar h2 {
+      font-family: var(--font-title);
+      font-size: 28px; color: var(--highlight);
+      margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .score-timer {
+      font-size: 16px; background: #222;
+      padding: 5px 10px; border-radius: 5px;
+    }
+    canvas {
+      flex-grow: 1;
+      background: url('assets/background.jpg') center/cover no-repeat;
+    }
+    .countdown {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 50px; font-weight: bold;
+      color: var(--highlight); z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="top-bar">
+      <h2 id="game-title">LWing6 Flap Sound?</h2>
+      <div class="score-timer">
+        <span id="timer">0:00</span> | <span id="score">00000</span>
+      </div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="countdown" class="countdown"></div>
+    <div id="ui-container"></div>
+  </div>
+
+  <script>
+  const CONFIG = {
+    gravity: 0.2,
+    jumpStrength: -4,
+    obstacleSpeed: 0.6,       // Slowed down gameplay
+    obstacleWidth: 15,
+    obstacleGap: 150,
+    minGapMargin: 25,
+    obstacleSpacing: 250,
+    countdownStart: 4
+  };
+
+  let canvas, ctx, canvasWidth, canvasHeight;
+  let lion, obstacles, score, gameStartTime;
+  let gameRunning = false, countdownTime;
+  let countdownInterval, lastTime = 0;
+
+  // Sprite sheet
+  const playerSprite = new Image();
+  playerSprite.src = 'assets/lion-flap.png';
+
+  // Flap sound
+  const flapSound = new Audio('assets/flap.wav');
+  flapSound.volume = 1.0;
+  // Background music (skip first 6s)
+  const bgMusic = new Audio('assets/theme.mp3');
+  bgMusic.loop = true;
+  bgMusic.currentTime = 6;
+
+  function setupControls() {
+    document.addEventListener("keydown", e => {
+      if (e.code === "Space") lion.flap();
+    });
+    document.addEventListener("click", () => lion.flap());
+  }
+
+  function createLion() {
+    return {
+      x: 0, y: 0,
+      width: 60, height: 40,    // Increased size
+      velocityY: 0,
+      frameCount: 4,
+      frameIndex: 0,
+      frameTimer: 0,
+      flapDuration: 400,
+      draw() {
+        if (!playerSprite.complete) return;
+        const fw = playerSprite.naturalWidth / this.frameCount;
+        ctx.drawImage(
+          playerSprite,
+          this.frameIndex * fw, 0, fw, playerSprite.naturalHeight,
+          this.x, this.y, this.width, this.height
+        );
+      },
+      update(dt) {
+        this.velocityY += CONFIG.gravity * (dt / 16);
+        this.y += this.velocityY * (dt / 16);
+        if (this.frameIndex > 0) {
+          this.frameTimer += dt;
+          const per = this.flapDuration / this.frameCount;
+          if (this.frameTimer >= per) {
+            this.frameTimer -= per;
+            this.frameIndex++;
+            if (this.frameIndex >= this.frameCount) this.frameIndex = 0;
+          }
+        }
+        if (this.y < 0 || this.y + this.height > canvasHeight) restartGame();
+      },
+      flap() {
+        this.velocityY = CONFIG.jumpStrength;
+        this.frameIndex = 1;
+        this.frameTimer = 0;
+        // skip first 3s
+        flapSound.currentTime = 3;
+        flapSound.play();
+        setTimeout(() => flapSound.pause(), 1000);
+      }
+    };
+  }
+
+  function resizeCanvas() {
+    canvasWidth = canvas.clientWidth;
+    canvasHeight = canvas.clientHeight;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    if (lion) lion.x = canvasWidth * 0.2;
+  }
+
+  function generateObstacle() {
+    // Randomly choose an extra obstacle type
+    if (Math.random() < 0.3) {
+      const size = 30;
+      const yPos = Math.random() * (canvasHeight - size - CONFIG.minGapMargin * 2) + CONFIG.minGapMargin;
+      obstacles.push({ x: canvasWidth, width: size, height: size, y: yPos, type: 'block' });
+    } else {
+      const gap = CONFIG.obstacleGap;
+      const maxTop = canvasHeight - gap - CONFIG.minGapMargin;
+      const topH = Math.random() * maxTop + CONFIG.minGapMargin;
+      const bottomH = canvasHeight - topH - gap;
+      obstacles.push({ x: canvasWidth, width: CONFIG.obstacleWidth, topHeight: topH, bottomHeight: bottomH, type: 'pipe' });
+    }
+  }
+
+  function updateObstacles() {
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      obstacles[i].x -= CONFIG.obstacleSpeed;
+      if (obstacles[i].x + obstacles[i].width < 0) obstacles.splice(i, 1);
+    }
+    if (!obstacles.length || obstacles[obstacles.length - 1].x < canvasWidth - CONFIG.obstacleSpacing) {
+      generateObstacle();
+    }
+  }
+
+  function drawObstacles() {
+    obstacles.forEach(o => {
+      if (o.type === 'pipe') {
+        ctx.fillStyle = "#FF4500";
+        ctx.fillRect(o.x, 0, o.width, o.topHeight);
+        ctx.fillRect(o.x, canvasHeight - o.bottomHeight, o.width, o.bottomHeight);
+      } else if (o.type === 'block') {
+        ctx.fillStyle = "#00CED1";
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+      }
+    });
+  }
+
+  function checkCollision() {
+    for (let o of obstacles) {
+      if (o.type === 'pipe') {
+        if (
+          lion.x < o.x + o.width &&
+          lion.x + lion.width > o.x &&
+          (lion.y < o.topHeight || lion.y + lion.height > canvasHeight - o.bottomHeight)
+        ) {
+          restartGame();
+        }
+      } else if (o.type === 'block') {
+        if (
+          lion.x < o.x + o.width &&
+          lion.x + lion.width > o.x &&
+          lion.y < o.y + o.height &&
+          lion.y + lion.height > o.y
+        ) {
+          restartGame();
+        }
+      }
+    }
+  }
+
+  function updateScore() {
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+    score = elapsed * 10;
+    document.getElementById("timer").textContent = `0:${elapsed.toString().padStart(2,"0")}`;
+    document.getElementById("score").textContent = score.toString().padStart(5,"0");
+  }
+
+  function gameLoop(ts) {
+    if (!gameRunning) return;
+    const dt = ts - lastTime;
+    lastTime = ts;
+    ctx.clearRect(0,0,canvasWidth,canvasHeight);
+    lion.update(dt);
+    updateObstacles();
+    checkCollision();
+    updateScore();
+    lion.draw();
+    drawObstacles();
+    if (gameRunning) requestAnimationFrame(gameLoop);
+  }
+
+  function restartGame() {
+    gameRunning = false;
+    clearInterval(countdownInterval);
+    countdownTime = CONFIG.countdownStart;
+    document.getElementById("countdown").textContent = countdownTime;
+    countdownInterval = setInterval(() => {
+      countdownTime--;
+      document.getElementById("countdown").textContent = countdownTime > 0 ? countdownTime : "";
+      if (countdownTime <= 0) {
+        clearInterval(countdownInterval);
+        document.getElementById("countdown").textContent = "";
+        startGame();
+      }
+    }, 1000);
+  }
+
+  function startGame() {
+    lion          = createLion();
+    lion.x        = canvasWidth * 0.2;
+    lion.y        = canvasHeight * 0.5;
+    obstacles     = [];
+    score         = 0;
+    gameStartTime = Date.now();
+    generateObstacle();
+    gameRunning   = true;
+    lastTime      = performance.now();
+    bgMusic.play();
+    requestAnimationFrame(gameLoop);
+  }
+
+  function init() {
+    canvas = document.getElementById("gameCanvas");
+    ctx    = canvas.getContext("2d");
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    setupControls();
+    // Start music immediately so it’s already playing on your first game start
+    bgMusic.play().catch(()=>{/*auto-play policies*/});
+    restartGame();
+  }
+  init();
+  </script>
+</body>
+</html>
