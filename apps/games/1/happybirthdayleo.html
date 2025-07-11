@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f0f8ff;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+      text-align: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Tiny BS\"D in the corner */
+    .bsd {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    /* Container for the two creatures */
+    .creature-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 3rem;
+      margin-bottom: 1.5rem;
+    }
+    .creature {
+      width: 200px;
+      max-width: 45%;
+      animation: glow 2s ease-in-out infinite alternate,
+                 badass-glow 3s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
+      to   { filter: drop-shadow(0 0 20px rgba(255,255,255,1)); }
+    }
+    @keyframes badass-glow {
+      0%   { transform: scale(1); filter: drop-shadow(0 0 15px #ffd700) drop-shadow(0 0 30px #ff4500); }
+      50%  { transform: scale(1.1); filter: drop-shadow(0 0 25px #ffffff) drop-shadow(0 0 40px #ff0000); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 15px #ffd700) drop-shadow(0 0 30px #ff4500); }
+    }
+
+    /* Game mode links */
+    .links {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .gift-link {
+      font-size: 2.5rem;
+      color: #fff;
+      text-decoration: none;
+      padding: 20px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .gift-link.easy {
+      background: linear-gradient(45deg, #7ed957, #3bbf31);
+    }
+    .gift-link.fast {
+      background: linear-gradient(45deg, #ff4b1f, #ff9068);
+    }
+    .gift-link:hover {
+      transform: scale(1.05);
+    }
+
+    .message {
+      font-size: 1.5rem;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+
+    /* Hide the audio element but keep it autoplaying */
+    audio {
+      display: none;
+    }
+
+    /* Responsive tweaks */
+    @media(max-width: 768px) {
+      .creature-container {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .creature {
+        width: 150px;
+        max-width: 60%;
+      }
+      .gift-link {
+        font-size: 2rem;
+        padding: 15px 30px;
+      }
+      .message {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bsd">BS"D</div>
+  <audio src="assets/happy_birthday.mp3" autoplay loop></audio>
+
+  <div class="creature-container">
+    <img src="assets/day.webp" alt="Light Creature" class="creature">
+    <img src="assets/night.webp" alt="Dark Creature" class="creature">
+  </div>
+
+  <div class="links">
+    <a href="lwing7.html" class="gift-link easy">🎮 Easy Mode</a>
+    <a href="lwing8.html" class="gift-link fast">⚡️ Hard Mode</a>
+  </div>
+
+  <p class="message">
+    Happy Birthday LEO!!! 🌟<br/>
+    Wishing you an epic day filled with adventure—just like Arceus’s power across the universe!<br/>
+    Choose your mode above and dive into the action. Have fun until 120! 🎉✨
+  </p>
+</body>
+</html>
