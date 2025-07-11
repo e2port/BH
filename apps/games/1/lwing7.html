@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LWing6 - Updated</title>
+  <title>LWing7</title>
   <style>
     :root {
       --bg-color: #1a1a1a;
@@ -56,7 +56,7 @@
 <body>
   <div class="game-container">
     <div class="top-bar">
-      <h2 id="game-title">LWing6 Flap Sound?</h2>
+      <h2 id="game-title">LWing7</h2>
       <div class="score-timer">
         <span id="timer">0:00</span> | <span id="score">00000</span>
       </div>
@@ -93,7 +93,7 @@
   // Background music (skip first 6s)
   const bgMusic = new Audio('assets/theme.mp3');
   bgMusic.loop = true;
-  bgMusic.currentTime = 6;
+  bgMusic.currentTime = 1;
 
   function setupControls() {
     document.addEventListener("keydown", e => {
